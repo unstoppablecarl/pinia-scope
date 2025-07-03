@@ -21,8 +21,6 @@ describe('Errors', () => {
       return {}
     })
 
-    expect(
-      () => useStore(TestStore),
-    ).toThrowError('useStore() can only be used inside setup() or functional components.')
+    expect(() => useStore(TestStore)).toThrowError('useStore() can only be used inside setup() or functional components.')
   })
 })

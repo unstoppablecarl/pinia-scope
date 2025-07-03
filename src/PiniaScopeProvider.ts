@@ -1,10 +1,10 @@
 import { defineComponent } from 'vue'
 import { setStoreScope } from './use'
 
-const StoreScopeProvider = defineComponent({
+const PiniaScopeProvider = defineComponent({
   name: 'StoreScopeProvider',
   props: {
-    scope: { type: String, required: false },
+    scope: { type: String, required: true },
   },
   setup(props, { slots }) {
     setStoreScope(props.scope as string)
@@ -12,4 +12,4 @@ const StoreScopeProvider = defineComponent({
     return () => slots.default?.() || null
   },
 })
-export default StoreScopeProvider
+export default PiniaScopeProvider

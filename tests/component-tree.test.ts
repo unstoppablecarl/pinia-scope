@@ -4,7 +4,7 @@ import { createPinia, storeToRefs } from 'pinia'
 import { getStoreWithScope, setStoreScope, useStore } from '../src'
 import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
-import StoreScopeProvider from '../src/StoreScopeProvider'
+import PiniaScopeProvider from '../src/PiniaScopeProvider'
 
 const pinia = createPinia()
 
@@ -90,7 +90,7 @@ describe('pinia-scope', () => {
     const App = {
       components: {
         Comp1,
-        StoreScopeProvider,
+        StoreScopeProvider: PiniaScopeProvider,
       },
       template: `
         <div>

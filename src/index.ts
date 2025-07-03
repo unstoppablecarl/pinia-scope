@@ -1,2 +1,2 @@
 export * from './use'
-export { default as StoreScopeProvider } from './StoreScopeProvider'
+export { default as StoreScopeProvider } from './PiniaScopeProvider'
