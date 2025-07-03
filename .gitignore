@@ -66,6 +66,7 @@ Desktop.ini
 
 # Visual Studio Code
 # NOTE: We need to make sure formatOnSave is enabled
+.idea
 .vscode/*
 !.vscode/settings.json
 
