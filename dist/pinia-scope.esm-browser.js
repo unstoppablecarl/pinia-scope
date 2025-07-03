@@ -1,5 +1,17 @@
 import { getCurrentInstance, provide, inject, defineComponent } from 'vue';
 
+let SCOPE_NAME_GENERATOR = (scope, id) => {
+    return `${scope}-${id}`;
+};
+function makeScopeId(scope) {
+    return (id) => {
+        if (scope) {
+            return SCOPE_NAME_GENERATOR(scope, id);
+        }
+        return id;
+    };
+}
+
 const injectorKey = Symbol('Pinia Scope Injector Key');
 const setStoreScope = (name) => {
     const instance = getCurrentInstance();
@@ -10,10 +22,16 @@ const setStoreScope = (name) => {
 };
 function getStoreScope() {
     const instance = getCurrentInstance();
+    if (!instance) {
+        throw new Error('getStoreScope() can only be used inside setup() or functional components.');
+    }
     const injectedScope = inject(injectorKey, '');
     return instance?.__PINIA_SCOPE__ || injectedScope;
 }
 const useStore = (storeCreator) => {
+    if (!getCurrentInstance()) {
+        throw new Error('useStore() can only be used inside setup() or functional components.');
+    }
     const scope = getStoreScope();
     return getStoreWithScope(storeCreator, scope);
 };
@@ -22,28 +40,20 @@ const getStoreWithScope = (storeCreator, scope = '') => {
     const store = storeCreator(ctx);
     return store();
 };
-function wrapUseStoreWithScope(scope) {
-    const useStoreScoped = (storeCreator) => {
-        const ctx = makeContext(scope);
-        const store = storeCreator(ctx);
-        return store();
-    };
-    return useStoreScoped;
-}
 function makeContext(scope) {
+    const useStoreScoped = (storeCreator) => {
+        return getStoreWithScope(storeCreator, scope);
+    };
     return Object.freeze({
         scopedId: makeScopeId(scope),
-        useStore: wrapUseStoreWithScope(scope),
+        useStore: useStoreScoped,
     });
 }
-function makeScopeId(scope) {
-    return (id) => scope + '-' + id;
-}
 
-const StoreScopeProvider = defineComponent({
+const PiniaScopeProvider = defineComponent({
     name: 'StoreScopeProvider',
     props: {
-        scope: { type: String, required: false },
+        scope: { type: String, required: true },
     },
     setup(props, { slots }) {
         setStoreScope(props.scope);
@@ -51,4 +61,4 @@ const StoreScopeProvider = defineComponent({
     },
 });
 
-export { StoreScopeProvider, getStoreScope, getStoreWithScope, injectorKey, setStoreScope, useStore };
+export { PiniaScopeProvider as StoreScopeProvider, getStoreScope, getStoreWithScope, injectorKey, setStoreScope, useStore };
