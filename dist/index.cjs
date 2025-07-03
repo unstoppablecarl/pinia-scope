@@ -35,7 +35,7 @@ function wrapUseStoreWithScope(scope) {
 function makeContext(scope) {
     return Object.freeze({
         scopedId: makeScopeId(scope),
-        useStore: wrapUseStoreWithScope(scope)
+        useStore: wrapUseStoreWithScope(scope),
     });
 }
 function makeScopeId(scope) {
@@ -45,12 +45,12 @@ function makeScopeId(scope) {
 const StoreScopeProvider = vue.defineComponent({
     name: 'StoreScopeProvider',
     props: {
-        scope: { type: String, required: false }
+        scope: { type: String, required: false },
     },
     setup(props, { slots }) {
         setStoreScope(props.scope);
         return () => slots.default?.() || null;
-    }
+    },
 });
 
 exports.StoreScopeProvider = StoreScopeProvider;

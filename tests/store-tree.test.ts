@@ -1,7 +1,9 @@
-import {mount} from '@vue/test-utils';
-import {describe, expect, it} from 'vitest';
-import {createPinia} from 'pinia';
-import CompChild1 from './use/CompChild1.vue';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it } from 'vitest';
+import { createPinia } from 'pinia';
+import { setStoreScope, useStore } from '../src';
+import { Child1NameStore, Child2NameStore, NameTreeStore } from './helpers/test-stores';
+import { onMounted } from 'vue';
 
 describe('useProvideStores', () => {
   it('can keep separate scoped store trees', async () => {
@@ -15,6 +17,56 @@ describe('useProvideStores', () => {
     const nameBChild1 = 'Wong';
     const nameBChild2 = 'Johnson';
 
+    const CompChild2 = {
+      setup() {
+
+        const nameStore = useStore(NameTreeStore);
+        const child1NameStore = useStore(Child1NameStore);
+        const child2NameStore = useStore(Child2NameStore);
+
+        return {
+          nameStore,
+          child1NameStore,
+          child2NameStore
+        };
+      },
+      render() {
+      }
+    };
+
+    const CompChild1 = {
+      name: 'CompChild1',
+      components: {
+        CompChild2
+      },
+      props: {
+        name: String,
+        nameChild1: String,
+        nameChild2: String,
+        storeScope: String
+      },
+      setup(props: any) {
+        setStoreScope(props.storeScope as string);
+
+        const nameStore = useStore(NameTreeStore);
+        const child1NameStore = useStore(Child1NameStore);
+        const child2NameStore = useStore(Child2NameStore);
+
+        onMounted(() => {
+          nameStore.setName(props.name, props.nameChild1, props.nameChild2);
+        });
+
+        return {
+          nameStore,
+          child1NameStore,
+          child2NameStore
+        };
+      },
+      template: `
+        <CompChild2 ref="child2" />
+      `
+    };
+
     const App = {
       components: {
         CompChild1
@@ -25,12 +77,24 @@ describe('useProvideStores', () => {
         nameAChild2: String,
         nameB: String,
         nameBChild1: String,
-        nameBChild2: String,
+        nameBChild2: String
       },
       template: `
         <div>
-          <CompChild1 store-scope="scope-a" :name="nameA" :name-child1="nameAChild1" :name-child2="nameAChild2"/>
-          <CompChild1 store-scope="scope-b" :name="nameB" :name-child1="nameBChild1" :name-child2="nameBChild2"/>
+          <CompChild1
+            ref="child1A"
+            store-scope="scope-a"
+            :name="nameA"
+            :name-child1="nameAChild1"
+            :name-child2="nameAChild2"
+          />
+          <CompChild1
+            ref="child1B"
+            store-scope="scope-b"
+            :name="nameB"
+            :name-child1="nameBChild1"
+            :name-child2="nameBChild2"
+          />
         </div>`
     };
 
@@ -42,32 +106,55 @@ describe('useProvideStores', () => {
 
         nameB,
         nameBChild1,
-        nameBChild2,
+        nameBChild2
       },
       global: {
         plugins: [pinia]
       }
     });
 
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-1-case1').text()).toContain('CompChild1: scope-a');
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-1-case2').text()).toContain(`CompChild1:[nameStore.name = ${nameA}]`);
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-1-case3').text()).toContain(`CompChild1:[child1NameStore.child1Name = from-name-store: ${nameAChild1}]`);
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-1-case4').text()).toContain(`CompChild1:[child2NameStore.child2Name = from-child1-store: from-name-store: ${nameAChild2}]`);
+    const compA = wrapper.findComponent({ ref: 'child1A' });
+    await compA.vm.$nextTick();
 
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-2 .comp-child-2-case1').text()).toContain('CompChild2: scope-a');
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-2 .comp-child-2-case2').text()).toContain(`CompChild2:[nameStore.name = ${nameA}]`);
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-2 .comp-child-2-case3').text()).toContain(`CompChild2:[child1NameStore.child1Name = from-name-store: ${nameAChild1}]`);
-    expect(wrapper.find('.comp-child-1-scope-a .comp-child-2 .comp-child-2-case4').text()).toContain(`CompChild2:[child2NameStore.child2Name = from-child1-store: from-name-store: ${nameAChild2}]`);
+    expect(compA.vm.nameStore.name).toBe(nameA);
 
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-1-case1').text()).toContain('CompChild1: scope-b');
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-1-case2').text()).toContain(`CompChild1:[nameStore.name = ${nameB}]`);
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-1-case3').text()).toContain(`CompChild1:[child1NameStore.child1Name = from-name-store: ${nameBChild1}]`);
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-1-case4').text()).toContain(`CompChild1:[child2NameStore.child2Name = from-child1-store: from-name-store: ${nameBChild2}]`);
+    expect(compA.vm.child1NameStore.child1Name)
+      .toBe('from-name-store: ' + nameAChild1);
 
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-2 .comp-child-2-case1').text()).toContain('CompChild2: scope-b');
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-2 .comp-child-2-case2').text()).toContain(`CompChild2:[nameStore.name = ${nameB}]`);
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-2 .comp-child-2-case3').text()).toContain(`CompChild2:[child1NameStore.child1Name = from-name-store: ${nameBChild1}]`);
-    expect(wrapper.find('.comp-child-1-scope-b .comp-child-2 .comp-child-2-case4').text()).toContain(`CompChild2:[child2NameStore.child2Name = from-child1-store: from-name-store: ${nameBChild2}]`);
+    expect(compA.vm.child2NameStore.child2Name)
+      .toBe('from-child1-store: from-name-store: ' + nameAChild2);
+
+    const compA2 = compA.findComponent({ ref: 'child2' });
+
+    expect(compA2.vm.nameStore.name).toBe(nameA);
+
+    expect(compA2.vm.child1NameStore.child1Name)
+      .toBe('from-name-store: ' + nameAChild1);
+
+    expect(compA2.vm.child2NameStore.child2Name)
+      .toBe('from-child1-store: from-name-store: ' + nameAChild2);
+
+
+    const compB = wrapper.findComponent({ ref: 'child1B' });
+    await compB.vm.$nextTick();
+
+    expect(compB.vm.nameStore.name).toBe(nameB);
+
+    expect(compB.vm.child1NameStore.child1Name)
+      .toBe('from-name-store: ' + nameBChild1);
+
+    expect(compB.vm.child2NameStore.child2Name)
+      .toBe('from-child1-store: from-name-store: ' + nameBChild2);
+
+    const compB2 = compB.findComponent({ ref: 'child2' });
+
+    expect(compB2.vm.nameStore.name).toBe(nameB);
+
+    expect(compB2.vm.child1NameStore.child1Name)
+      .toBe('from-name-store: ' + nameBChild1);
+
+    expect(compB2.vm.child2NameStore.child2Name)
+      .toBe('from-child1-store: from-name-store: ' + nameBChild2);
 
   });
 });

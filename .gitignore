@@ -77,7 +77,6 @@ tags
 [._]*.un~
 
 # Emacs
-*~
 \#*\#
 /.emacs.desktop
 /.emacs.desktop.lock

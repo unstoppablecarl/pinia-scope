@@ -35,10 +35,8 @@
     "node": ">=22.16"
   },
   "scripts": {
-    "lint": "prettier . --check",
     "build": "rollup -c",
-    "test": "vitest --coverage",
-    "format": "prettier . --write"
+    "test": "vitest --coverage"
   },
   "peerDependencies": {
     "pinia": ">=2.2.2",
@@ -62,7 +60,6 @@
     "happy-dom": "^18.0.1",
     "pascalcase": "^2.0.0",
     "pinia": "^3.0.3",
-    "prettier": "^3.6.2",
     "rollup": "^4.20.0",
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.1.1",
