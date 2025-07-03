@@ -7,17 +7,17 @@ export default defineConfig({
     __DEV__: true,
     __TEST__: true,
     __BROWSER__: true,
-    __USE_DEVTOOLS__: false,
+    __USE_DEVTOOLS__: false
   },
   plugins: [vue()],
   test: {
     include: ['src/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.ts'],
     setupFiles: [
-      fileURLToPath(new URL('./tests/vitest-setup.ts', import.meta.url)),
+      fileURLToPath(new URL('./tests/vitest-setup.ts', import.meta.url))
     ],
     environment: 'happy-dom',
     typecheck: {
-      enabled: true,
+      enabled: true
     },
     coverage: {
       enabled: true,
@@ -25,7 +25,7 @@ export default defineConfig({
       reporter: ['text', 'lcovonly', 'html'],
       all: true,
       include: ['src/**/*', 'tests/**/*.vue'],
-      exclude: ['tests/**/*.ts'],
-    },
-  },
+      exclude: ['tests/**/*.ts']
+    }
+  }
 })

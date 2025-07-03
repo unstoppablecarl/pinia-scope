@@ -17,7 +17,7 @@
 ###################################
 # general ignore patterns
 ###################################
-converage/
+converage
 *.log
 node_modules/
 obj/
