@@ -1,6 +1,9 @@
 import { ScopedContext, useStore } from '../../src'
+import type { Store, StoreDefinition } from 'pinia'
 import { defineStore } from 'pinia'
+import type { UnwrapRef } from 'vue'
 import { ref } from 'vue'
+import type { Mock } from 'vitest'
 
 export const NameStore_DEFAULT_NAME = 'default-name'
 
@@ -75,4 +78,29 @@ export const Child2NameStore = (ctx: ScopedContext) => {
       child2Name,
     }
   })
+}
+
+function mockedStore<TStoreDef extends () => unknown>(
+  useStore: TStoreDef,
+): TStoreDef extends StoreDefinition<
+    infer Id,
+    infer State,
+    infer Getters,
+    infer Actions
+  >
+  ? Store<
+  Id,
+  State,
+  Record<string, never>,
+  {
+    [K in keyof Actions]: Actions[K] extends (...args: any[]) => any
+    ? // 👇 depends on your testing framework
+    Mock<Actions[K]>
+    : Actions[K]
+  }
+> & {
+  [K in keyof Getters]: UnwrapRef<Getters[K]>
+}
+  : ReturnType<TStoreDef> {
+  return useStore() as any
 }

@@ -1,5 +1,6 @@
 import { getCurrentInstance, inject, type InjectionKey, provide } from 'vue'
 import { type StoreDefinition } from 'pinia'
+import { makeScopeId } from './scope-name-generator'
 
 export const injectorKey: InjectionKey<string> = Symbol(
   'Pinia Scope Injector Key',
@@ -31,11 +32,18 @@ export const setStoreScope = (name: string): void => {
 
 export function getStoreScope(): string {
   const instance = getCurrentInstance() as any
+  if (!instance) {
+    throw new Error('getStoreScope() can only be used inside setup() or functional components.')
+  }
+
   const injectedScope = inject(injectorKey, '')
   return instance?.__PINIA_SCOPE__ || injectedScope
 }
 
 export const useStore: UseStore = (storeCreator) => {
+  if (!getCurrentInstance()) {
+    throw new Error('useStore() can only be used inside setup() or functional components.')
+  }
   const scope = getStoreScope()
 
   return getStoreWithScope(storeCreator, scope)
@@ -50,25 +58,17 @@ export const getStoreWithScope: GetStoreWithScope = (
   return store()
 }
 
-function wrapUseStoreWithScope(scope: string) {
+
+function makeContext(scope: string): ScopedContext {
+
   const useStoreScoped: UseStore = (
     storeCreator: StoreCreator,
   ): Store<StoreCreator> => {
-    const ctx = makeContext(scope)
-    const store = storeCreator(ctx)
-    return store()
+    return getStoreWithScope(storeCreator, scope)
   }
 
-  return useStoreScoped
-}
-
-function makeContext(scope: string): ScopedContext {
   return Object.freeze({
     scopedId: makeScopeId(scope),
-    useStore: wrapUseStoreWithScope(scope),
+    useStore: useStoreScoped,
   })
-}
-
-function makeScopeId(scope: string) {
-  return (id: string) => scope + '-' + id
 }
