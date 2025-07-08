@@ -1,9 +1,0 @@
-export * from './Scope';
-export { default as StoreScopeProvider } from './components/PiniaScopeProvider';
-export { default as getStoreScope } from './functions/getStoreScope';
-export { default as getStoreWithScope } from './functions/getStoreWithScope';
-export { default as setStoreScope } from './functions/setStoreScope';
-export { default as useStore } from './functions/useStore';
-export { default as useStoreWithoutScope } from './functions/useStoreWithoutScope';
-export { setPiniaScopeNameGenerator } from './scope-name-generator';
-//# sourceMappingURL=index.d.ts.map

@@ -1,1 +1,0 @@
-{"version":3,"file":"useStoreWithoutScope.d.ts","sourceRoot":"","sources":["../../src/functions/useStoreWithoutScope.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,YAAY,EAAE,MAAM,UAAU,CAAA;AAIrD,MAAM,MAAM,oBAAoB,GAAG,CAAC,CAAC,SAAS,YAAY,EACxD,YAAY,EAAE,CAAC,KACZ,YAAY,CAAC,CAAC,CAAC,CAAA;AAEpB,QAAA,MAAM,oBAAoB,EAAE,oBAK3B,CAAA;AAED,eAAe,oBAAoB,CAAA"}
