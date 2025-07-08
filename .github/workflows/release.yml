@@ -39,7 +39,7 @@ jobs:
       - name: Build and publish
         id: publish
         run: |
-          pnpm release --publishOnly
+          pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
