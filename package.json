@@ -1,7 +1,7 @@
 {
   "name": "pinia-scope",
   "type": "module",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "packageManager": "pnpm@10.9.0",
   "description": "Scoped Pinia Stores for Vue",
   "author": {
@@ -24,10 +24,8 @@
     }
   },
   "files": [
-    "dist/*.js",
-    "dist/*.mjs",
-    "dist/*.cjs",
-    "types",
+    "dist/*",
+    "types/*",
     "LICENSE",
     "README.md"
   ],
