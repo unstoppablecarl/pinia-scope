@@ -1,14 +1,14 @@
-import { ScopedContext, useStore } from '../../src'
 import type { Store, StoreDefinition } from 'pinia'
 import { defineStore } from 'pinia'
-import type { UnwrapRef } from 'vue'
-import { ref } from 'vue'
+import { computed, ref, UnwrapRef } from 'vue'
 import type { Mock } from 'vitest'
+import { ScopedContext } from '../../src/functions/makeContext'
 
 export const NameStore_DEFAULT_NAME = 'default-name'
+export const NameStore_ID = 'name-store'
 
-export const NameStore = ({ scopedId, useStore }: ScopedContext) => {
-  return defineStore(scopedId('name-store'), () => {
+export const NameStore = ({ scopedId }: ScopedContext) => {
+  return defineStore(scopedId(NameStore_ID), () => {
     const name = ref<string>(NameStore_DEFAULT_NAME)
 
     function setName(nameValue: string) {
@@ -23,7 +23,7 @@ export const NameStore = ({ scopedId, useStore }: ScopedContext) => {
 }
 
 export const NameTreeStore = ({ scopedId, useStore }: ScopedContext) => {
-  return defineStore(scopedId('name-store'), () => {
+  return defineStore(scopedId(NameStore_ID), () => {
     const name = ref<string>('')
 
     const child1NameStore = useStore(Child1NameStore)
@@ -47,11 +47,14 @@ export const NameTreeStore = ({ scopedId, useStore }: ScopedContext) => {
   })
 }
 
-export const Child1NameStore = (ctx: ScopedContext) => {
-  return defineStore(ctx.scopedId('child-1-name-store'), () => {
+export const Child1NameStore = ({ scopedId, useStore, useStoreWithoutScope }: ScopedContext) => {
+  return defineStore(scopedId('child-1-name-store'), () => {
     const child1Name = ref<string>('')
 
     const child2NameStore = useStore(Child2NameStore)
+    const child2NameStoreWithoutScope = useStoreWithoutScope(Child2NameStore)
+
+    const child2NameWithoutScope = computed(() => child2NameStoreWithoutScope.child2Name)
 
     function setChild1Name(nameValue: string, child2Name: string) {
       child1Name.value = nameValue
@@ -61,12 +64,13 @@ export const Child1NameStore = (ctx: ScopedContext) => {
     return {
       child1Name: child1Name,
       setChild1Name,
+      child2NameWithoutScope,
     }
   })
 }
 
-export const Child2NameStore = (ctx: ScopedContext) => {
-  return defineStore(ctx.scopedId('child-2-name-store'), () => {
+export const Child2NameStore = ({ scopedId }: ScopedContext) => {
+  return defineStore(scopedId('child-2-name-store'), () => {
     const child2Name = ref<string>('')
 
     function setChild2Name(nameValue: string) {

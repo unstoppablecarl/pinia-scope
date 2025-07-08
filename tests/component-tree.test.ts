@@ -1,53 +1,55 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createPinia, storeToRefs } from 'pinia'
-import { getStoreWithScope, setStoreScope, useStore } from '../src'
+import { createPinia, getActivePinia, storeToRefs } from 'pinia'
+import { getStoreWithScope, SCOPES, setStoreScope, useStore, Scope } from '../src'
 import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
-import PiniaScopeProvider from '../src/PiniaScopeProvider'
+import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
 
 const pinia = createPinia()
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('pinia-scope', () => {
-  it('setStoreScope can keep separate scoped trees', async () => {
-    const Comp1 = {
-      name: 'Comp1',
-      components: {
-        Comp2,
-      },
-      props: {
-        storeScope: String,
-      },
-      setup(props: { storeScope: string }) {
-        setStoreScope(props.storeScope)
-        const nameStore = useStore(NameStore)
-        const { name } = storeToRefs(nameStore)
-        return {
-          nameStore,
-          name,
-        }
-      },
-      template: `
-        Comp1:[{{name}}]
-        <Comp2 ref="comp2" />
-      `,
-    }
+describe('setStoreScope() used in component', () => {
+  const Comp1 = {
+    name: 'Comp1',
+    components: {
+      Comp2,
+    },
+    props: {
+      storeScope: String,
+    },
+    setup(props: { storeScope: string }) {
+      setStoreScope(props.storeScope)
+      const nameStore = useStore(NameStore)
+      const { name } = storeToRefs(nameStore)
+      return {
+        nameStore,
+        name,
+      }
+    },
+    template: `
+      Comp1:[{{name}}]
+      <Comp2 ref="comp2" />
+    `,
+  }
 
-    const App = {
-      components: {
-        Comp1,
-      },
-      setup() {},
-      template: `
-        <div>
-          <Comp1 store-scope="${SCOPE_A}" ref="comp1-a" />
-          <Comp1 store-scope="${SCOPE_B}" ref="comp1-b" />
-        </div>`,
-    }
+  const App = {
+    components: {
+      Comp1,
+    },
+    setup() {
+    },
+    template: `
+      <div>
+        <Comp1 store-scope="${SCOPE_A}" ref="comp1-a" />
+        <Comp1 store-scope="${SCOPE_B}" ref="comp1-b" />
+      </div>`,
+  }
 
+
+  it('can keep separate scoped trees', async () => {
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],
@@ -65,44 +67,93 @@ describe('pinia-scope', () => {
     )
 
     await testTree(wrapper)
+
+    const scopeA = SCOPES.get(SCOPE_A) as Scope
+    expect(scopeA.id).toEqual(SCOPE_A)
+    expect(scopeA.autoDispose).toEqual(true)
+    expect(scopeA.useCount).toEqual(4)
+    expect(scopeA.isUsed()).toEqual(true)
+
+    const scopeB = SCOPES.get(SCOPE_B) as Scope
+    expect(scopeB.id).toEqual(SCOPE_B)
+    expect(scopeB.autoDispose).toEqual(true)
+    expect(scopeB.useCount).toEqual(4)
+    expect(scopeB.isUsed()).toEqual(true)
   })
 
-  it('StoreScopeProvider component can keep separate scoped trees', async () => {
-    const Comp1 = {
-      name: 'Comp1',
-      components: {
-        Comp2,
+  it('can maintain usage count', async () => {
+    const wrapper = mount(App, {
+      global: {
+        plugins: [pinia],
       },
-      setup() {
-        const nameStore = useStore(NameStore)
-        const { name } = storeToRefs(nameStore)
-        return {
-          nameStore,
-          name,
-        }
-      },
-      template: `
-        Comp1:[{{name}}]
-        <Comp2 ref="comp2" />
-      `,
-    }
+    })
 
-    const App = {
-      components: {
-        Comp1,
-        StoreScopeProvider: PiniaScopeProvider,
+    const wrapper2 = mount(App, {
+      global: {
+        plugins: [pinia],
       },
-      template: `
-        <div>
-          <StoreScopeProvider scope="${SCOPE_A}" />
-          <StoreScopeProvider scope="${SCOPE_A}">
-            <Comp1 ref="comp1-a" />
-          </StoreScopeProvider>
-          <StoreScopeProvider scope="${SCOPE_B}">
-            <Comp1 ref="comp1-b" />
-          </StoreScopeProvider>
-        </div>`,
-    }
+    })
+    const scopeA = SCOPES.get(SCOPE_A) as Scope
+    const scopeB = SCOPES.get(SCOPE_B) as Scope
+
+    expect(scopeA.useCount).toEqual(8)
+    expect(scopeB.useCount).toEqual(8)
+
+    wrapper2.unmount()
+
+    expect(scopeA.useCount).toEqual(4)
+    expect(scopeB.useCount).toEqual(4)
+
+    wrapper.unmount()
+
+    expect(SCOPES.get(SCOPE_A)).toEqual(undefined)
+    expect(SCOPES.get(SCOPE_B)).toEqual(undefined)
+
+    const activePinia = getActivePinia()
+
+    const stores = (activePinia as any)._s
+    expect([...stores.keys()]).toEqual(['name-store'])
+  })
+})
+
+describe('StoreScopeProvider component', () => {
+  const Comp1 = {
+    name: 'Comp1',
+    components: {
+      Comp2,
+    },
+    setup() {
+      const nameStore = useStore(NameStore)
+      const { name } = storeToRefs(nameStore)
+      return {
+        nameStore,
+        name,
+      }
+    },
+    template: `
+      Comp1:[{{name}}]
+      <Comp2 ref="comp2" />
+    `,
+  }
+
+  const App = {
+    components: {
+      Comp1,
+      PiniaScopeProvider,
+    },
+    template: `
+      <div>
+        <PiniaScopeProvider scope="${SCOPE_A}" />
+        <PiniaScopeProvider scope="${SCOPE_A}">
+          <Comp1 ref="comp1-a" />
+        </PiniaScopeProvider>
+        <PiniaScopeProvider scope="${SCOPE_B}">
+          <Comp1 ref="comp1-b" />
+        </PiniaScopeProvider>
+      </div>`,
+  }
+
+  it('StoreScopeProvider component can keep separate scoped trees', async () => {
 
     const wrapper = mount(App, {
       global: {
@@ -111,45 +162,100 @@ describe('pinia-scope', () => {
     })
 
     await testTree(wrapper)
+
+    const scopeA = SCOPES.get(SCOPE_A) as Scope
+    expect(scopeA.id).toEqual(SCOPE_A)
+    expect(scopeA.autoDispose).toEqual(true)
+    expect(scopeA.useCount).toEqual(5)
+    expect(scopeA.isUsed()).toEqual(true)
+
+    const scopeB = SCOPES.get(SCOPE_B) as Scope
+    expect(scopeB.id).toEqual(SCOPE_B)
+    expect(scopeB.autoDispose).toEqual(true)
+    expect(scopeB.useCount).toEqual(4)
+    expect(scopeB.isUsed()).toEqual(true)
+  })
+
+  it('can maintain usage count', async () => {
+    const wrapper = mount(App, {
+      global: {
+        plugins: [pinia],
+      },
+    })
+
+    await wrapper.unmount()
+
+    expect(SCOPES.get(SCOPE_A)).toEqual(undefined)
+    expect(SCOPES.get(SCOPE_B)).toEqual(undefined)
+
+    const activePinia = getActivePinia()
+
+    const stores = (activePinia as any)._s
+    expect([...stores.keys()]).toEqual(['name-store'])
+
   })
 })
 
 async function testTree(wrapper: VueWrapper) {
   const newName = 'bobby'
+  const newName2 = 'jimmy'
   const storeA = getStoreWithScope(NameStore, SCOPE_A)
   storeA.setName(newName)
+
+  const storeAWithoutScope = getStoreWithScope(NameStore, '')
+  storeAWithoutScope.setName(newName2)
 
   await wrapper.vm.$nextTick()
 
   const caseAComp1 = wrapper.findComponent({ ref: 'comp1-a' })
 
   expect(caseAComp1.exists()).toBe(true)
-  expect(caseAComp1.html()).toContain(`Comp1:[${newName}]`)
-  expect(caseAComp1.html()).toContain(`Comp2:[${newName}]`)
-  expect(caseAComp1.html()).toContain(`Comp3:[${newName}]`)
+  expect(caseAComp1.text()).toEqual([
+    `Comp1:[${newName}]`,
+    `Comp2:[${newName}][${newName2}]`,
+    `Comp3:[${newName}][${newName2}]`,
+  ].join(''))
 
   const caseAComp2 = caseAComp1.findComponent({ ref: 'comp2' })
   expect(caseAComp2.exists()).toBe(true)
-  expect(caseAComp2.html()).toContain(`Comp2:[${newName}]`)
-  expect(caseAComp2.html()).toContain(`Comp3:[${newName}]`)
+  expect(caseAComp2.text()).toEqual([
+    `Comp2:[${newName}][${newName2}]`,
+    `Comp3:[${newName}][${newName2}]`,
+  ].join(''))
+
 
   const caseAComp3 = caseAComp2.findComponent({ ref: 'comp3' })
   expect(caseAComp3.exists()).toBe(true)
-  expect(caseAComp3.html()).toContain(`Comp3:[${newName}]`)
+  expect(caseAComp3.text()).toEqual(`Comp3:[${newName}][${newName2}]`)
 
   const caseBComp1 = wrapper.findComponent({ ref: 'comp1-b' })
 
   expect(caseBComp1.exists()).toBe(true)
-  expect(caseBComp1.html()).toContain(`Comp1:[${NameStore_DEFAULT_NAME}]`)
-  expect(caseBComp1.html()).toContain(`Comp2:[${NameStore_DEFAULT_NAME}]`)
-  expect(caseBComp1.html()).toContain(`Comp3:[${NameStore_DEFAULT_NAME}]`)
+  expect(caseBComp1.text()).toEqual([
+    `Comp1:[${NameStore_DEFAULT_NAME}]`,
+    `Comp2:[${NameStore_DEFAULT_NAME}][${newName2}]`,
+    `Comp3:[${NameStore_DEFAULT_NAME}][${newName2}]`,
+  ].join(''))
 
   const caseBComp2 = caseBComp1.findComponent({ ref: 'comp2' })
   expect(caseBComp2.exists()).toBe(true)
-  expect(caseBComp2.html()).toContain(`Comp2:[${NameStore_DEFAULT_NAME}]`)
-  expect(caseBComp2.html()).toContain(`Comp3:[${NameStore_DEFAULT_NAME}]`)
+  expect(caseBComp2.text()).toEqual([
+    `Comp2:[${NameStore_DEFAULT_NAME}][${newName2}]`,
+    `Comp3:[${NameStore_DEFAULT_NAME}][${newName2}]`,
+  ].join(''))
 
   const caseBComp3 = caseBComp2.findComponent({ ref: 'comp3' })
   expect(caseBComp3.exists()).toBe(true)
-  expect(caseBComp3.html()).toContain(`Comp3:[${NameStore_DEFAULT_NAME}]`)
+  expect(caseBComp3.text()).toEqual(`Comp3:[${NameStore_DEFAULT_NAME}][${newName2}]`)
+
+  expect(SCOPES.keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
+
+  return {
+    caseAComp1,
+    caseAComp2,
+    caseAComp3,
+    caseBComp1,
+    caseBComp2,
+    caseBComp3,
+  }
 }

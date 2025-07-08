@@ -18,7 +18,10 @@ export default defineConfig({
     environment: 'happy-dom',
     typecheck: {
       enabled: true,
+      tsconfig: 'tsconfig.json',
+      include: ['src/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.ts'],
     },
+    mockReset: true,
     coverage: {
       enabled: true,
       provider: 'v8',

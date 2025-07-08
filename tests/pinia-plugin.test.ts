@@ -1,12 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia } from 'pinia'
-import { getStoreScope, SCOPES, setStoreScope, useStore, useStoreWithoutScope } from '../src'
+import { setStoreScope, useStore, getStoreScope } from '../src'
 import { Child1NameStore, Child2NameStore, NameTreeStore } from './helpers/test-stores'
 import { onMounted } from 'vue'
-
-const SCOPE_A = 'scope-a'
-const SCOPE_B = 'scope-b'
+import { PiniaScopePlugin } from '../src/pinia-plugin'
 
 describe('useProvideStores', () => {
   it('can keep separate scoped store trees', async () => {
@@ -28,18 +26,11 @@ describe('useProvideStores', () => {
         const child2NameStore = useStore(Child2NameStore)
         const scope = getStoreScope()
 
-        const nameStoreUnscoped = useStoreWithoutScope(NameTreeStore)
-        const child1NameStoreUnscoped = useStoreWithoutScope(Child1NameStore)
-        const child2NameStoreUnscoped = useStoreWithoutScope(Child2NameStore)
-
         return {
           scope,
           nameStore,
           child1NameStore,
           child2NameStore,
-          nameStoreUnscoped,
-          child1NameStoreUnscoped,
-          child2NameStoreUnscoped
         }
       },
       render() {
@@ -65,17 +56,8 @@ describe('useProvideStores', () => {
         const child1NameStore = useStore(Child1NameStore)
         const child2NameStore = useStore(Child2NameStore)
 
-        const nameStoreUnscoped = useStoreWithoutScope(NameTreeStore)
-        const child1NameStoreUnscoped = useStoreWithoutScope(Child1NameStore)
-        const child2NameStoreUnscoped = useStoreWithoutScope(Child2NameStore)
-
         onMounted(() => {
           nameStore.setName(props.name, props.nameChild1, props.nameChild2)
-          nameStoreUnscoped.setName(
-            props.name + '-unscoped',
-            props.nameChild1 + '-unscoped',
-            props.nameChild2 + '-unscoped',
-          )
         })
 
         return {
@@ -83,14 +65,11 @@ describe('useProvideStores', () => {
           nameStore,
           child1NameStore,
           child2NameStore,
-          nameStoreUnscoped,
-          child1NameStoreUnscoped,
-          child2NameStoreUnscoped,
         }
       },
       template: `
-        <CompChild2 ref="child2" />
-      `,
+				<CompChild2 ref="child2" />
+			`,
     }
 
     const App = {
@@ -106,23 +85,25 @@ describe('useProvideStores', () => {
         nameBChild2: String,
       },
       template: `
-        <div>
-          <CompChild1
-            ref="child1A"
-            store-scope="${SCOPE_A}"
-            :name="nameA"
-            :name-child1="nameAChild1"
-            :name-child2="nameAChild2"
-          />
-          <CompChild1
-            ref="child1B"
-            store-scope="${SCOPE_B}"
-            :name="nameB"
-            :name-child1="nameBChild1"
-            :name-child2="nameBChild2"
-          />
-        </div>`,
+				<div>
+					<CompChild1
+						ref="child1A"
+						store-scope="scope-a"
+						:name="nameA"
+						:name-child1="nameAChild1"
+						:name-child2="nameAChild2"
+					/>
+					<CompChild1
+						ref="child1B"
+						store-scope="scope-b"
+						:name="nameB"
+						:name-child1="nameBChild1"
+						:name-child2="nameBChild2"
+					/>
+				</div>`,
     }
+
+    pinia.use(PiniaScopePlugin)
 
     const wrapper = mount(App, {
       props: {
@@ -142,78 +123,49 @@ describe('useProvideStores', () => {
     const compA = wrapper.findComponent({ ref: 'child1A' })
     await compA.vm.$nextTick()
 
-    expect(compA.vm.scope).toBe(SCOPE_A)
     expect(compA.vm.nameStore.name).toBe(nameA)
-    expect(compA.vm.nameStoreUnscoped.name).toBe(nameB + '-unscoped')
+    expect(compA.vm.scope).toBe('scope-a')
 
     expect(compA.vm.child1NameStore.child1Name)
       .toBe('from-name-store: ' + nameAChild1)
 
-    expect(compA.vm.child1NameStoreUnscoped.child1Name)
-      .toBe('from-name-store: ' + nameBChild1 + '-unscoped')
-
     expect(compA.vm.child2NameStore.child2Name)
       .toBe('from-child1-store: from-name-store: ' + nameAChild2)
 
-    expect(compA.vm.child2NameStoreUnscoped.child2Name)
-      .toBe('from-child1-store: from-name-store: ' + nameBChild2 + '-unscoped')
-
     const compA2 = compA.findComponent({ ref: 'child2' })
-    expect(compA2.vm.scope).toBe(SCOPE_A)
+    expect(compA2.vm.scope).toBe('scope-a')
 
     expect(compA2.vm.nameStore.name).toBe(nameA)
-    expect(compA.vm.nameStoreUnscoped.name).toBe(nameB + '-unscoped')
 
     expect(compA2.vm.child1NameStore.child1Name)
       .toBe('from-name-store: ' + nameAChild1)
 
-    expect(compA2.vm.child1NameStoreUnscoped.child1Name)
-      .toBe('from-name-store: ' + nameBChild1 + '-unscoped')
-
     expect(compA2.vm.child2NameStore.child2Name)
       .toBe('from-child1-store: from-name-store: ' + nameAChild2)
 
-    expect(compA2.vm.child2NameStoreUnscoped.child2Name)
-      .toBe('from-child1-store: from-name-store: ' + nameBChild2 + '-unscoped')
 
     const compB = wrapper.findComponent({ ref: 'child1B' })
     await compB.vm.$nextTick()
-    expect(compB.vm.scope).toBe(SCOPE_B)
+    expect(compB.vm.scope).toBe('scope-b')
 
     expect(compB.vm.nameStore.name).toBe(nameB)
-    expect(compB.vm.nameStoreUnscoped.name).toBe(nameB + '-unscoped')
 
     expect(compB.vm.child1NameStore.child1Name)
       .toBe('from-name-store: ' + nameBChild1)
 
-    expect(compB.vm.child1NameStoreUnscoped.child1Name)
-      .toBe('from-name-store: ' + nameBChild1 + '-unscoped')
-
     expect(compB.vm.child2NameStore.child2Name)
       .toBe('from-child1-store: from-name-store: ' + nameBChild2)
 
-    expect(compB.vm.child2NameStoreUnscoped.child2Name)
-      .toBe('from-child1-store: from-name-store: ' + nameBChild2 + '-unscoped')
-
     const compB2 = compB.findComponent({ ref: 'child2' })
-    expect(compB2.vm.scope).toBe(SCOPE_B)
+    expect(compB2.vm.scope).toBe('scope-b')
 
     expect(compB2.vm.nameStore.name).toBe(nameB)
-    expect(compB2.vm.nameStoreUnscoped.name).toBe(nameB + '-unscoped')
 
     expect(compB2.vm.child1NameStore.child1Name)
       .toBe('from-name-store: ' + nameBChild1)
 
-    expect(compB2.vm.child1NameStoreUnscoped.child1Name)
-      .toBe('from-name-store: ' + nameBChild1 + '-unscoped')
-
     expect(compB2.vm.child2NameStore.child2Name)
       .toBe('from-child1-store: from-name-store: ' + nameBChild2)
-
-    expect(compB2.vm.child2NameStoreUnscoped.child2Name)
-      .toBe('from-child1-store: from-name-store: ' + nameBChild2 + '-unscoped')
-
-    expect(SCOPES.keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
 
   })
 })
