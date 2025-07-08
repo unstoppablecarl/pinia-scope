@@ -38,7 +38,10 @@ jobs:
       - name: Install deps
         run: pnpm install
 
-      - name: Build and publish
+      - name: Build
+        run: pnpm build
+
+      - name: Publish
         id: publish
         run: |
           pnpm publish --access public
