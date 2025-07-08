@@ -6,8 +6,6 @@ import useStoreWithoutScope from '../../src/functions/useStoreWithoutScope'
 import * as getStoreWithScope from '../../src/functions/getStoreWithScope'
 import setStoreScope from '../../src/functions/setStoreScope'
 
-const spy = vi.spyOn(getStoreWithScope, 'default')
-
 const SCOPE_A = 'scope-a'
 
 describe('useStoreWithoutScope()', async () => {
@@ -33,6 +31,8 @@ describe('useStoreWithoutScope()', async () => {
       `,
     }
 
+    const getStoreWithScopeSpy = vi.spyOn(getStoreWithScope, 'default')
+
     const pinia = createPinia()
 
     const wrapper = mount(App, {
@@ -43,6 +43,6 @@ describe('useStoreWithoutScope()', async () => {
 
     await wrapper.vm.$nextTick()
 
-    expect(spy).toHaveBeenCalledWith(NameStore, '')
+    expect(getStoreWithScopeSpy).toHaveBeenCalledWith(NameStore, '')
   })
 })

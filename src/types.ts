@@ -1,7 +1,5 @@
 import { type InjectionKey } from 'vue'
 import { type StoreDefinition } from 'pinia'
-
-
 import { ScopedContext } from './functions/makeContext'
 
 export const injectorKey: InjectionKey<string> = Symbol(
@@ -17,6 +15,6 @@ export type StoreCreator = (
   ctx: ScopedContext,
 ) => StoreDefinition<string, any, any, any>
 
-export type GenericStore = <S extends StoreCreator>(storeCreator: S) => CreatedStore<S>
+export type StoreFactory = <S extends StoreCreator>(storeCreator: S) => CreatedStore<S>
 
 
