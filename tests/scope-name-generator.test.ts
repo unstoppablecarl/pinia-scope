@@ -9,6 +9,7 @@ describe('scope name generator', () => {
     const pinia = createPinia()
     setActivePinia(pinia)
   })
+
   it('generates default scope names', async () => {
     const scopeName = 'scope-name'
     const store = getStoreWithScope(NameStore, scopeName)
