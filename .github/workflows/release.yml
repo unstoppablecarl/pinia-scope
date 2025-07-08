@@ -7,13 +7,13 @@ on:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
-#  test:
-#    uses: ./.github/workflows/test.yml
+  test:
+    uses: ./.github/workflows/test.yml
 
   release:
     # prevents this action from running on forks
     if: github.repository == 'unstoppablecarl/pinia-scope'
-#    needs: [test]
+    needs: [test]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -44,14 +44,3 @@ jobs:
           pnpm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-#
-#      - name: Create GitHub release
-#        id: release_tag
-#        uses: yyx990803/release-tag@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: ${{ github.ref }}
-#          body: |
-#            For stable releases, please refer to [CHANGELOG.md](https://github.com/vuejs/core/blob/main/CHANGELOG.md) for details.
-#            For pre-releases, please refer to [CHANGELOG.md](https://github.com/vuejs/core/blob/minor/CHANGELOG.md) of the `minor` branch.
