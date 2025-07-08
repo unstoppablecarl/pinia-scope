@@ -1,9 +1,10 @@
 import { getCurrentInstance } from 'vue'
 import getStoreScope from './getStoreScope'
-import { StoreCreator, GenericStore } from '../types'
-import  getStoreWithScope  from './getStoreWithScope'
+import { StoreCreator } from '../types'
+import getStoreWithScope from './getStoreWithScope'
+import { StoreGeneric } from 'pinia'
 
-export default function useStore(storeCreator: StoreCreator): GenericStore {
+export default function useStore(storeCreator: StoreCreator): StoreGeneric {
   if (!getCurrentInstance()) {
     throw new Error('useStore() can only be used inside setup() or functional components.')
   }
