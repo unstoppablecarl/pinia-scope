@@ -1,153 +1,157 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { SCOPES } from '../../src/Scope'
-import { createPinia, setActivePinia } from 'pinia'
-import { makeStore } from '../helpers/test-stores'
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getPiniaScopes, SCOPES } from '../../src/Scope';
+import { createPinia, setActivePinia } from 'pinia';
+import { makeStore } from '../helpers/test-stores';
 
-const SCOPE_A = 'scope-a'
-const SCOPE_B = 'scope-b'
-const SCOPE_C = 'scope-c'
+const SCOPE_A = 'scope-a';
+const SCOPE_B = 'scope-b';
+const SCOPE_C = 'scope-c';
 
 describe('SCOPES', async () => {
-  const pinia = createPinia()
+	const pinia = createPinia();
 
-  beforeEach(() => {
-    setActivePinia(pinia)
-  })
+	beforeEach(() => {
+		setActivePinia(pinia);
+	});
 
-  it('tracks multiple scopes', async () => {
-    const storeA1 = makeStore('store-A1')
-    const storeA2 = makeStore('store-A2')
-    const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose')
-    const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose')
+	it('is accessible via function in built package', async () => {
+		expect(getPiniaScopes()).toBe(SCOPES);
+	});
 
-    const storeB1 = makeStore('store-B1')
-    const storeB2 = makeStore('store-B2')
-    const storeB1DisposeSpy = vi.spyOn(storeB1, '$dispose')
-    const storeB2DisposeSpy = vi.spyOn(storeB2, '$dispose')
+	it('tracks multiple scopes', async () => {
+		const storeA1 = makeStore('store-A1');
+		const storeA2 = makeStore('store-A2');
+		const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose');
+		const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose');
 
-    expect(SCOPES.useCount(SCOPE_A)).toBe(0)
-    expect(SCOPES.useCount(SCOPE_B)).toBe(0)
+		const storeB1 = makeStore('store-B1');
+		const storeB2 = makeStore('store-B2');
+		const storeB1DisposeSpy = vi.spyOn(storeB1, '$dispose');
+		const storeB2DisposeSpy = vi.spyOn(storeB2, '$dispose');
 
-    SCOPES.addStore(SCOPE_A, storeA1)
-    SCOPES.addStore(SCOPE_A, storeA2)
+		expect(SCOPES.useCount(SCOPE_A)).toBe(0);
+		expect(SCOPES.useCount(SCOPE_B)).toBe(0);
 
-    SCOPES.addStore(SCOPE_B, storeB1)
-    SCOPES.addStore(SCOPE_B, storeB2)
+		SCOPES.addStore(SCOPE_A, storeA1);
+		SCOPES.addStore(SCOPE_A, storeA2);
 
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.mounted(SCOPE_A)
+		SCOPES.addStore(SCOPE_B, storeB1);
+		SCOPES.addStore(SCOPE_B, storeB2);
 
-    SCOPES.mounted(SCOPE_B)
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.mounted(SCOPE_A);
 
-    expect(storeA1DisposeSpy).toHaveBeenCalledTimes(0)
-    expect(storeA2DisposeSpy).toHaveBeenCalledTimes(0)
+		SCOPES.mounted(SCOPE_B);
 
-    expect(storeB1DisposeSpy).toHaveBeenCalledTimes(0)
-    expect(storeB2DisposeSpy).toHaveBeenCalledTimes(0)
+		expect(storeA1DisposeSpy).toHaveBeenCalledTimes(0);
+		expect(storeA2DisposeSpy).toHaveBeenCalledTimes(0);
 
-    SCOPES.unmounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
+		expect(storeB1DisposeSpy).toHaveBeenCalledTimes(0);
+		expect(storeB2DisposeSpy).toHaveBeenCalledTimes(0);
 
-    expect(storeA1DisposeSpy).toHaveBeenCalledOnce()
-    expect(storeA2DisposeSpy).toHaveBeenCalledOnce()
+		SCOPES.unmounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
 
-    expect(storeB1DisposeSpy).toHaveBeenCalledTimes(0)
-    expect(storeB2DisposeSpy).toHaveBeenCalledTimes(0)
+		expect(storeA1DisposeSpy).toHaveBeenCalledOnce();
+		expect(storeA2DisposeSpy).toHaveBeenCalledOnce();
 
-    expect(SCOPES.has(SCOPE_A)).toBe(false)
-    expect(SCOPES.has(SCOPE_B)).toBe(true)
+		expect(storeB1DisposeSpy).toHaveBeenCalledTimes(0);
+		expect(storeB2DisposeSpy).toHaveBeenCalledTimes(0);
 
-  })
+		expect(SCOPES.has(SCOPE_A)).toBe(false);
+		expect(SCOPES.has(SCOPE_B)).toBe(true);
 
-  it('disposes of stores when autoDispose is default', async () => {
-    const store1 = makeStore('store-1')
-    const store2 = makeStore('store-2')
-    const store1DisposeSpy = vi.spyOn(store1, '$dispose')
-    const store2DisposeSpy = vi.spyOn(store2, '$dispose')
+	});
 
-    SCOPES.addStore(SCOPE_A, store1)
-    SCOPES.addStore(SCOPE_A, store2)
+	it('disposes of stores when autoDispose is default', async () => {
+		const store1 = makeStore('store-1');
+		const store2 = makeStore('store-2');
+		const store1DisposeSpy = vi.spyOn(store1, '$dispose');
+		const store2DisposeSpy = vi.spyOn(store2, '$dispose');
 
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
+		SCOPES.addStore(SCOPE_A, store1);
+		SCOPES.addStore(SCOPE_A, store2);
 
-    expect(SCOPES.has(SCOPE_A)).toBe(false)
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
 
-    expect(store1DisposeSpy).toHaveBeenCalledOnce()
-    expect(store2DisposeSpy).toHaveBeenCalledOnce()
-  })
+		expect(SCOPES.has(SCOPE_A)).toBe(false);
 
-  it('disposes of stores when autoDispose = true', async () => {
-    const store1 = makeStore('store-1')
-    const store2 = makeStore('store-2')
-    const store1DisposeSpy = vi.spyOn(store1, '$dispose')
-    const store2DisposeSpy = vi.spyOn(store2, '$dispose')
+		expect(store1DisposeSpy).toHaveBeenCalledOnce();
+		expect(store2DisposeSpy).toHaveBeenCalledOnce();
+	});
 
-    SCOPES.init(SCOPE_A, { autoDispose: true })
-    SCOPES.addStore(SCOPE_A, store1)
-    SCOPES.addStore(SCOPE_A, store2)
+	it('disposes of stores when autoDispose = true', async () => {
+		const store1 = makeStore('store-1');
+		const store2 = makeStore('store-2');
+		const store1DisposeSpy = vi.spyOn(store1, '$dispose');
+		const store2DisposeSpy = vi.spyOn(store2, '$dispose');
 
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
+		SCOPES.init(SCOPE_A, { autoDispose: true });
+		SCOPES.addStore(SCOPE_A, store1);
+		SCOPES.addStore(SCOPE_A, store2);
 
-    expect(SCOPES.has(SCOPE_A)).toBe(false)
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
 
-    expect(store1DisposeSpy).toHaveBeenCalledOnce()
-    expect(store2DisposeSpy).toHaveBeenCalledOnce()
-  })
+		expect(SCOPES.has(SCOPE_A)).toBe(false);
 
-  it('does not dispose of stores until SCOPES.dispose() is called when autoDispose = false', async () => {
-    const storeA1 = makeStore('store-A1')
-    const storeA2 = makeStore('store-A2')
+		expect(store1DisposeSpy).toHaveBeenCalledOnce();
+		expect(store2DisposeSpy).toHaveBeenCalledOnce();
+	});
 
-    const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose')
-    const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose')
+	it('does not dispose of stores until SCOPES.dispose() is called when autoDispose = false', async () => {
+		const storeA1 = makeStore('store-A1');
+		const storeA2 = makeStore('store-A2');
 
-    SCOPES.init(SCOPE_A, { autoDispose: false })
+		const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose');
+		const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose');
 
-    SCOPES.addStore(SCOPE_A, storeA1)
-    SCOPES.addStore(SCOPE_A, storeA2)
+		SCOPES.init(SCOPE_A, { autoDispose: false });
 
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.mounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
-    SCOPES.unmounted(SCOPE_A)
+		SCOPES.addStore(SCOPE_A, storeA1);
+		SCOPES.addStore(SCOPE_A, storeA2);
 
-    expect(SCOPES.has(SCOPE_A)).toBe(true)
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.mounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
+		SCOPES.unmounted(SCOPE_A);
 
-    expect(storeA1DisposeSpy).toHaveBeenCalledTimes(0)
-    expect(storeA2DisposeSpy).toHaveBeenCalledTimes(0)
+		expect(SCOPES.has(SCOPE_A)).toBe(true);
 
-    SCOPES.dispose(SCOPE_A)
+		expect(storeA1DisposeSpy).toHaveBeenCalledTimes(0);
+		expect(storeA2DisposeSpy).toHaveBeenCalledTimes(0);
 
-    expect(storeA1DisposeSpy).toHaveBeenCalledOnce()
-    expect(storeA2DisposeSpy).toHaveBeenCalledOnce()
-  })
+		SCOPES.dispose(SCOPE_A);
 
-  it('when unmounted prematurely', async () => {
-    SCOPES.unmounted(SCOPE_A)
-  })
+		expect(storeA1DisposeSpy).toHaveBeenCalledOnce();
+		expect(storeA2DisposeSpy).toHaveBeenCalledOnce();
+	});
 
-  it('allows a scope to be initialized a second time with the same options', async () => {
-    SCOPES.init(SCOPE_A, { autoDispose: true })
-    SCOPES.init(SCOPE_A, { autoDispose: true })
+	it('when unmounted prematurely', async () => {
+		SCOPES.unmounted(SCOPE_A);
+	});
 
-    SCOPES.init(SCOPE_B)
-    SCOPES.init(SCOPE_B, { autoDispose: true })
+	it('allows a scope to be initialized a second time with the same options', async () => {
+		SCOPES.init(SCOPE_A, { autoDispose: true });
+		SCOPES.init(SCOPE_A, { autoDispose: true });
 
-    SCOPES.init(SCOPE_C, { autoDispose: false })
-    SCOPES.init(SCOPE_C, { autoDispose: false })
-  })
+		SCOPES.init(SCOPE_B);
+		SCOPES.init(SCOPE_B, { autoDispose: true });
 
-  it('throws an error if a scope is initialized a second time with different options', async () => {
-    SCOPES.init(SCOPE_A, { autoDispose: true })
+		SCOPES.init(SCOPE_C, { autoDispose: false });
+		SCOPES.init(SCOPE_C, { autoDispose: false });
+	});
 
-    expect(() => {
-      SCOPES.init(SCOPE_A, { autoDispose: false })
-    }).toThrowError(`Attempting to use an existing pinia scope "${SCOPE_A}" with different options`)
-  })
-})
+	it('throws an error if a scope is initialized a second time with different options', async () => {
+		SCOPES.init(SCOPE_A, { autoDispose: true });
+
+		expect(() => {
+			SCOPES.init(SCOPE_A, { autoDispose: false });
+		}).toThrowError(`Attempting to use an existing pinia scope "${SCOPE_A}" with different options`);
+	});
+});
