@@ -31,10 +31,6 @@
     "LICENSE",
     "README.md"
   ],
-  "engines": {
-    "npm": ">=10.9",
-    "node": ">=22.16"
-  },
   "scripts": {
     "build": "rollup -c",
     "test": "vitest --coverage"
