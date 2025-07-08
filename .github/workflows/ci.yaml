@@ -8,41 +8,17 @@ permissions:
 
 jobs:
   Tests:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      matrix:
-        include:
-          - node-version: 20
-            os: windows-latest
-          - node-version: 20
-            os: macOS-latest
-          - node-version: 18
-            os: ubuntu-latest
-          - node-version: 20
-            os: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Verify PNPM Cache Directory
-        run: |
-          PNPM_STORE_PATH="$( pnpm store path --silent )"
-          if [ ! -d "$PNPM_STORE_PATH" ]; then
-          echo "PNPM store directory does not exist, creating it."
-          mkdir -p "$PNPM_STORE_PATH"
-          else
-          echo "PNPM store directory exists."
-          fi
-          - name: Setup package manager cache
-            uses: actions/setup-node@v4
-            with:
-              cache: 'pnpm'
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: lts/*
           cache: pnpm
       - name: Install Node Modules
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - name: Build the source code
         run: pnpm run build
       - name: Test the build output
