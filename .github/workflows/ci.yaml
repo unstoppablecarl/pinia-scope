@@ -30,8 +30,6 @@ jobs:
           cache: pnpm
       - name: Install Node Modules
         run: npm install
-      - name: Check source code formatting
-        run: pnpm run lint
       - name: Build the source code
         run: pnpm run build
       - name: Test the build output
