@@ -40,7 +40,7 @@ jobs:
       - name: Build and publish
         id: publish
         run: |
-          pnpm publish --access public --tag ${{ github.ref_name }}
+          pnpm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
