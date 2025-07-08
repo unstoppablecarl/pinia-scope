@@ -7,7 +7,8 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import pascalcase from 'pascalcase'
 import terser from '@rollup/plugin-terser'
-import circularDependencies from 'rollup-plugin-circular-dependencies';
+import circularDependencies from 'rollup-plugin-circular-dependencies'
+import del from 'rollup-plugin-delete'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -88,6 +89,12 @@ function createConfig(buildName, output, plugins = []) {
       exclude: ['*.spec.ts', 'tests/**/*'],
     },
   })
+
+  let clearPlugins = []
+  if (!hasTSChecked) {
+    clearPlugins = [del({ targets: 'types/*' })]
+  }
+
   // we only need to check TS and generate declarations once for each build.
   // it also seems to run into weird issues when checking multiple times
   // during a single build.
@@ -103,12 +110,13 @@ function createConfig(buildName, output, plugins = []) {
     // used alone.
     external,
     plugins: [
+      ...clearPlugins,
       tsPlugin,
       circularDependencies({
         include: [/getStoreWithScope\.ts?$/],
       }),
       ...nodePlugins,
-      ...plugins
+      ...plugins,
     ],
     output,
     // onwarn: (msg, warn) => {
