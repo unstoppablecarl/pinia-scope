@@ -24,6 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v4
+      - name: Verify PNPM Cache Directory
+        run: |
+          PNPM_STORE_PATH="$( pnpm store path --silent )"
+          if [ ! -d "$PNPM_STORE_PATH" ]; then
+          echo "PNPM store directory does not exist, creating it."
+          mkdir -p "$PNPM_STORE_PATH"
+          else
+          echo "PNPM store directory exists."
+          fi
+          - name: Setup package manager cache
+            uses: actions/setup-node@v4
+            with:
+              cache: 'pnpm'
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
