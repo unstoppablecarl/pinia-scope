@@ -1,7 +1,7 @@
 {
   "name": "pinia-scope",
   "type": "module",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "packageManager": "pnpm@10.9.0",
   "description": "Scoped Pinia Stores for Vue",
   "author": {
@@ -15,10 +15,10 @@
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./types/index.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     }

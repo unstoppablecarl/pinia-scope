@@ -12,4 +12,4 @@ export {
 } from './types'
 
 export { type ScopedContext } from './functions/makeContext'
-export {type ScopeOptions, getPiniaScopes} from './Scope'
+export { type ScopeOptions, getPiniaScopes } from './Scope'
