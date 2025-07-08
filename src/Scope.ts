@@ -76,6 +76,7 @@ export const SCOPES = {
     const result = scopes.get(scope)
     if (result) {
       result.dispose()
+      scopes.delete(scope)
     }
   },
 }
