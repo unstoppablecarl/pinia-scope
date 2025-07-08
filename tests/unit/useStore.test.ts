@@ -6,8 +6,6 @@ import * as getStoreScope from '../../src/functions/getStoreScope'
 import useStore from '../../src/functions/useStore'
 import * as getStoreWithScope from '../../src/functions/getStoreWithScope'
 
-const spy = vi.spyOn(getStoreWithScope, 'default')
-
 describe('useStore()', () => {
 
   it('outside of component', async () => {
