@@ -1,7 +1,7 @@
 {
   "name": "pinia-scope",
   "type": "module",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "packageManager": "pnpm@10.9.0",
   "description": "Scoped Pinia Stores for Vue",
   "author": {
@@ -72,6 +72,6 @@
     "url": "git+https://github.com/unstoppablecarl/pinia-scope.git"
   },
   "bugs": {
-    "url": "https://github.com/vuejs/pinia/issues"
+    "url": "https://github.com/unstoppablecarl/pinia-scope/issues"
   }
 }
