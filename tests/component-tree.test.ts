@@ -1,10 +1,11 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia, getActivePinia, storeToRefs } from 'pinia'
-import { getStoreWithScope, SCOPES, setStoreScope, useStore } from '../src'
+import { getStoreWithScope, setStoreScope, useStore } from '../src'
 import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
+import { SCOPES } from '../src/Scope'
 
 const pinia = createPinia()
 

@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia } from 'pinia'
-import { getStoreScope, SCOPES, setStoreScope, useStore, useStoreWithoutScope } from '../src'
+import { getStoreScope, setStoreScope, useStore, useStoreWithoutScope } from '../src'
 import { Child1NameStore, Child2NameStore, NameTreeStore } from './helpers/test-stores'
 import { onMounted } from 'vue'
+import { SCOPES } from '../src/Scope'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
