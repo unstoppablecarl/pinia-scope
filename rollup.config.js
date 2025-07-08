@@ -7,6 +7,7 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import pascalcase from 'pascalcase'
 import terser from '@rollup/plugin-terser'
+import circularDependencies from 'rollup-plugin-circular-dependencies';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -101,7 +102,14 @@ function createConfig(buildName, output, plugins = []) {
     // Global and Browser ESM builds inlines everything so that they can be
     // used alone.
     external,
-    plugins: [tsPlugin, ...nodePlugins, ...plugins],
+    plugins: [
+      tsPlugin,
+      circularDependencies({
+        include: [/getStoreWithScope\.ts?$/],
+      }),
+      ...nodePlugins,
+      ...plugins
+    ],
     output,
     // onwarn: (msg, warn) => {
     //   if (!/Circular/.test(msg)) {

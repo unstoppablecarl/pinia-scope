@@ -1,5 +1,9 @@
 import { Store } from 'pinia'
 
+export type ScopeOptions = {
+  autoDispose: boolean;
+}
+
 const scopes = new Map<string, Scope>()
 
 function initScope(scope: string, options: ScopeOptions | null = null): Scope {
@@ -13,6 +17,10 @@ function initScope(scope: string, options: ScopeOptions | null = null): Scope {
   scopes.set(scope, newScope)
 
   return newScope
+}
+
+export function getPiniaScopes() {
+  return SCOPES
 }
 
 export const SCOPES = {
@@ -70,10 +78,6 @@ export const SCOPES = {
       result.dispose()
     }
   },
-}
-
-export type ScopeOptions = {
-  autoDispose: boolean;
 }
 
 class Scope {
