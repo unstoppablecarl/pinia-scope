@@ -81,3 +81,8 @@ export const Child2NameStore = ({ scopedId }: ScopedContext) => {
     }
   })
 }
+
+export function makeStore(id: string) {
+  return defineStore(id, () => {
+  })()
+}

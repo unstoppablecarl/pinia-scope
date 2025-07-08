@@ -1,7 +1,7 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia, getActivePinia, storeToRefs } from 'pinia'
-import { getStoreWithScope, SCOPES, setStoreScope, useStore, Scope } from '../src'
+import { getStoreWithScope, SCOPES, setStoreScope, useStore } from '../src'
 import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
@@ -68,17 +68,8 @@ describe('setStoreScope() used in component', () => {
 
     await testTree(wrapper)
 
-    const scopeA = SCOPES.get(SCOPE_A) as Scope
-    expect(scopeA.id).toEqual(SCOPE_A)
-    expect(scopeA.autoDispose).toEqual(true)
-    expect(scopeA.useCount).toEqual(4)
-    expect(scopeA.isUsed()).toEqual(true)
-
-    const scopeB = SCOPES.get(SCOPE_B) as Scope
-    expect(scopeB.id).toEqual(SCOPE_B)
-    expect(scopeB.autoDispose).toEqual(true)
-    expect(scopeB.useCount).toEqual(4)
-    expect(scopeB.isUsed()).toEqual(true)
+    expect(SCOPES.useCount(SCOPE_A)).toEqual(4)
+    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
   })
 
   it('can maintain usage count', async () => {
@@ -93,21 +84,19 @@ describe('setStoreScope() used in component', () => {
         plugins: [pinia],
       },
     })
-    const scopeA = SCOPES.get(SCOPE_A) as Scope
-    const scopeB = SCOPES.get(SCOPE_B) as Scope
 
-    expect(scopeA.useCount).toEqual(8)
-    expect(scopeB.useCount).toEqual(8)
+    expect(SCOPES.useCount(SCOPE_A)).toEqual(8)
+    expect(SCOPES.useCount(SCOPE_B)).toEqual(8)
 
     wrapper2.unmount()
 
-    expect(scopeA.useCount).toEqual(4)
-    expect(scopeB.useCount).toEqual(4)
+    expect(SCOPES.useCount(SCOPE_A)).toEqual(4)
+    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
 
     wrapper.unmount()
 
-    expect(SCOPES.get(SCOPE_A)).toEqual(undefined)
-    expect(SCOPES.get(SCOPE_B)).toEqual(undefined)
+    expect(SCOPES.has(SCOPE_A)).toEqual(false)
+    expect(SCOPES.has(SCOPE_B)).toEqual(false)
 
     const activePinia = getActivePinia()
 
@@ -163,17 +152,8 @@ describe('StoreScopeProvider component', () => {
 
     await testTree(wrapper)
 
-    const scopeA = SCOPES.get(SCOPE_A) as Scope
-    expect(scopeA.id).toEqual(SCOPE_A)
-    expect(scopeA.autoDispose).toEqual(true)
-    expect(scopeA.useCount).toEqual(5)
-    expect(scopeA.isUsed()).toEqual(true)
-
-    const scopeB = SCOPES.get(SCOPE_B) as Scope
-    expect(scopeB.id).toEqual(SCOPE_B)
-    expect(scopeB.autoDispose).toEqual(true)
-    expect(scopeB.useCount).toEqual(4)
-    expect(scopeB.isUsed()).toEqual(true)
+    expect(SCOPES.useCount(SCOPE_A)).toEqual(5)
+    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
   })
 
   it('can maintain usage count', async () => {
@@ -185,8 +165,8 @@ describe('StoreScopeProvider component', () => {
 
     await wrapper.unmount()
 
-    expect(SCOPES.get(SCOPE_A)).toEqual(undefined)
-    expect(SCOPES.get(SCOPE_B)).toEqual(undefined)
+    expect(SCOPES.has(SCOPE_A)).toEqual(false)
+    expect(SCOPES.has(SCOPE_B)).toEqual(false)
 
     const activePinia = getActivePinia()
 

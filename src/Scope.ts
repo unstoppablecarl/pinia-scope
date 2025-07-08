@@ -16,20 +16,24 @@ function initScope(scope: string, options: ScopeOptions | null = null): Scope {
 }
 
 export const SCOPES = {
+  resetForTestingOnly() {
+    [...scopes.keys()].forEach(key => scopes.delete(key))
+  },
+  // for testing only
   keys(): string[] {
     return [...scopes.keys()]
   },
-  init: (scope: string, options: ScopeOptions | null) => {
+  has(scope: string): boolean {
+    return !!scopes.get(scope)
+  },
+  init: (scope: string, options: ScopeOptions | null = null) => {
     if (scopes.has(scope) && options) {
       const usedScope = scopes.get(scope) as Scope
       if (!usedScope.optionsMatch(options)) {
-        throw new Error('Attempting to use an existing scope with different options')
+        throw new Error(`Attempting to use an existing pinia scope "${scope}" with different options`)
       }
     }
     initScope(scope, options)
-  },
-  get(scope: string): Scope | undefined {
-    return scopes.get(scope)
   },
   addStore(scope: string, store: Store) {
     initScope(scope).addStore(store)
@@ -38,14 +42,32 @@ export const SCOPES = {
     initScope(scope).mount()
   },
   unmounted(scope: string) {
-    let usedScope = initScope(scope)
+    const usedScope = scopes.get(scope)
+    if (!usedScope) {
+      return
+    }
     usedScope.unmount()
 
+    if (!usedScope.autoDispose) {
+      return
+    }
+
     if (!usedScope.isUsed()) {
-      if (usedScope.autoDispose) {
-        usedScope.dispose()
-        scopes.delete(scope)
-      }
+      usedScope.dispose()
+      scopes.delete(scope)
+    }
+  },
+  useCount(scope: string): number {
+    const result = scopes.get(scope)
+    if (result) {
+      return result.useCount
+    }
+    return 0
+  },
+  dispose(scope: string) {
+    const result = scopes.get(scope)
+    if (result) {
+      result.dispose()
     }
   },
 }
@@ -54,10 +76,10 @@ export type ScopeOptions = {
   autoDispose: boolean;
 }
 
-export class Scope {
+class Scope {
 
   readonly id: string
-  readonly autoDispose: boolean
+  readonly autoDispose: boolean = true
 
   private stores: Store[] = []
   private _useCount: number = 0
@@ -68,10 +90,13 @@ export class Scope {
 
   constructor(scope: string, options: ScopeOptions | null = null) {
     this.id = scope
-    this.autoDispose = options?.autoDispose || true
+
+    if (options && 'autoDispose' in options) {
+      this.autoDispose = options.autoDispose
+    }
   }
 
-  optionsMatch(options: ScopeOptions) {
+  optionsMatch(options: ScopeOptions): boolean {
     return this.autoDispose === options.autoDispose
   }
 
@@ -79,11 +104,11 @@ export class Scope {
     this.stores.push(store)
   }
 
-  mount() {
+  mount(): void {
     this._useCount++
   }
 
-  unmount() {
+  unmount(): void {
     this._useCount--
   }
 
@@ -91,7 +116,7 @@ export class Scope {
     return this._useCount > 0
   }
 
-  dispose() {
+  dispose(): void {
     this.stores.forEach((store) => store.$dispose())
   }
 }
