@@ -40,11 +40,10 @@ jobs:
       - name: Build and publish
         id: publish
         run: |
-          pnpm version ${{ github.ref_name }}
           pnpm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+#
 #      - name: Create GitHub release
 #        id: release_tag
 #        uses: yyx990803/release-tag@master
