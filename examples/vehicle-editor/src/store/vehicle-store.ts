@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia'
 import { type ScopedContext } from 'pinia-scope'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { type Tire, TireStore } from './tire-store.ts'
 import { type Engine, EngineStore } from './engine-store.ts'
 
-type Vehicle = {
+type Vehicle = VehicleAdd & {
   id: number,
+}
+
+type VehicleAdd = {
   name: string;
   tire_id: string;
   engine_id: string;
@@ -24,16 +27,24 @@ export function VehicleStore({ scopedId, useStore }: ScopedContext) {
     const engineStore = useStore(EngineStore)
 
     const vehicles = ref<Vehicle[]>([])
-    const vehicles_id_increment = ref<number>(0)
+    const vehicles_id_increment = ref<number>(1)
 
-    function getInfo(id: number): VehicleInfo {
+    const max_speed = computed(() => {
+      return tireStore.max_speed + engineStore.max_speed
+    })
+
+    function get(id: number): Vehicle {
       const vehicle = vehicles.value.find((vehicle) => vehicle.id === id)
       if (!vehicle) {
         throw new Error(`Vehicle ${id} not found`)
       }
+      return vehicle
+    }
 
-      let tire = tireStore.get(vehicle.tire_id)
-      let engine = tireStore.get(vehicle.engine_id)
+    function getInfo(id: number): VehicleInfo {
+      const vehicle = get(id)
+      const tire = tireStore.get(vehicle.tire_id)
+      const engine = engineStore.get(vehicle.engine_id)
       return {
         ...vehicle,
         tire,
@@ -42,21 +53,40 @@ export function VehicleStore({ scopedId, useStore }: ScopedContext) {
       }
     }
 
-    function add() {
+    function remove(vehicleId: number) {
+      const index = vehicles.value.findIndex((vehicle: Vehicle) => vehicle.id === vehicleId)
+      if (index !== -1) {
+        vehicles.value.splice(index, 1)
+      }
+    }
+
+    function add(options: VehicleAdd | null = null) {
       const newId = vehicles_id_increment.value++
-      vehicles.value.push({
-        id: newId,
+
+      let input = {
         name: 'new vehicle ' + newId,
         tire_id: tireStore.default_tire.id,
         engine_id: engineStore.default_engine.id,
+      }
+      if (options) {
+        input = Object.assign(input, options)
+      }
+
+      vehicles.value.push({
+        id: newId,
+        ...input,
       })
     }
 
     return {
       vehicles,
       vehicles_id_increment,
-      add,
 
+      max_speed,
+
+      add,
+      remove,
+      get,
       getInfo,
     }
   })

@@ -30,13 +30,24 @@ export function EngineStore({ scopedId }: ScopedContext) {
 
     const default_engine = computed<Engine>(() => ENGINE_DATA[ENGINE_ECONOMY])
 
+    const max_speed = computed(() => {
+      const engineSpeeds = engines.value.map(engine => engine.speed);
+      return Math.max(...engineSpeeds)
+    })
+
     function get(id: string): Engine {
-      return ENGINE_DATA[id]
+      if (id in ENGINE_DATA) {
+        return ENGINE_DATA[id]
+      }
+
+      throw new Error(`Engine ${id} not found`)
+
     }
 
     return {
-      engines,
       default_engine,
+      engines,
+      max_speed,
       get,
     }
   })

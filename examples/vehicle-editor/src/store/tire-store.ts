@@ -26,7 +26,7 @@ const TIRE_DATA: { [key: string]: Tire } = {
   [TIRE_OFF_ROAD]: {
     id: TIRE_OFF_ROAD,
     name: 'Off-Road',
-    speed: 5
+    speed: 5,
   },
 }
 
@@ -36,13 +36,23 @@ export function TireStore({ scopedId }: ScopedContext) {
 
     const default_tire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
 
+    const max_speed = computed(() => {
+      const tireSpeeds = tires.value.map(tire => tire.speed);
+      return Math.max(...tireSpeeds)
+    })
+
     function get(id: string): Tire {
-      return TIRE_DATA[id]
+      if (id in TIRE_DATA) {
+        return TIRE_DATA[id]
+      }
+
+      throw new Error(`Tire ${id} not found`)
     }
 
     return {
-      tires,
       default_tire,
+      tires,
+      max_speed,
       get,
     }
   })
