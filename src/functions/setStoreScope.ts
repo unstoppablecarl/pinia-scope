@@ -1,6 +1,7 @@
-import { ScopeOptions, SCOPES } from '../Scope'
+import { ScopeOptions } from '../scope-tracker'
 import { getCurrentInstance, onUnmounted, provide } from 'vue'
 import { injectorKey } from '../types'
+import { getActivePiniaScopeTracker } from '../pinia-scope'
 
 export default function setStoreScope(name: string, options: ScopeOptions | null = null): void {
   const instance = getCurrentInstance() as any
@@ -13,10 +14,11 @@ export default function setStoreScope(name: string, options: ScopeOptions | null
   if (name === '') {
     return
   }
-  SCOPES.init(name, options)
-  SCOPES.mounted(name)
+  const tracker = getActivePiniaScopeTracker()
+  tracker.init(name, options)
+  tracker.mounted(name)
 
   onUnmounted(() => {
-    SCOPES.unmounted(name)
+    tracker.unmounted(name)
   })
 }

@@ -1,15 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { injectorKey } from '../../src/types'
-import { SCOPES } from '../../src/Scope'
 import getStoreScope from '../../src/functions/getStoreScope'
-import { createPinia } from 'pinia'
+import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
+import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
 describe('getStoreScope()', () => {
+
+  let pinia: Pinia
+
+  beforeEach(() => {
+    pinia = createPinia()
+    clearPiniaScope(pinia)
+    attachPiniaScope(pinia)
+  })
 
   it('outside of component', async () => {
     expect(
@@ -31,13 +39,8 @@ describe('getStoreScope()', () => {
           scope,
         }
       },
-      template: `
-      `,
+      template: `a`,
     }
-
-    const pinia = createPinia()
-
-    expect(SCOPES.keys()).toEqual([])
 
     const wrapper = mount(App, {
       global: {
@@ -47,7 +50,7 @@ describe('getStoreScope()', () => {
 
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.scope).toBe(SCOPE_A)
-    expect(SCOPES.keys()).toEqual([])
+    expect(getActivePiniaScopeTracker().keys()).toEqual([])
   })
 
   it('can get parent injected scope', async () => {
@@ -71,12 +74,8 @@ describe('getStoreScope()', () => {
         provide(injectorKey, SCOPE_A)
       },
       template: `
-        <Child ref="child" />`,
+				<Child ref="child" />`,
     }
-
-    const pinia = createPinia()
-
-    expect(SCOPES.keys()).toEqual([])
 
     const wrapper = mount(App, {
       global: {
@@ -90,7 +89,7 @@ describe('getStoreScope()', () => {
 
     expect(child.vm.scope).toBe(SCOPE_A)
 
-    expect(SCOPES.keys()).toEqual([])
+    expect(getActivePiniaScopeTracker().keys()).toEqual([])
   })
 
 
@@ -117,12 +116,8 @@ describe('getStoreScope()', () => {
         provide(injectorKey, SCOPE_A)
       },
       template: `
-        <Child ref="child" />`,
+				<Child ref="child" />`,
     }
-
-    const pinia = createPinia()
-
-    expect(SCOPES.keys()).toEqual([])
 
     const wrapper = mount(App, {
       global: {
@@ -135,6 +130,6 @@ describe('getStoreScope()', () => {
     const child = wrapper.findComponent({ ref: 'child' })
 
     expect(child.vm.scope).toBe(SCOPE_B)
-    expect(SCOPES.keys()).toEqual([])
+    expect(getActivePiniaScopeTracker().keys()).toEqual([])
   })
 })

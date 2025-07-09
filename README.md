@@ -6,6 +6,21 @@ Scoped [Pinia](https://pinia.vuejs.org/) Stores for [Vue.js](https://vuejs.org/)
 
 `$ npm i unstoppablecarl/pinia-scope`
 
+Attach pinia scope to the pinia instance in your main app file.
+```js
+// main.js
+import { attachPiniaScope } from 'pinia-scope'
+
+const app = createApp(App)
+const pinia = createPinia()
+
+// attaching here
+attachPiniaScope(pinia)
+
+app.use(pinia)
+app.mount('#app')
+```
+
 ## Concept
 Pinia Scope allows creating dynamically scoped versions of Pinia stores. 
 A scope is a string that prefixes one or more Pinia Store ids separating them from their un-scoped version.
@@ -148,16 +163,17 @@ setStoreScope('my-scope', {
   autoClearState: true,
 })
 ```
-`getPiniaScopes()` allows manually handling cleanup
+Manually cleaning up:
 ```ts
+import { disposeOfPiniaScope, disposeAndClearStateOfPiniaScope } from 'pinia-scope'
 // calls the following on all stores in a scope:
 // store.$dispose() 
-getPiniaScopes().dispose('my-scope')
+disposeOfPiniaScope('my-scope')
 
 // calls the following on all stores in a scope:
 // store.$dispose() 
 // delete pinia.state.value[store.$id]
-getPiniaScopes().disposeAndClearState('my-scope')
+disposeAndClearStateOfPiniaScope('my-scope')
 ```
 
 ### Scoped Store Id Generation

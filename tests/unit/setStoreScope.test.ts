@@ -1,17 +1,33 @@
-import { describe, expect, it, vi } from 'vitest'
-import { SCOPES } from '../../src/Scope'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import setStoreScope from '../../src/functions/setStoreScope'
-import { createPinia } from 'pinia'
+import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, useTemplateRef } from 'vue'
+import { createScopeTracker } from '../../src/scope-tracker'
+import { attachPiniaScopeTracker } from '../../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 
-const scopeInitSpy = vi.spyOn(SCOPES, 'init')
-const scopeMountedSpy = vi.spyOn(SCOPES, 'mounted')
-const scopeUnmountedSpy = vi.spyOn(SCOPES, 'unmounted')
-
 describe('setStoreScope()', () => {
+
+  let pinia: Pinia
+
+  let scopeInitSpy: any
+  let scopeMountedSpy: any
+  let scopeUnmountedSpy: any
+
+  beforeEach(() => {
+    pinia = createPinia()
+
+    let tracker = createScopeTracker(pinia)
+
+    scopeInitSpy = vi.spyOn(tracker, 'init')
+    scopeMountedSpy = vi.spyOn(tracker, 'mounted')
+    scopeUnmountedSpy = vi.spyOn(tracker, 'unmounted')
+
+    attachPiniaScopeTracker(pinia, tracker)
+  })
+
   it('outside of component', async () => {
     expect(
       () => setStoreScope(SCOPE_A),
@@ -38,7 +54,6 @@ describe('setStoreScope()', () => {
       `,
     }
 
-    const pinia = createPinia()
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],

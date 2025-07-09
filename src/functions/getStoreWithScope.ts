@@ -1,7 +1,8 @@
-import { ScopeOptions, SCOPES } from '../Scope'
+import { ScopeOptions } from '../scope-tracker'
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { CreatedStore, StoreCreator } from '../types'
 import makeContext from './makeContext'
+import { getActivePiniaScopeTracker } from '../pinia-scope'
 
 export type GetStoreWithScope = <S extends StoreCreator>(
   storeCreator: S,
@@ -28,14 +29,16 @@ const getStoreWithScope: GetStoreWithScope = (
   result.__PINIA_SCOPE_ID__ = storeId
 
   if (scope !== '') {
-    SCOPES.init(scope, options)
-    SCOPES.addStore(scope, result)
+    const tracker = getActivePiniaScopeTracker()
+
+    tracker.init(scope, options)
+    tracker.addStore(scope, result)
 
     if (getCurrentInstance()) {
-      SCOPES.mounted(scope)
+      tracker.mounted(scope)
 
       onUnmounted(() => {
-        SCOPES.unmounted(scope)
+        tracker.unmounted(scope)
       })
     }
   }

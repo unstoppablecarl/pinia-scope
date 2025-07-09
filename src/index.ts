@@ -12,4 +12,11 @@ export {
 } from './types'
 
 export { type ScopedContext } from './functions/makeContext'
-export { type ScopeOptions, getPiniaScopes } from './Scope'
+export { type ScopeOptions } from './scope-tracker'
+export {
+  attachPiniaScope,
+  hasPiniaScope,
+  clearPiniaScope,
+  disposeOfPiniaScope,
+  disposeAndClearStateOfPiniaScope,
+} from './pinia-scope'

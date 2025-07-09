@@ -1,16 +1,24 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { createPinia, storeToRefs } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { createPinia, Pinia, setActivePinia, storeToRefs } from 'pinia'
 import { getStoreScope, getStoreWithScope, StoreScopeProvider, useStore } from '../src'
 import { NameStore } from './helpers/test-stores'
+import { attachPiniaScope, clearPiniaScope } from '../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
 describe('Scope Switching', () => {
-  it('can switch scope via conditional', async () => {
-    const pinia = createPinia()
 
+  let pinia: Pinia
+
+  beforeEach(() => {
+    pinia = createPinia()
+    clearPiniaScope(pinia)
+    attachPiniaScope(pinia)
+  })
+
+  it('can switch scope via conditional', async () => {
     const CompChild = {
       setup: function() {
         const scope = getStoreScope()
@@ -25,7 +33,7 @@ describe('Scope Switching', () => {
         }
       },
       template: `
-        Child:[{{scope}}][{{name}}]
+				Child:[{{scope}}][{{name}}]
       `,
     }
 
@@ -39,12 +47,12 @@ describe('Scope Switching', () => {
         scope: String,
       },
       template: `
-        <StoreScopeProvider v-if="scope === 'A'" scope="${SCOPE_A}">
-          <CompChild ref="compA" />
-        </StoreScopeProvider>
-        <StoreScopeProvider v-if="scope === 'B'" scope="${SCOPE_B}">
-          <CompChild ref="compB" />
-        </StoreScopeProvider>
+				<StoreScopeProvider v-if="scope === 'A'" scope="${SCOPE_A}">
+					<CompChild ref="compA" />
+				</StoreScopeProvider>
+				<StoreScopeProvider v-if="scope === 'B'" scope="${SCOPE_B}">
+					<CompChild ref="compB" />
+				</StoreScopeProvider>
       `,
     }
 

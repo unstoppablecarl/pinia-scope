@@ -1,17 +1,25 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import { createPinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { createPinia, Pinia, setActivePinia } from 'pinia'
 import { getStoreScope, setStoreScope, useStore, useStoreWithoutScope } from '../src'
 import { Child1NameStore, Child2NameStore, NameTreeStore } from './helpers/test-stores'
 import { onMounted } from 'vue'
-import { SCOPES } from '../src/Scope'
+import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
 describe('useProvideStores', () => {
+
+  let pinia: Pinia
+
+  beforeEach(() => {
+    pinia = createPinia()
+    clearPiniaScope(pinia)
+    attachPiniaScope(pinia)
+  })
+
   it('can keep separate scoped store trees', async () => {
-    const pinia = createPinia()
 
     const nameA = 'Allison'
     const nameAChild1 = 'Lee'
@@ -40,7 +48,7 @@ describe('useProvideStores', () => {
           child2NameStore,
           nameStoreUnscoped,
           child1NameStoreUnscoped,
-          child2NameStoreUnscoped
+          child2NameStoreUnscoped,
         }
       },
       render() {
@@ -90,7 +98,7 @@ describe('useProvideStores', () => {
         }
       },
       template: `
-        <CompChild2 ref="child2" />
+				<CompChild2 ref="child2" />
       `,
     }
 
@@ -107,22 +115,22 @@ describe('useProvideStores', () => {
         nameBChild2: String,
       },
       template: `
-        <div>
-          <CompChild1
-            ref="child1A"
-            store-scope="${SCOPE_A}"
-            :name="nameA"
-            :name-child1="nameAChild1"
-            :name-child2="nameAChild2"
-          />
-          <CompChild1
-            ref="child1B"
-            store-scope="${SCOPE_B}"
-            :name="nameB"
-            :name-child1="nameBChild1"
-            :name-child2="nameBChild2"
-          />
-        </div>`,
+				<div>
+					<CompChild1
+						ref="child1A"
+						store-scope="${SCOPE_A}"
+						:name="nameA"
+						:name-child1="nameAChild1"
+						:name-child2="nameAChild2"
+					/>
+					<CompChild1
+						ref="child1B"
+						store-scope="${SCOPE_B}"
+						:name="nameB"
+						:name-child1="nameBChild1"
+						:name-child2="nameBChild2"
+					/>
+				</div>`,
     }
 
     const wrapper = mount(App, {
@@ -214,7 +222,7 @@ describe('useProvideStores', () => {
     expect(compB2.vm.child2NameStoreUnscoped.child2Name)
       .toBe('from-child1-store: from-name-store: ' + nameBChild2 + '-unscoped')
 
-    expect(SCOPES.keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
+    expect(getActivePiniaScopeTracker().keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
 
   })
 })

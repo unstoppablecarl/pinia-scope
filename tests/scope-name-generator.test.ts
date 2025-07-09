@@ -3,10 +3,12 @@ import { setPiniaScopeNameGenerator } from '../src/scope-name-generator'
 import { getStoreWithScope } from '../src'
 import { NameStore, NameStore_ID } from './helpers/test-stores'
 import { createPinia, setActivePinia } from 'pinia'
+import { attachPiniaScope } from '../src/pinia-scope'
 
 describe('scope name generator', () => {
   beforeEach(() => {
     const pinia = createPinia()
+    attachPiniaScope(pinia)
     setActivePinia(pinia)
   })
 

@@ -5,14 +5,17 @@ import { getStoreWithScope, setStoreScope, useStore } from '../src'
 import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
-import { SCOPES } from '../src/Scope'
-
-const pinia = createPinia()
+import { attachPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
 describe('setStoreScope() used in component', () => {
+
+  const pinia = createPinia()
+
+  attachPiniaScope(pinia)
+
   const Comp1 = {
     name: 'Comp1',
     components: {
@@ -31,8 +34,8 @@ describe('setStoreScope() used in component', () => {
       }
     },
     template: `
-      Comp1:[{{name}}]
-      <Comp2 ref="comp2" />
+			Comp1:[{{name}}]
+			<Comp2 ref="comp2" />
     `,
   }
 
@@ -43,10 +46,10 @@ describe('setStoreScope() used in component', () => {
     setup() {
     },
     template: `
-      <div>
-        <Comp1 store-scope="${SCOPE_A}" ref="comp1-a" />
-        <Comp1 store-scope="${SCOPE_B}" ref="comp1-b" />
-      </div>`,
+			<div>
+				<Comp1 store-scope="${SCOPE_A}" ref="comp1-a" />
+				<Comp1 store-scope="${SCOPE_B}" ref="comp1-b" />
+			</div>`,
   }
 
 
@@ -69,8 +72,8 @@ describe('setStoreScope() used in component', () => {
 
     await testTree(wrapper)
 
-    expect(SCOPES.useCount(SCOPE_A)).toEqual(4)
-    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toEqual(4)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toEqual(4)
   })
 
   it('can maintain usage count', async () => {
@@ -86,18 +89,18 @@ describe('setStoreScope() used in component', () => {
       },
     })
 
-    expect(SCOPES.useCount(SCOPE_A)).toEqual(8)
-    expect(SCOPES.useCount(SCOPE_B)).toEqual(8)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toEqual(8)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toEqual(8)
 
     wrapper2.unmount()
 
-    expect(SCOPES.useCount(SCOPE_A)).toEqual(4)
-    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toEqual(4)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toEqual(4)
 
     wrapper.unmount()
 
-    expect(SCOPES.has(SCOPE_A)).toEqual(false)
-    expect(SCOPES.has(SCOPE_B)).toEqual(false)
+    expect(getActivePiniaScopeTracker().has(SCOPE_A)).toEqual(false)
+    expect(getActivePiniaScopeTracker().has(SCOPE_B)).toEqual(false)
 
     const activePinia = getActivePinia()
 
@@ -107,6 +110,11 @@ describe('setStoreScope() used in component', () => {
 })
 
 describe('StoreScopeProvider component', () => {
+
+  const pinia = createPinia()
+
+  attachPiniaScope(pinia)
+
   const Comp1 = {
     name: 'Comp1',
     components: {
@@ -121,8 +129,8 @@ describe('StoreScopeProvider component', () => {
       }
     },
     template: `
-      Comp1:[{{name}}]
-      <Comp2 ref="comp2" />
+			Comp1:[{{name}}]
+			<Comp2 ref="comp2" />
     `,
   }
 
@@ -132,15 +140,15 @@ describe('StoreScopeProvider component', () => {
       PiniaScopeProvider,
     },
     template: `
-      <div>
-        <PiniaScopeProvider scope="${SCOPE_A}" />
-        <PiniaScopeProvider scope="${SCOPE_A}">
-          <Comp1 ref="comp1-a" />
-        </PiniaScopeProvider>
-        <PiniaScopeProvider scope="${SCOPE_B}">
-          <Comp1 ref="comp1-b" />
-        </PiniaScopeProvider>
-      </div>`,
+			<div>
+				<PiniaScopeProvider scope="${SCOPE_A}" />
+				<PiniaScopeProvider scope="${SCOPE_A}">
+					<Comp1 ref="comp1-a" />
+				</PiniaScopeProvider>
+				<PiniaScopeProvider scope="${SCOPE_B}">
+					<Comp1 ref="comp1-b" />
+				</PiniaScopeProvider>
+			</div>`,
   }
 
   it('StoreScopeProvider component can keep separate scoped trees', async () => {
@@ -153,8 +161,8 @@ describe('StoreScopeProvider component', () => {
 
     await testTree(wrapper)
 
-    expect(SCOPES.useCount(SCOPE_A)).toEqual(5)
-    expect(SCOPES.useCount(SCOPE_B)).toEqual(4)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toEqual(5)
+    expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toEqual(4)
   })
 
   it('can maintain usage count', async () => {
@@ -166,8 +174,8 @@ describe('StoreScopeProvider component', () => {
 
     await wrapper.unmount()
 
-    expect(SCOPES.has(SCOPE_A)).toEqual(false)
-    expect(SCOPES.has(SCOPE_B)).toEqual(false)
+    expect(getActivePiniaScopeTracker().has(SCOPE_A)).toEqual(false)
+    expect(getActivePiniaScopeTracker().has(SCOPE_B)).toEqual(false)
 
     const activePinia = getActivePinia()
 
@@ -229,7 +237,7 @@ async function testTree(wrapper: VueWrapper) {
   expect(caseBComp3.exists()).toBe(true)
   expect(caseBComp3.text()).toEqual(`Comp3:[${NameStore_DEFAULT_NAME}][${newName2}]`)
 
-  expect(SCOPES.keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
+  expect(getActivePiniaScopeTracker().keys().sort()).toEqual([SCOPE_A, SCOPE_B].sort())
 
   return {
     caseAComp1,

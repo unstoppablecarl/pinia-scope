@@ -3,10 +3,10 @@ import { createPinia, defineStore, setActivePinia } from 'pinia'
 import getStoreWithScope from '../../src/functions/getStoreWithScope'
 import { NameStore } from '../helpers/test-stores'
 import * as makeContext from '../../src/functions/makeContext'
-import { SCOPES } from '../../src/Scope'
+import { ScopedContext } from '../../src/functions/makeContext'
 import { mount } from '@vue/test-utils'
 import { CreatedStore, StoreCreator } from '../../src/types'
-import { ScopedContext } from '../../src/functions/makeContext'
+import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 
@@ -14,6 +14,8 @@ describe('getStoreWithScope()', () => {
   const pinia = createPinia()
 
   beforeEach(() => {
+    clearPiniaScope(pinia)
+    attachPiniaScope(pinia)
     setActivePinia(pinia)
   })
 
@@ -36,10 +38,10 @@ describe('getStoreWithScope()', () => {
       useStoreWithoutScope: mockedStoreFactory,
     }
 
-    const scopeInitSpy = vi.spyOn(SCOPES, 'init')
-    const scopeMountedSpy = vi.spyOn(SCOPES, 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(SCOPES, 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(SCOPES, 'unmounted')
+    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
+    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
+    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
+    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
     const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')
@@ -79,10 +81,10 @@ describe('getStoreWithScope()', () => {
       useStoreWithoutScope: mockedStoreFactory,
     }
 
-    const scopeInitSpy = vi.spyOn(SCOPES, 'init')
-    const scopeMountedSpy = vi.spyOn(SCOPES, 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(SCOPES, 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(SCOPES, 'unmounted')
+    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
+    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
+    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
+    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
     const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')
@@ -100,7 +102,7 @@ describe('getStoreWithScope()', () => {
       `,
     }
 
-    const pinia = createPinia()
+
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],
@@ -146,10 +148,10 @@ describe('getStoreWithScope()', () => {
       useStoreWithoutScope: mockedStoreFactory,
     }
 
-    const scopeInitSpy = vi.spyOn(SCOPES, 'init')
-    const scopeMountedSpy = vi.spyOn(SCOPES, 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(SCOPES, 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(SCOPES, 'unmounted')
+    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
+    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
+    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
+    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
     const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')

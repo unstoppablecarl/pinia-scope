@@ -5,6 +5,7 @@ import { NameStore } from '../helpers/test-stores'
 import useStoreWithoutScope from '../../src/functions/useStoreWithoutScope'
 import * as getStoreWithScope from '../../src/functions/getStoreWithScope'
 import setStoreScope from '../../src/functions/setStoreScope'
+import { attachPiniaScope } from '../../src/pinia-scope'
 
 const SCOPE_A = 'scope-a'
 
@@ -34,11 +35,13 @@ describe('useStoreWithoutScope()', async () => {
     const getStoreWithScopeSpy = vi.spyOn(getStoreWithScope, 'default')
 
     const pinia = createPinia()
+    attachPiniaScope(pinia)
 
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],
       },
+      template: `a`
     })
 
     await wrapper.vm.$nextTick()
