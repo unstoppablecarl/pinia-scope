@@ -1,4 +1,4 @@
-# pinia-scope
+# Pinia Scope
 
 Scoped [Pinia](https://pinia.vuejs.org/) Stores for [Vue.js](https://vuejs.org/)
 
