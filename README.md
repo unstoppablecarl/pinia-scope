@@ -105,10 +105,10 @@ Scope can also be set via the `PiniaScopeProvider` component.
 
 **Note:**
 Stores are only instantiated once when a component is mounted. 
-The value of a store variable cannot be swapped after mounting the component, but a conditional can be used to swap the `PiniaScopeProvider` component.
+The value of a store variable cannot be swapped after mounting the component.
+To conditionally change the scope of a component, you can mount/unmount components with different scope using `v-if="""` and the  `PiniaScopeProvider` component.
 
 ```vue
-
 <script setup lang="ts">
   import { PiniaScopeProvider } from 'pinia-scope'
   import { defineProps } from 'vue'
@@ -129,16 +129,35 @@ The value of a store variable cannot be swapped after mounting the component, bu
 </template>
 ```
 
-#### Cleanup
-By default a scope is automatically disposed of and cleaned up when there are no longer any mounted components using it.
+#### Store Cleanup and Disposal
+A scope is automatically remove and cleaned up when there are no longer any mounted components using it.
+When a scope is cleaned up it calls [store.$dispose()](https://pinia.vuejs.org/api/pinia/interfaces/StoreWithState.html#-dispose-) on all the stores within that scope and clears their state with `delete pinia.state.value[store.$id]`.
 ```ts
 import { useStore, getPiniaScopes } from 'pinia-scope'
 
-// to disable auto cleanup use the `autoDispose` option.
-setStoreScope('my-scope', {autoDispose: false})
-
-// you can manually dispose of a scope using `getPiniaScopes()`
+setStoreScope('my-scope', {
+  
+  // when true, calls store.$dispose() on all stores in the scope
+  // default: true
+  autoDispose: true,
+  
+  // when true, calls delete pinia.state.value[store.$id] on all stores in the scope clearing their state data
+  // Note: store.$dispose() does not delete the state data and the data will be re-used if the scope is created again later
+  // Note: does nothing if autoDispose = false
+  // default: true
+  autoClearState: true,
+})
+```
+`getPiniaScopes()` allows manually handling cleanup
+```ts
+// calls the following on all stores in a scope:
+// store.$dispose() 
 getPiniaScopes().dispose('my-scope')
+
+// calls the following on all stores in a scope:
+// store.$dispose() 
+// delete pinia.state.value[store.$id]
+getPiniaScopes().disposeAndClearState('my-scope')
 ```
 
 ### Scoped Store Id Generation
@@ -194,9 +213,16 @@ import { getStoreWithScope } from 'pinia-scope'
 const vehicleStore = getStoreWithScope(VehicleStore, 'my-scope')
 ```
 
+## Building
+`$ pnpm install`
+`$ pnpm run build`
+
+## Testing
+`$ pnpm run test`
+
 ## References
 
-Inspired by: [https://github.com/ccqgithub/pinia-di](https://github.com/ccqgithub/pinia-di)
+Partly Inspired by: [https://github.com/ccqgithub/pinia-di](https://github.com/ccqgithub/pinia-di)
 
 ## Releases Automation
 - update `package.json` file version (example: `1.0.99`)
