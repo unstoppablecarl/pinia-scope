@@ -1,7 +1,9 @@
 import { Store } from 'pinia'
+import piniaStoreClearState from './functions/piniaStoreClearState'
 
 export type ScopeOptions = {
-  autoDispose: boolean;
+  autoDispose?: boolean;
+  autoClearState?: boolean;
 }
 
 const scopes = new Map<string, Scope>()
@@ -37,8 +39,16 @@ export const SCOPES = {
   init: (scope: string, options: ScopeOptions | null = null) => {
     if (scopes.has(scope) && options) {
       const usedScope = scopes.get(scope) as Scope
-      if (!usedScope.optionsMatch(options)) {
-        throw new Error(`Attempting to use an existing pinia scope "${scope}" with different options`)
+
+      const diff = usedScope.getOptionsDiff(options)
+
+      if (diff.length) {
+        let message = `Attempting to use an existing pinia scope "${scope}" with different options:`
+        diff.forEach(({ key, scope, option }) => {
+          message += '\n' + `existing scope.${key} = ${scope}` + '\n' + `option.${key} = ${option}`
+        })
+
+        throw new Error(message)
       }
     }
     initScope(scope, options)
@@ -56,13 +66,16 @@ export const SCOPES = {
     }
     usedScope.unmount()
 
-    if (!usedScope.autoDispose) {
+    if (usedScope.isUsed()) {
       return
     }
 
-    if (!usedScope.isUsed()) {
-      usedScope.dispose()
-      scopes.delete(scope)
+    if (usedScope.autoDispose) {
+      if (usedScope.autoClearState) {
+        SCOPES.disposeAndClearState(scope)
+      } else {
+        SCOPES.dispose(scope)
+      }
     }
   },
   useCount(scope: string): number {
@@ -79,12 +92,19 @@ export const SCOPES = {
       scopes.delete(scope)
     }
   },
+  disposeAndClearState(scope: string) {
+    const result = scopes.get(scope)
+    if (result) {
+      result.disposeAndClearState()
+      scopes.delete(scope)
+    }
+  },
 }
 
 class Scope {
-
   readonly id: string
   readonly autoDispose: boolean = true
+  readonly autoClearState: boolean = true
 
   private stores: Store[] = []
   private _useCount: number = 0
@@ -96,13 +116,45 @@ class Scope {
   constructor(scope: string, options: ScopeOptions | null = null) {
     this.id = scope
 
-    if (options && 'autoDispose' in options) {
+    if (!options) {
+      return
+    }
+
+    if (options?.autoDispose !== undefined) {
       this.autoDispose = options.autoDispose
+    }
+
+    if (options?.autoClearState !== undefined) {
+      this.autoClearState = options.autoClearState
     }
   }
 
-  optionsMatch(options: ScopeOptions): boolean {
-    return this.autoDispose === options.autoDispose
+  getOptionsDiff(options: ScopeOptions): {
+    key: string,
+    option: boolean,
+    scope: boolean
+  }[] {
+
+    const diff = []
+    if (options.autoDispose !== undefined &&
+      this.autoDispose !== options.autoDispose) {
+      diff.push({
+        key: 'autoDispose',
+        option: options.autoDispose,
+        scope: this.autoDispose,
+      })
+    }
+
+    if (options.autoClearState !== undefined &&
+      this.autoClearState !== options.autoClearState) {
+      diff.push({
+        key: 'autoClearState',
+        option: options.autoClearState,
+        scope: this.autoClearState,
+      })
+    }
+
+    return diff
   }
 
   addStore(store: Store): void {
@@ -122,6 +174,15 @@ class Scope {
   }
 
   dispose(): void {
-    this.stores.forEach((store) => store.$dispose())
+    this.stores.forEach((store) => {
+      store.$dispose()
+    })
+  }
+
+  disposeAndClearState(): void {
+    this.stores.forEach((store) => {
+      store.$dispose()
+      piniaStoreClearState(store)
+    })
   }
 }
