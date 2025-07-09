@@ -34,9 +34,9 @@ export function TireStore({ scopedId }: ScopedContext) {
   return defineStore(scopedId('tires'), () => {
     const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
 
-    const default_tire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
+    const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
 
-    const max_speed = computed(() => {
+    const maxSpeed = computed(() => {
       const tireSpeeds = tires.value.map(tire => tire.speed);
       return Math.max(...tireSpeeds)
     })
@@ -50,9 +50,9 @@ export function TireStore({ scopedId }: ScopedContext) {
     }
 
     return {
-      default_tire,
+      defaultTire,
       tires,
-      max_speed,
+      maxSpeed,
       get,
     }
   })

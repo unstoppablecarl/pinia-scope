@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import VehicleEngineEdit from './VehicleEngineEdit.vue'
 import VehicleTireEdit from './VehicleTireEdit.vue'
 import SpeedProgress from './SpeedProgress.vue'
+import CurrentScopeBadge from '../CurrentScopeBadge.vue'
 
 const vehicleStore = useStore(VehicleStore)
 
@@ -17,22 +18,13 @@ const { vehicleId } = defineProps({
 
 const vehicle = computed(() => vehicleStore.get(vehicleId))
 const info = computed(() => vehicleStore.getInfo(vehicleId))
-
-const scope = getStoreScope()
 </script>
 <template>
-	<div class="card my-1">
+	<div class="card my-2">
 		<div class="card-header">
 			<strong>Vehicle:</strong>
 			{{ info.name }}
-			<span class="badge text-bg-secondary">
-				<template v-if="scope">
-					Scope: {{ scope }}
-				</template>
-				<template v-else>
-					Un-Scoped
-				</template>
-			</span>
+			<CurrentScopeBadge/>
 		</div>
 		<div class="card-body">
 			<div class="row">
@@ -88,7 +80,7 @@ const scope = getStoreScope()
 						<tr>
 							<th>Total</th>
 							<th>
-								<SpeedProgress :current="info.total_speed" :max="vehicleStore.max_speed" />
+								<SpeedProgress :current="info.total_speed" :max="vehicleStore.maxSpeed" />
 							</th>
 							<th class="font-monospace text-end">{{ info.total_speed }}</th>
 						</tr>

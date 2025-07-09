@@ -4,17 +4,17 @@ import { computed, ref } from 'vue'
 import { type Tire, TireStore } from './tire-store.ts'
 import { type Engine, EngineStore } from './engine-store.ts'
 
-type Vehicle = VehicleAdd & {
+export type Vehicle = VehicleAdd & {
   id: number,
 }
 
-type VehicleAdd = {
+export type VehicleAdd = {
   name: string;
   tire_id: string;
   engine_id: string;
 }
 
-type VehicleInfo = Vehicle & {
+export type VehicleInfo = Vehicle & {
   engine: Engine,
   tire: Tire,
   total_speed: number,
@@ -27,10 +27,10 @@ export function VehicleStore({ scopedId, useStore }: ScopedContext) {
     const engineStore = useStore(EngineStore)
 
     const vehicles = ref<Vehicle[]>([])
-    const vehicles_id_increment = ref<number>(1)
+    const vehiclesIdIncrement = ref<number>(1)
 
-    const max_speed = computed(() => {
-      return tireStore.max_speed + engineStore.max_speed
+    const maxSpeed = computed(() => {
+      return tireStore.maxSpeed + engineStore.maxSpeed
     })
 
     function get(id: number): Vehicle {
@@ -61,12 +61,12 @@ export function VehicleStore({ scopedId, useStore }: ScopedContext) {
     }
 
     function add(options: VehicleAdd | null = null) {
-      const newId = vehicles_id_increment.value++
+      const newId = vehiclesIdIncrement.value++
 
       let input = {
         name: 'new vehicle ' + newId,
-        tire_id: tireStore.default_tire.id,
-        engine_id: engineStore.default_engine.id,
+        tire_id: tireStore.defaultTire.id,
+        engine_id: engineStore.defaultEngine.id,
       }
       if (options) {
         input = Object.assign(input, options)
@@ -80,9 +80,9 @@ export function VehicleStore({ scopedId, useStore }: ScopedContext) {
 
     return {
       vehicles,
-      vehicles_id_increment,
+      vehiclesIdIncrement,
 
-      max_speed,
+      maxSpeed,
 
       add,
       remove,

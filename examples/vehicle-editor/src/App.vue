@@ -7,11 +7,11 @@ const draftVehicles = ref(false)
 </script>
 <template>
 	<div class="container">
-		<h4>Vehicle Editor</h4>
+		<h4 class="my-2">Vehicle Editor</h4>
 		<Vehicles title="Vehicle List" />
 
 		<template v-if="!draftVehicles">
-			<button class="btn btn-secondary" @click="draftVehicles = true">Draft Vehicles</button>
+			<button class="btn btn-secondary" @click="draftVehicles = true">Draft New Vehicles</button>
 		</template>
 		<template v-else>
 			<DraftVehicles v-model="draftVehicles" />

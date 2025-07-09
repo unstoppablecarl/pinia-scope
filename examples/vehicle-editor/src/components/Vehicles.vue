@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { getStoreScope, useStore } from 'pinia-scope'
+import { useStore } from 'pinia-scope'
 import { VehicleStore } from '../store/vehicle-store.ts'
 import { storeToRefs } from 'pinia'
 import Vehicle from './Vehicles/Vehicle.vue'
+import CustomEngines from './CustomEngines.vue'
+import CurrentScopeBadge from './CurrentScopeBadge.vue'
 
 const vehicleStore = useStore(VehicleStore)
-const { vehicles } = storeToRefs(vehicleStore)
+const { vehicles, maxSpeed } = storeToRefs(vehicleStore)
 
 const { title } = defineProps({
 	title: {
@@ -13,28 +15,32 @@ const { title } = defineProps({
 		required: true,
 	},
 })
-
-const scope = getStoreScope()
 </script>
 <template>
 	<div class="card my-1">
 		<div class="card-header">
 			<strong>{{ title }}</strong>
 			&nbsp;
-			<span class="badge text-bg-secondary">
-				<template v-if="scope">
-					Scope: {{ scope }}
-				</template>
-				<template v-else>
-					Un-Scoped
-				</template>
+			<CurrentScopeBadge />
+			&nbsp;
+			<span class="fw-medium">
+				Max Possible Speed:
 			</span>
+
+			{{ maxSpeed }}
 		</div>
 		<div class="card-body">
-			<Vehicle
-				v-for="item in vehicles"
-				:vehicle-id="item.id"
-			/>
+			<div class="row mx-0">
+				<div class="col-md-8">
+					<Vehicle
+						v-for="item in vehicles"
+						:vehicle-id="item.id"
+					/>
+				</div>
+				<div class="col-md-4">
+					<CustomEngines />
+				</div>
+			</div>
 		</div>
 		<div class="card-footer">
 			<button class="btn btn-primary" @click="vehicleStore.add()">Add Vehicle</button>
