@@ -66,6 +66,7 @@ function createConfig(buildName, output, plugins = []) {
   output.externalLiveBindings = false
   output.globals = {
     vue: 'Vue',
+    pinia: 'pinia',
   }
 
   const isGlobalBuild = buildName === 'global'
@@ -100,7 +101,11 @@ function createConfig(buildName, output, plugins = []) {
   // during a single build.
   hasTSChecked = true
 
-  const external = ['vue', '@vue/devtools-api']
+  const external = [
+    'vue',
+    'pinia',
+    '@vue/devtools-api',
+  ]
 
   const nodePlugins = [nodeResolve(), commonjs()]
 
