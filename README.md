@@ -212,6 +212,8 @@ import { getStoreWithScope } from 'pinia-scope'
 // gets or creates a scoped version of a store
 const vehicleStore = getStoreWithScope(VehicleStore, 'my-scope')
 ```
+## Examples
+ - [Vehicle List Example](examples/vehicle-editor)
 
 ## Building
 `$ pnpm install`
