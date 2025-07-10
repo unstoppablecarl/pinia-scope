@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import { getCurrentInstance, useTemplateRef } from 'vue'
 import { createScopeTracker } from '../../src/scope-tracker'
 import { attachPiniaScopeTracker } from '../../src/pinia-scope'
+import { instanceKey } from '../../src/types'
 
 const SCOPE_A = 'scope-a'
 
@@ -43,7 +44,7 @@ describe('setStoreScope()', () => {
 
         const child = useTemplateRef('child')
         const instance = getCurrentInstance() as any
-        const instanceScope = instance.__PINIA_SCOPE__
+        const instanceScope = instance[instanceKey]
 
         return {
           child,
@@ -77,7 +78,7 @@ describe('setStoreScope()', () => {
         setStoreScope('')
 
         const instance = getCurrentInstance() as any
-        const instanceScope = instance.__PINIA_SCOPE__
+        const instanceScope = instance[instanceKey]
 
         return {
           instanceScope,
