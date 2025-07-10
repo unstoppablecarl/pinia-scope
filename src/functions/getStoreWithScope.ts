@@ -18,7 +18,6 @@ const getStoreWithScope: GetStoreWithScope = (
   const store = storeCreator(ctx)
 
   const storeId = ctx.lastStoreId()
-  ctx.clearLastStoreId()
 
   if (!storeId) {
     throw new Error('Attempting to use a Pinia Scoped Store that did not call scopedId().')

@@ -32,8 +32,6 @@ describe('getStoreWithScope()', () => {
     const context: ScopedContext = {
       scopedId: (id: string) => 'foo',
       lastStoreId: () => storeId,
-      clearLastStoreId: () => {
-      },
       useStore: mockedStoreFactory,
       useStoreWithoutScope: mockedStoreFactory,
     }
@@ -44,7 +42,6 @@ describe('getStoreWithScope()', () => {
     const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')
     const storeCreator = vi.fn().mockImplementation(NameStore)
     const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
 
@@ -59,7 +56,6 @@ describe('getStoreWithScope()', () => {
 
     expect(storeCreator).toHaveBeenCalledWith(ctx)
     expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-    expect(ctxClearLastStoreIdSpy).toHaveBeenCalledOnce()
 
     expect(scopeInitSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, null)
     expect(scopeMountedSpy).toHaveBeenCalledTimes(0)
@@ -87,7 +83,6 @@ describe('getStoreWithScope()', () => {
     const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')
     const storeCreator = vi.fn().mockImplementation(NameStore)
     const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
 
@@ -122,7 +117,6 @@ describe('getStoreWithScope()', () => {
 
     expect(storeCreator).toHaveBeenCalledWith(ctx)
     expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-    expect(ctxClearLastStoreIdSpy).toHaveBeenCalledOnce()
 
     expect(scopeInitSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, null)
     expect(scopeMountedSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
@@ -154,7 +148,6 @@ describe('getStoreWithScope()', () => {
     const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
 
     const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const ctxClearLastStoreIdSpy = vi.spyOn(context, 'clearLastStoreId')
     const storeCreator = vi.fn().mockImplementation(NameStore)
     const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
 
@@ -188,7 +181,6 @@ describe('getStoreWithScope()', () => {
 
     expect(storeCreator).toHaveBeenCalledWith(ctx)
     expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-    expect(ctxClearLastStoreIdSpy).toHaveBeenCalledOnce()
 
     expect(scopeInitSpy).toHaveBeenCalledTimes(0)
     expect(scopeMountedSpy).toHaveBeenCalledTimes(0)
