@@ -1,25 +1,18 @@
 import { Pinia, Store } from 'pinia'
-
-export type ScopeOptions = {
-  autoDispose?: boolean;
-  autoClearState?: boolean;
-}
+import {
+  createDefaultOptionsCollection,
+  getScopeOptionsDiff,
+  normalizeScopeOptions,
+  optionsDiffToMessage,
+  ScopeOptions,
+  ScopeOptionsInput,
+} from './scope-options'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
+
 export function createScopeTracker(pinia: Pinia) {
   const scopes = new Map<string, Scope>()
-
-  function initScope(scope: string, options: ScopeOptions | null = null): Scope {
-    const result = scopes.get(scope)
-    if (result) {
-      return result
-    }
-
-    const newScope = new Scope(pinia, scope, options)
-    scopes.set(scope, newScope)
-
-    return newScope
-  }
+  const defaultOptions = createDefaultOptionsCollection()
 
   function dispose(scope: string) {
     const result = scopes.get(scope)
@@ -41,29 +34,50 @@ export function createScopeTracker(pinia: Pinia) {
     keys(): string[] {
       return [...scopes.keys()]
     },
+    get(scope: string): Scope | undefined {
+      return scopes.get(scope)
+    },
     has(scope: string): boolean {
       return !!scopes.get(scope)
     },
-    init: (scope: string, options: ScopeOptions | null = null) => {
-      if (scopes.has(scope) && options) {
-        const usedScope = scopes.get(scope) as Scope
-        const diff = usedScope.getOptionsDiff(options)
-        if (diff.length) {
-          let message = `Attempting to use an existing pinia scope "${scope}" with different options:`
-          diff.forEach(({ key, scope, option }) => {
-            message += '\n' + `existing scope.${key} = ${scope}` + '\n' + `option.${key} = ${option}`
-          })
-
-          throw new Error(message)
+    setScopeOptionsDefault(scope: string, options: ScopeOptionsInput) {
+      defaultOptions.set(scope, options)
+    },
+    getScopeOptionsDefault(scope: string): ScopeOptions {
+      return defaultOptions.get(scope)
+    },
+    init: (scope: string, optionsInput: ScopeOptionsInput | null = null) => {
+      const existingScope = scopes.get(scope)
+      if (existingScope) {
+        if (optionsInput) {
+          const diff = getScopeOptionsDiff(existingScope.options(), optionsInput)
+          if (diff.length) {
+            throw new Error(`Attempting to initialize an existing pinia scope "${scope}" with different options:` + '\n' +
+              optionsDiffToMessage(diff))
+          }
         }
+
+        return existingScope
       }
-      initScope(scope, options)
+
+      let options: ScopeOptions
+      if (optionsInput) {
+        options = normalizeScopeOptions(optionsInput)
+      } else {
+        options = defaultOptions.get(scope)
+      }
+      const newScope = new Scope(pinia, scope, options)
+      scopes.set(scope, newScope)
+
+      return newScope
     },
     addStore(scope: string, store: Store) {
-      initScope(scope).addStore(store)
+      const usedScope = scopes.get(scope) as Scope
+      usedScope.addStore(store)
     },
     mounted(scope: string) {
-      initScope(scope).mount()
+      const usedScope = scopes.get(scope) as Scope
+      usedScope.mount()
     },
     unmounted(scope: string) {
       const usedScope = scopes.get(scope)
@@ -96,12 +110,11 @@ export function createScopeTracker(pinia: Pinia) {
   }
 }
 
-
 class Scope {
   readonly pinia: Pinia
   readonly id: string
-  readonly autoDispose: boolean = true
-  readonly autoClearState: boolean = true
+  readonly autoDispose: boolean
+  readonly autoClearState: boolean
 
   private stores: Store[] = []
   private _useCount: number = 0
@@ -110,48 +123,19 @@ class Scope {
     return this._useCount
   }
 
-  constructor(pinia: Pinia, scope: string, options: ScopeOptions | null = null) {
+  constructor(pinia: Pinia, scope: string, options: ScopeOptions) {
     this.pinia = pinia
     this.id = scope
 
-    if (!options) {
-      return
-    }
-
-    if (options?.autoDispose !== undefined) {
-      this.autoDispose = options.autoDispose
-    }
-
-    if (options?.autoClearState !== undefined) {
-      this.autoClearState = options.autoClearState
-    }
+    this.autoDispose = options.autoDispose
+    this.autoClearState = options.autoClearState
   }
 
-  getOptionsDiff(options: ScopeOptions): {
-    key: string,
-    option: boolean,
-    scope: boolean
-  }[] {
-    const diff = []
-    if (options.autoDispose !== undefined &&
-      this.autoDispose !== options.autoDispose) {
-      diff.push({
-        key: 'autoDispose',
-        option: options.autoDispose,
-        scope: this.autoDispose,
-      })
+  options(): ScopeOptions {
+    return {
+      autoDispose: this.autoDispose,
+      autoClearState: this.autoClearState,
     }
-
-    if (options.autoClearState !== undefined &&
-      this.autoClearState !== options.autoClearState) {
-      diff.push({
-        key: 'autoClearState',
-        option: options.autoClearState,
-        scope: this.autoClearState,
-      })
-    }
-
-    return diff
   }
 
   addStore(store: Store): void {

@@ -1,8 +1,8 @@
-import { ScopeOptions } from '../scope-tracker'
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { CreatedStore, StoreCreator } from '../types'
 import makeContext from './makeContext'
 import { getActivePiniaScopeTracker } from '../pinia-scope'
+import { ScopeOptionsInput } from '../scope-options'
 
 export type GetStoreWithScope = <S extends StoreCreator>(
   storeCreator: S,
@@ -12,7 +12,7 @@ export type GetStoreWithScope = <S extends StoreCreator>(
 const getStoreWithScope: GetStoreWithScope = (
   storeCreator,
   scope: string,
-  options: ScopeOptions | null = null,
+  options: ScopeOptionsInput | null = null,
 ) => {
   const ctx = makeContext(scope)
   const store = storeCreator(ctx)

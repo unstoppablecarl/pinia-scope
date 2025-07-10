@@ -31,6 +31,9 @@ describe('getActivePiniaScopeTracker()', async () => {
     expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toBe(0)
     expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toBe(0)
 
+    getActivePiniaScopeTracker().init(SCOPE_A)
+    getActivePiniaScopeTracker().init(SCOPE_B)
+
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA1)
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA2)
 
@@ -68,6 +71,7 @@ describe('getActivePiniaScopeTracker()', async () => {
     const store1DisposeSpy = vi.spyOn(store1, '$dispose')
     const store2DisposeSpy = vi.spyOn(store2, '$dispose')
 
+    getActivePiniaScopeTracker().init(SCOPE_A)
     getActivePiniaScopeTracker().addStore(SCOPE_A, store1)
     getActivePiniaScopeTracker().addStore(SCOPE_A, store2)
 
@@ -91,16 +95,22 @@ describe('getActivePiniaScopeTracker()', async () => {
     const store1DisposeSpy = vi.spyOn(store1, '$dispose')
     const store2DisposeSpy = vi.spyOn(store2, '$dispose')
 
-    getActivePiniaScopeTracker().init(SCOPE_A, { autoDispose: true })
-    getActivePiniaScopeTracker().addStore(SCOPE_A, store1)
-    getActivePiniaScopeTracker().addStore(SCOPE_A, store2)
+    let tracker = getActivePiniaScopeTracker()
+    tracker.init(SCOPE_A, { autoDispose: true })
+    tracker.addStore(SCOPE_A, store1)
+    tracker.addStore(SCOPE_A, store2)
+    expect(tracker.useCount(SCOPE_A)).toBe(0)
 
-    getActivePiniaScopeTracker().mounted(SCOPE_A)
-    getActivePiniaScopeTracker().mounted(SCOPE_A)
-    getActivePiniaScopeTracker().unmounted(SCOPE_A)
-    getActivePiniaScopeTracker().unmounted(SCOPE_A)
+    tracker.mounted(SCOPE_A)
+    tracker.mounted(SCOPE_A)
 
-    expect(getActivePiniaScopeTracker().has(SCOPE_A)).toBe(false)
+    expect(tracker.useCount(SCOPE_A)).toBe(2)
+    tracker.unmounted(SCOPE_A)
+
+    expect(tracker.useCount(SCOPE_A)).toBe(1)
+    tracker.unmounted(SCOPE_A)
+
+    expect(tracker.has(SCOPE_A)).toBe(false)
 
     expect(store1DisposeSpy).toHaveBeenCalledOnce()
     expect(store2DisposeSpy).toHaveBeenCalledOnce()
@@ -213,12 +223,46 @@ describe('getActivePiniaScopeTracker()', async () => {
     getActivePiniaScopeTracker().init(SCOPE_C, { autoDispose: false, autoClearState: false })
   })
 
+  it('uses scope default options', async () => {
+    const tracker = getActivePiniaScopeTracker()
+    let options = {
+      autoDispose: false,
+      autoClearState: false,
+    }
+    tracker.setScopeOptionsDefault(SCOPE_A, options)
+
+    expect(tracker.getScopeOptionsDefault(SCOPE_A)).toEqual(options)
+
+    tracker.init(SCOPE_A)
+
+    expect(tracker.get(SCOPE_A)?.autoDispose).toBe(false)
+    expect(tracker.get(SCOPE_A)?.autoClearState).toBe(false)
+  })
+
+  it('overrides scope default options', async () => {
+    const tracker = getActivePiniaScopeTracker()
+    let options = {
+      autoDispose: false,
+      autoClearState: false,
+    }
+    tracker.setScopeOptionsDefault(SCOPE_A, options)
+
+    tracker.init(SCOPE_A, {
+      autoDispose: true,
+      autoClearState: true,
+    })
+
+    expect(tracker.get(SCOPE_A)?.autoDispose).toBe(true)
+    expect(tracker.get(SCOPE_A)?.autoClearState).toBe(true)
+  })
+
+
   it('throws an error if a scope is initialized a second time with different autoDispose options', async () => {
     getActivePiniaScopeTracker().init(SCOPE_A, { autoDispose: true })
 
     expect(() => {
       getActivePiniaScopeTracker().init(SCOPE_A, { autoDispose: false })
-    }).toThrowError(`Attempting to use an existing pinia scope "${SCOPE_A}" with different options:` +
+    }).toThrowError(`Attempting to initialize an existing pinia scope "${SCOPE_A}" with different options:` +
       '\n' + `existing scope.autoDispose = true` +
       '\n' + `option.autoDispose = false`)
   })
@@ -228,7 +272,7 @@ describe('getActivePiniaScopeTracker()', async () => {
 
     expect(() => {
       getActivePiniaScopeTracker().init(SCOPE_A, { autoClearState: false })
-    }).toThrowError(`Attempting to use an existing pinia scope "${SCOPE_A}" with different options:` +
+    }).toThrowError(`Attempting to initialize an existing pinia scope "${SCOPE_A}" with different options:` +
       '\n' + `existing scope.autoClearState = true` +
       '\n' + `option.autoClearState = false`)
   })
@@ -238,7 +282,7 @@ describe('getActivePiniaScopeTracker()', async () => {
 
     expect(() => {
       getActivePiniaScopeTracker().init(SCOPE_A, { autoClearState: false, autoDispose: false })
-    }).toThrowError(`Attempting to use an existing pinia scope "${SCOPE_A}" with different options:` +
+    }).toThrowError(`Attempting to initialize an existing pinia scope "${SCOPE_A}" with different options:` +
       '\n' + `existing scope.autoDispose = true` +
       '\n' + `option.autoDispose = false` +
       '\n' + `existing scope.autoClearState = true` +

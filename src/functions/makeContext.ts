@@ -23,7 +23,6 @@ export default function makeContext(scope: string): ScopedContext {
 
   return Object.freeze({
     lastStoreId: () => lastStoreId,
-    clearLastStoreId: () => lastStoreId = null,
     scopedId: (id: string) => {
       lastStoreId = id
       if (scope) {

@@ -1,9 +1,9 @@
-import { ScopeOptions } from '../scope-tracker'
 import { getCurrentInstance, onUnmounted, provide } from 'vue'
 import { injectorKey } from '../types'
 import { getActivePiniaScopeTracker } from '../pinia-scope'
+import { ScopeOptionsInput } from '../scope-options'
 
-export default function setStoreScope(name: string, options: ScopeOptions | null = null): void {
+export default function setStoreScope(name: string, options: ScopeOptionsInput | null = null): void {
   const instance = getCurrentInstance() as any
   if (!instance) {
     throw new Error('setStoreScope() can only be used inside setup() or functional components.')

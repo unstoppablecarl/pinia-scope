@@ -1,5 +1,6 @@
 import { getActivePinia, Pinia } from 'pinia'
 import { createScopeTracker, ScopeTracker } from './scope-tracker'
+import { ScopeOptions, ScopeOptionsInput } from './scope-options'
 
 const KEY = Symbol('PINIA_SCOPE')
 
@@ -44,6 +45,15 @@ export function disposeAndClearStateOfPiniaScope(scope: string): void {
     .disposeAndClearState(scope)
 }
 
+export function setScopeOptionsDefault(scope: string, options: ScopeOptionsInput): void {
+  getActiveTracker('setScopeOptionsDefault')
+    .setScopeOptionsDefault(scope, options)
+}
+
+export function getScopeOptionsDefault(scope: string): ScopeOptions {
+  return getActiveTracker('getScopeOptionsDefault')
+    .getScopeOptionsDefault(scope)
+}
 function getActiveTracker(methodName: string): ScopeTracker {
   const pinia = getActivePinia() as Pinia
   const scopeTracker = getPiniaScopeTracker(pinia)
