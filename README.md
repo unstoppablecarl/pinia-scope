@@ -4,7 +4,7 @@ Scoped [Pinia](https://pinia.vuejs.org/) Stores for [Vue.js](https://vuejs.org/)
 
 ## Installation
 
-`$ npm i unstoppablecarl/pinia-scope`
+`$ npm i pinia-scope`
 
 Attach pinia scope to the pinia instance in your main app file.
 ```js
