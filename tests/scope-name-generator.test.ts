@@ -17,8 +17,6 @@ describe('scope name generator', () => {
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(scopeName + '-' + NameStore_ID)
-    expect(store.__PINIA_SCOPE__).toEqual(scopeName)
-    expect(store.__PINIA_SCOPE_ID__).toEqual(NameStore_ID)
   })
 
   it('generates default scope names when scope is empty string', async () => {
@@ -26,8 +24,6 @@ describe('scope name generator', () => {
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(NameStore_ID)
-    expect(store.__PINIA_SCOPE__).toEqual(scopeName)
-    expect(store.__PINIA_SCOPE_ID__).toEqual(NameStore_ID)
   })
 
   it('generates custom scope names', async () => {
@@ -36,8 +32,6 @@ describe('scope name generator', () => {
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(scopeName + '-foo-' + NameStore_ID)
-    expect(store.__PINIA_SCOPE__).toEqual(scopeName)
-    expect(store.__PINIA_SCOPE_ID__).toEqual(NameStore_ID)
   })
 
   it('generates custom scope names when scope is empty string', async () => {
@@ -46,7 +40,5 @@ describe('scope name generator', () => {
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(NameStore_ID)
-    expect(store.__PINIA_SCOPE__).toEqual(scopeName)
-    expect(store.__PINIA_SCOPE_ID__).toEqual(NameStore_ID)
   })
 })

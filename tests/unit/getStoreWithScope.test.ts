@@ -1,212 +1,179 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createPinia, defineStore, setActivePinia } from 'pinia'
 import getStoreWithScope from '../../src/functions/getStoreWithScope'
-import { NameStore } from '../helpers/test-stores'
 import * as makeContext from '../../src/functions/makeContext'
-import { ScopedContext } from '../../src/functions/makeContext'
+import { ScopedContext } from '../../src'
 import { mount } from '@vue/test-utils'
-import { CreatedStore, StoreCreator } from '../../src/types'
-import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
+import { attachPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
+import { NameStore } from '../helpers/test-stores'
 
 const SCOPE_A = 'scope-a'
-
-describe('getStoreWithScope()', () => {
-  const pinia = createPinia()
-
-  beforeEach(() => {
-    clearPiniaScope(pinia)
-    attachPiniaScope(pinia)
-    setActivePinia(pinia)
+const storeId = 'test-store-id'
+const StoreCreatorBase = ({ scopedId, lastStoreId }: ScopedContext) => {
+  return defineStore(scopedId(storeId), () => {
+    return {
+      lastStoreId: lastStoreId(),
+    }
   })
+}
+let noActivePiniaErrorMessage = '[🍍]: "getStoreWithScope()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\n' +
+  'See https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\n' +
+  'This will fail in production.'
 
-  const mockedStoreFactory = <S extends StoreCreator>(storeCreator: S): CreatedStore<S> => {
-    return defineStore('foo', () => {
-      return {}
-    }) as CreatedStore<S>
-  }
+describe('getStoreWithScope()', async () => {
 
-  it('outside of component', async () => {
-
-    const storeId = 'test-store-id'
-
-    const context: ScopedContext = {
-      scopedId: (id: string) => 'foo',
-      lastStoreId: () => storeId,
-      useStore: mockedStoreFactory,
-      useStoreWithoutScope: mockedStoreFactory,
-    }
-
-    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
-    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
-
-    const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const storeCreator = vi.fn().mockImplementation(NameStore)
-    const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
-
-    const result = getStoreWithScope(storeCreator, SCOPE_A)
-
-    expect(result.__PINIA_SCOPE__).toBe(SCOPE_A)
-    expect(result.__PINIA_SCOPE_ID__).toBe(storeId)
-    expect(makeContextSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
-
-    const ctx = makeContextSpy.mock.results[0].value
-    const store = storeCreator.mock.results[0].value
-
-    expect(storeCreator).toHaveBeenCalledWith(ctx)
-    expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-
-    expect(scopeInitSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, null)
-    expect(scopeMountedSpy).toHaveBeenCalledTimes(0)
-    expect(scopeAddStoreSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, store())
-    expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
-
-  })
-
-  it('inside of component', async () => {
-
-    const storeId = 'test-store-id'
-
-    const context = {
-      scopedId: (id: string) => 'foo',
-      lastStoreId: () => storeId,
-      clearLastStoreId: () => {
-      },
-      useStore: mockedStoreFactory,
-      useStoreWithoutScope: mockedStoreFactory,
-    }
-
-    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
-    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
-
-    const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const storeCreator = vi.fn().mockImplementation(NameStore)
-    const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
-
-    const App = {
-      setup() {
-        const store = getStoreWithScope(storeCreator, SCOPE_A)
-        return {
-          store,
-        }
-      },
-      template: `
-      `,
-    }
-
-
-    const wrapper = mount(App, {
-      global: {
-        plugins: [pinia],
-      },
-    })
-
-    await wrapper.vm.$nextTick()
-
-    expect(makeContextSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
-
-    const ctx = makeContextSpy.mock.results[0].value
-    const store = storeCreator.mock.results[0].value
-
-    const vmStore = wrapper.vm.store as any
-    expect(vmStore.__PINIA_SCOPE__).toBe(SCOPE_A)
-    expect(vmStore.__PINIA_SCOPE_ID__).toBe(storeId)
-
-    expect(storeCreator).toHaveBeenCalledWith(ctx)
-    expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-
-    expect(scopeInitSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, null)
-    expect(scopeMountedSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
-    expect(scopeAddStoreSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, store())
-    expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
-
-    wrapper.unmount()
-    expect(scopeUnmountedSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
-
-  })
-
-
-  it('inside of component with empty string scope', async () => {
-
-    const storeId = 'test-store-id'
-
-    const context = {
-      scopedId: (id: string) => 'foo',
-      lastStoreId: () => storeId,
-      clearLastStoreId: () => {
-      },
-      useStore: mockedStoreFactory,
-      useStoreWithoutScope: mockedStoreFactory,
-    }
-
-    const scopeInitSpy = vi.spyOn(getActivePiniaScopeTracker(), 'init')
-    const scopeMountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'mounted')
-    const scopeAddStoreSpy = vi.spyOn(getActivePiniaScopeTracker(), 'addStore')
-    const scopeUnmountedSpy = vi.spyOn(getActivePiniaScopeTracker(), 'unmounted')
-
-    const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
-    const storeCreator = vi.fn().mockImplementation(NameStore)
-    const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
-
-    const App = {
-      setup() {
-        const store = getStoreWithScope(storeCreator, '')
-        return {
-          store,
-        }
-      },
-      template: `
-      `,
-    }
+  it('without attaching pinia-scope', async () => {
 
     const pinia = createPinia()
-    const wrapper = mount(App, {
-      global: {
-        plugins: [pinia],
-      },
-    })
 
-    await wrapper.vm.$nextTick()
-
-    expect(makeContextSpy).toHaveBeenCalledExactlyOnceWith('')
-
-    const ctx = makeContextSpy.mock.results[0].value
-
-    const store = wrapper.vm.store as any
-    expect(store.__PINIA_SCOPE__).toBe('')
-    expect(store.__PINIA_SCOPE_ID__).toBe(storeId)
-
-    expect(storeCreator).toHaveBeenCalledWith(ctx)
-    expect(ctxScopedIdSpy).toHaveBeenCalledOnce()
-
-    expect(scopeInitSpy).toHaveBeenCalledTimes(0)
-    expect(scopeMountedSpy).toHaveBeenCalledTimes(0)
-    expect(scopeAddStoreSpy).toHaveBeenCalledTimes(0)
-    expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
-
-    wrapper.unmount()
-    expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
-
+    setActivePinia(pinia)
+    expect(() => {
+      getStoreWithScope(NameStore, SCOPE_A)
+    }).toThrowError('"getStoreWithScope()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
   })
 
-  it('outside of component with lastStoreId error', async () => {
-    const context = {
-      scopedId: (id: string) => 'foo',
-      lastStoreId: () => null,
-      clearLastStoreId: () => {
-      },
-      useStore: mockedStoreFactory,
-      useStoreWithoutScope: mockedStoreFactory,
-    }
+  describe('outside of component', async () => {
+    it('with empty string scope', async () => {
 
-    const storeCreator = vi.fn().mockImplementation(NameStore)
-    vi.spyOn(makeContext, 'default').mockReturnValue(context)
+      expect(() => {
+        getStoreWithScope(StoreCreatorBase, '')
+      }).toThrowError(noActivePiniaErrorMessage)
+    })
 
-    expect(() => {
-      getStoreWithScope(storeCreator, SCOPE_A)
-    }).toThrowError('Attempting to use a Pinia Scoped Store that did not call scopedId().')
+    it('with scope', async () => {
+      expect(() => {
+        getStoreWithScope(StoreCreatorBase, SCOPE_A)
+      }).toThrowError(noActivePiniaErrorMessage)
+    })
+  })
+
+  describe('inside component', async () => {
+    it('with scope', async () => {
+      const pinia = createPinia()
+      setActivePinia(pinia)
+      attachPiniaScope(pinia)
+
+      const context = makeContext.default(SCOPE_A)
+      const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
+
+      const tracker = getActivePiniaScopeTracker()
+      const scopeInitSpy = vi.spyOn(tracker, 'init')
+      const scopeMountedSpy = vi.spyOn(tracker, 'mounted')
+      const scopeAddStoreSpy = vi.spyOn(tracker, 'addStore')
+      const scopeUnmountedSpy = vi.spyOn(tracker, 'unmounted')
+
+      const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
+      const StoreCreator = vi.fn().mockImplementation(StoreCreatorBase)
+
+      const App = {
+        setup() {
+          const store = getStoreWithScope(StoreCreator, SCOPE_A)
+          return {
+            store,
+          }
+        },
+        template: `
+        `,
+      }
+
+      const wrapper = mount(App, {
+        global: {
+          plugins: [pinia],
+        },
+      })
+
+      await wrapper.vm.$nextTick()
+
+      expect(makeContextSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
+
+      const ctx = makeContextSpy.mock.results[0].value
+
+      const store = wrapper.vm.store as any
+      expect(store.$id).toBe(SCOPE_A + '-' + storeId)
+      expect(store.lastStoreId).toBe(storeId)
+
+      expect(StoreCreator).toHaveBeenCalledExactlyOnceWith(ctx)
+      expect(ctxScopedIdSpy).toHaveBeenCalledExactlyOnceWith(storeId)
+
+      expect(scopeInitSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, null)
+      expect(scopeMountedSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
+      expect(scopeAddStoreSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A, store)
+      expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
+
+      wrapper.unmount()
+      expect(scopeUnmountedSpy).toHaveBeenCalledExactlyOnceWith(SCOPE_A)
+    })
+
+    it('with empty string scope', async () => {
+      const pinia = createPinia()
+      setActivePinia(pinia)
+      attachPiniaScope(pinia)
+
+      const context = makeContext.default('')
+      const ctxScopedIdSpy = vi.spyOn(context, 'scopedId')
+
+      const tracker = getActivePiniaScopeTracker()
+      const scopeInitSpy = vi.spyOn(tracker, 'init')
+      const scopeMountedSpy = vi.spyOn(tracker, 'mounted')
+      const scopeAddStoreSpy = vi.spyOn(tracker, 'addStore')
+      const scopeUnmountedSpy = vi.spyOn(tracker, 'unmounted')
+
+      const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
+      const StoreCreator = vi.fn().mockImplementation(StoreCreatorBase)
+
+      const App = {
+        setup() {
+          const store = getStoreWithScope(StoreCreator, '')
+          return {
+            store,
+          }
+        },
+        template: `
+        `,
+      }
+
+      const wrapper = mount(App, {
+        global: {
+          plugins: [pinia],
+        },
+      })
+
+      await wrapper.vm.$nextTick()
+
+      expect(makeContextSpy).toHaveBeenCalledExactlyOnceWith('')
+
+      const ctx = makeContextSpy.mock.results[0].value
+
+      const store = wrapper.vm.store as any
+      expect(store.$id).toBe(storeId)
+      expect(store.lastStoreId).toBe(storeId)
+
+      expect(StoreCreator).toHaveBeenCalledExactlyOnceWith(ctx)
+      expect(ctxScopedIdSpy).toHaveBeenCalledExactlyOnceWith(storeId)
+
+      expect(scopeInitSpy).toHaveBeenCalledTimes(0)
+      expect(scopeMountedSpy).toHaveBeenCalledTimes(0)
+      expect(scopeAddStoreSpy).toHaveBeenCalledTimes(0)
+      expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
+
+      wrapper.unmount()
+      expect(scopeUnmountedSpy).toHaveBeenCalledTimes(0)
+
+    })
+
+    it('without calling scopedId() lastStoreId error', async () => {
+      const pinia = createPinia()
+      setActivePinia(pinia)
+      attachPiniaScope(pinia)
+
+      const StoreCreator = ({ scopedId, lastStoreId }: ScopedContext) => {
+        return defineStore('test-store', () => {
+        })
+      }
+
+      expect(() => {
+        getStoreWithScope(StoreCreator, SCOPE_A)
+      }).toThrowError('Attempting to use a Pinia Scoped Store that did not call scopedId().')
+    })
   })
 })

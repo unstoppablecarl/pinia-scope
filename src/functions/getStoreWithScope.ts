@@ -1,7 +1,7 @@
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { CreatedStore, StoreCreator } from '../types'
 import makeContext from './makeContext'
-import { getActivePiniaScopeTracker } from '../pinia-scope'
+import { getActiveTracker } from '../pinia-scope'
 import { ScopeOptionsInput } from '../scope-options'
 
 export type GetStoreWithScope = <S extends StoreCreator>(
@@ -14,21 +14,19 @@ const getStoreWithScope: GetStoreWithScope = (
   scope: string,
   options: ScopeOptionsInput | null = null,
 ) => {
+  const tracker = getActiveTracker('getStoreWithScope')
+
   const ctx = makeContext(scope)
   const store = storeCreator(ctx)
 
   const storeId = ctx.lastStoreId()
-
   if (!storeId) {
     throw new Error('Attempting to use a Pinia Scoped Store that did not call scopedId().')
   }
 
   const result = store()
-  result.__PINIA_SCOPE__ = scope
-  result.__PINIA_SCOPE_ID__ = storeId
 
   if (scope !== '') {
-    const tracker = getActivePiniaScopeTracker()
 
     tracker.init(scope, options)
     tracker.addStore(scope, result)
