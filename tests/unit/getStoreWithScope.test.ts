@@ -63,7 +63,8 @@ describe('getStoreWithScope()', async () => {
       const scopeUnmountedSpy = vi.spyOn(tracker, 'unmounted')
 
       const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
-      const StoreCreator = vi.fn().mockImplementation(StoreCreatorBase)
+      const StoreCreator = vi.fn()
+      StoreCreator.mockImplementation(StoreCreatorBase)
 
       const App = {
         setup() {
@@ -119,7 +120,8 @@ describe('getStoreWithScope()', async () => {
       const scopeUnmountedSpy = vi.spyOn(tracker, 'unmounted')
 
       const makeContextSpy = vi.spyOn(makeContext, 'default').mockReturnValue(context)
-      const StoreCreator = vi.fn().mockImplementation(StoreCreatorBase)
+      const StoreCreator = vi.fn()
+      StoreCreator.mockImplementation(StoreCreatorBase)
 
       const App = {
         setup() {
@@ -166,7 +168,7 @@ describe('getStoreWithScope()', async () => {
       setActivePinia(pinia)
       attachPiniaScope(pinia)
 
-      const StoreCreator = ({ scopedId, lastStoreId }: ScopedContext) => {
+      const StoreCreator = ({}: ScopedContext) => {
         return defineStore('test-store', () => {
         })
       }
