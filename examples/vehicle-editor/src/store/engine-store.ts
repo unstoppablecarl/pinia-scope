@@ -29,8 +29,8 @@ const ENGINE_DATA: { [key: string]: Engine } = {
   },
 }
 
-export function EngineStore({ scopedId, useStore }: ScopedContext) {
-  return defineStore(scopedId('engines'), () => {
+export function EngineStore({ addScope, useStore }: ScopedContext) {
+  return defineStore(addScope('engines'), () => {
 
     const vehicleStore = useStore(VehicleStore)
 
