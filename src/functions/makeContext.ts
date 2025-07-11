@@ -21,7 +21,7 @@ export default function makeContext(scope: string): ScopedContext {
 
   let lastStoreId: string | null = null
 
-  return Object.freeze({
+  return {
     lastStoreId: () => lastStoreId,
     scopedId: (id: string) => {
       lastStoreId = id
@@ -32,5 +32,5 @@ export default function makeContext(scope: string): ScopedContext {
     },
     useStore,
     useStoreWithoutScope,
-  })
+  }
 }
