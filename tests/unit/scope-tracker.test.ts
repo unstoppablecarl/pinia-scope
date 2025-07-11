@@ -197,6 +197,9 @@ describe('getActivePiniaScopeTracker()', async () => {
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA1)
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA2)
 
+    // confirm duplicates are ignored
+    getActivePiniaScopeTracker().addStore(SCOPE_A, storeA2)
+
     getActivePiniaScopeTracker().mounted(SCOPE_A)
     getActivePiniaScopeTracker().mounted(SCOPE_A)
     getActivePiniaScopeTracker().unmounted(SCOPE_A)

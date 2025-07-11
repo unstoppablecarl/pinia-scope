@@ -148,7 +148,9 @@ class Scope {
   }
 
   addStore(store: Store): void {
-    this.stores.push(store)
+    if (!this.stores.includes(store)) {
+      this.stores.push(store)
+    }
   }
 
   mount(): void {
