@@ -1,6 +1,7 @@
 import { getActivePinia, Pinia } from 'pinia'
 import { createScopeTracker, ScopeTracker } from './scope-tracker'
 import { ScopeOptions, ScopeOptionsInput } from './scope-options'
+import { ScopeNameGenerator } from './functions/createScopeNameFactory'
 
 const KEY = Symbol('PINIA_SCOPE')
 
@@ -53,6 +54,11 @@ export function setScopeOptionsDefault(scope: string, options: ScopeOptionsInput
 export function getScopeOptionsDefault(scope: string): ScopeOptions {
   return getActiveTracker('getScopeOptionsDefault')
     .getScopeOptionsDefault(scope)
+}
+
+export function setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
+  return getActiveTracker('setPiniaScopeNameGenerator')
+    .setPiniaScopeNameGenerator(scopeNameGenerator)
 }
 
 export function getActiveTracker(methodName: string): ScopeTracker {

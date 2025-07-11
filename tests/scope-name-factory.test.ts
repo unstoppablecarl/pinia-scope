@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { setPiniaScopeNameGenerator } from '../src/scope-name-generator'
 import { getStoreWithScope } from '../src'
 import { NameStore, NameStore_ID } from './helpers/test-stores'
 import { createPinia, setActivePinia } from 'pinia'
-import { attachPiniaScope } from '../src/pinia-scope'
+import { attachPiniaScope, setPiniaScopeNameGenerator } from '../src/pinia-scope'
 
 describe('scope name generator', () => {
   beforeEach(() => {
@@ -28,7 +27,7 @@ describe('scope name generator', () => {
 
   it('generates custom scope names', async () => {
     const scopeName = 'scope-name'
-    setPiniaScopeNameGenerator((scope, id) => scope + '-foo-' + id)
+    setPiniaScopeNameGenerator((scope: string, id: string) => scope + '-foo-' + id)
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(scopeName + '-foo-' + NameStore_ID)
@@ -36,7 +35,7 @@ describe('scope name generator', () => {
 
   it('generates custom scope names when scope is empty string', async () => {
     const scopeName = ''
-    setPiniaScopeNameGenerator((scope, id) => scope + '-foo-' + id)
+    setPiniaScopeNameGenerator((scope: string, id: string) => scope + '-foo-' + id)
     const store = getStoreWithScope(NameStore, scopeName)
 
     expect(store.$id).toEqual(NameStore_ID)

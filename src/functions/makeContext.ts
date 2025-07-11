@@ -1,6 +1,6 @@
 import { StoreFactory } from '../types'
-import { SCOPE_NAME_GENERATOR } from '../scope-name-generator'
 import getStoreWithScope from './getStoreWithScope'
+import { ScopeNameGenerator } from './createScopeNameFactory'
 
 export type ScopedContext = {
   readonly getBaseStoreId: () => string | null
@@ -9,7 +9,7 @@ export type ScopedContext = {
   readonly useStoreWithoutScope: StoreFactory
 }
 
-export default function makeContext(scope: string): ScopedContext {
+export default function makeContext(scope: string, scopeNameGenerator: ScopeNameGenerator): ScopedContext {
 
   const useStore: StoreFactory = (storeCreator) => {
     return getStoreWithScope(storeCreator, scope)
@@ -26,7 +26,7 @@ export default function makeContext(scope: string): ScopedContext {
     addScope: (id: string) => {
       lastStoreId = id
       if (scope) {
-        return SCOPE_NAME_GENERATOR(scope, id)
+        return scopeNameGenerator(scope, id)
       }
       return id
     },

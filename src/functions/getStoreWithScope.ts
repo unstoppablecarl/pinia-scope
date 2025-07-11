@@ -1,6 +1,5 @@
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { CreatedStore, StoreCreator } from '../types'
-import makeContext from './makeContext'
 import { getActiveTracker } from '../pinia-scope'
 import { ScopeOptionsInput } from '../scope-options'
 
@@ -16,7 +15,7 @@ const getStoreWithScope: GetStoreWithScope = (
 ) => {
   const tracker = getActiveTracker('getStoreWithScope')
 
-  const ctx = makeContext(scope)
+  const ctx = tracker.makeContext(scope)
   const store = storeCreator(ctx)
 
   const storeId = ctx.getBaseStoreId()
