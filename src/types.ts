@@ -6,6 +6,8 @@ export const injectorKey: InjectionKey<string> = Symbol(
   'Pinia Scope Injector Key',
 )
 
+export const instanceKey = Symbol('Pinia Scope Instance Key')
+
 export type CreatedStore<S extends StoreCreator> = ReturnType<ReturnType<S>> & {
   __PINIA_SCOPE__: string;
   __PINIA_SCOPE_ID__: string;

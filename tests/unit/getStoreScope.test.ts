@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { injectorKey } from '../../src/types'
+import { injectorKey, instanceKey } from '../../src/types'
 import getStoreScope from '../../src/functions/getStoreScope'
 import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
@@ -25,13 +25,39 @@ describe('getStoreScope()', () => {
     ).toThrowError('getStoreScope() can only be used inside setup() or functional components.')
   })
 
+  it('can get default scope', async () => {
+    const App = {
+      setup() {
+
+        const instance = getCurrentInstance() as any
+        instance[instanceKey] = ''
+
+        const scope = getStoreScope()
+
+        return {
+          scope,
+        }
+      },
+      template: `a`,
+    }
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [pinia],
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.scope).toBe('')
+    expect(getActivePiniaScopeTracker().keys()).toEqual([])
+  })
 
   it('can get self set scope', async () => {
     const App = {
       setup() {
 
         const instance = getCurrentInstance() as any
-        instance.__PINIA_SCOPE__ = SCOPE_A
+        instance[instanceKey] = SCOPE_A
 
         const scope = getStoreScope()
 
@@ -97,7 +123,7 @@ describe('getStoreScope()', () => {
     const Child = {
       setup() {
         const instance = getCurrentInstance() as any
-        instance.__PINIA_SCOPE__ = SCOPE_B
+        instance[instanceKey] = SCOPE_B
 
         const scope = getStoreScope()
         return {

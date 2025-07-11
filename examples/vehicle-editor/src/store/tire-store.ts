@@ -30,8 +30,8 @@ const TIRE_DATA: { [key: string]: Tire } = {
   },
 }
 
-export function TireStore({ scopedId }: ScopedContext) {
-  return defineStore(scopedId('tires'), () => {
+export function TireStore({ addScope }: ScopedContext) {
+  return defineStore(addScope('tires'), () => {
     const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
 
     const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])

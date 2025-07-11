@@ -7,12 +7,15 @@ import {
   ScopeOptions,
   ScopeOptionsInput,
 } from './scope-options'
+import createScopeNameFactory, { ScopeNameGenerator } from './functions/createScopeNameFactory'
+import makeContext, { ScopedContext } from './functions/makeContext'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
 
 export function createScopeTracker(pinia: Pinia) {
   const scopes = new Map<string, Scope>()
   const defaultOptions = createDefaultOptionsCollection()
+  const scopeNameFactory = createScopeNameFactory()
 
   function dispose(scope: string) {
     const result = scopes.get(scope)
@@ -107,6 +110,12 @@ export function createScopeTracker(pinia: Pinia) {
     },
     dispose,
     disposeAndClearState,
+    makeContext(scope: string): ScopedContext {
+      return makeContext(scope, scopeNameFactory.generate)
+    },
+    setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
+      scopeNameFactory.set(scopeNameGenerator)
+    },
   }
 }
 
@@ -139,7 +148,9 @@ class Scope {
   }
 
   addStore(store: Store): void {
-    this.stores.push(store)
+    if (!this.stores.includes(store)) {
+      this.stores.push(store)
+    }
   }
 
   mount(): void {

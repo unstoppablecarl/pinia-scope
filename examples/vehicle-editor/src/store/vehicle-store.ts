@@ -20,8 +20,8 @@ export type VehicleInfo = Vehicle & {
   total_speed: number,
 }
 
-export function VehicleStore({ scopedId, useStore }: ScopedContext) {
-  return defineStore(scopedId('vehicles'), () => {
+export function VehicleStore({ addScope, useStore }: ScopedContext) {
+  return defineStore(addScope('vehicles'), () => {
 
     const tireStore = useStore(TireStore)
     const engineStore = useStore(EngineStore)

@@ -138,3 +138,7 @@ ipch/
 .metadata
 local.properties
 .externalToolBuilders
+
+# stryker temp files
+.stryker-tmp
+reports

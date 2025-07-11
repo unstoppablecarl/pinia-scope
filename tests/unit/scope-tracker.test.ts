@@ -186,12 +186,18 @@ describe('getActivePiniaScopeTracker()', async () => {
     const storeA1 = makeStore('store-A1')
     const storeA2 = makeStore('store-A2')
 
+    const storeA1State = {...storeA1.$state}
+    const storeA2State = {...storeA2.$state}
+
     const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose')
     const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose')
 
     getActivePiniaScopeTracker().init(SCOPE_A, { autoDispose: true, autoClearState: false })
 
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA1)
+    getActivePiniaScopeTracker().addStore(SCOPE_A, storeA2)
+
+    // confirm duplicates are ignored
     getActivePiniaScopeTracker().addStore(SCOPE_A, storeA2)
 
     getActivePiniaScopeTracker().mounted(SCOPE_A)
@@ -204,8 +210,8 @@ describe('getActivePiniaScopeTracker()', async () => {
     expect(storeA1DisposeSpy).toHaveBeenCalledTimes(1)
     expect(storeA2DisposeSpy).toHaveBeenCalledTimes(1)
 
-    expect(pinia?.state.value[storeA1.$id]).toBe(storeA1.$state)
-    expect(pinia?.state.value[storeA2.$id]).toBe(storeA2.$state)
+    expect(pinia.state.value[storeA1.$id]).toStrictEqual(storeA1State)
+    expect(pinia.state.value[storeA2.$id]).toStrictEqual(storeA2State)
   })
 
   it('when unmounted prematurely', async () => {

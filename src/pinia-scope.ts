@@ -1,6 +1,7 @@
 import { getActivePinia, Pinia } from 'pinia'
 import { createScopeTracker, ScopeTracker } from './scope-tracker'
 import { ScopeOptions, ScopeOptionsInput } from './scope-options'
+import { ScopeNameGenerator } from './functions/createScopeNameFactory'
 
 const KEY = Symbol('PINIA_SCOPE')
 
@@ -54,8 +55,21 @@ export function getScopeOptionsDefault(scope: string): ScopeOptions {
   return getActiveTracker('getScopeOptionsDefault')
     .getScopeOptionsDefault(scope)
 }
-function getActiveTracker(methodName: string): ScopeTracker {
+
+export function setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
+  return getActiveTracker('setPiniaScopeNameGenerator')
+    .setPiniaScopeNameGenerator(scopeNameGenerator)
+}
+
+export function getActiveTracker(methodName: string): ScopeTracker {
   const pinia = getActivePinia() as Pinia
+  if (!pinia) {
+    throw new Error(
+      `[🍍]: "${methodName}()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?
+See https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.
+This will fail in production.`)
+  }
+
   const scopeTracker = getPiniaScopeTracker(pinia)
   if (!scopeTracker) {
     throw new Error(`"${methodName}()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?`)

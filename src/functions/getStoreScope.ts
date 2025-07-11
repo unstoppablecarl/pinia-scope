@@ -1,5 +1,5 @@
 import { getCurrentInstance, inject } from 'vue'
-import { injectorKey } from '../types'
+import { injectorKey, instanceKey } from '../types'
 
 export default function getStoreScope(): string {
   const instance = getCurrentInstance() as any
@@ -8,5 +8,5 @@ export default function getStoreScope(): string {
   }
 
   const injectedScope = inject(injectorKey, '')
-  return instance.__PINIA_SCOPE__ || injectedScope
+  return instance[instanceKey] || injectedScope
 }

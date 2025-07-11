@@ -96,9 +96,9 @@ Definition
 import { defineStore } from 'pinia'
 import { type ScopedContext } from 'pinia-scope'
 
-export const VehicleStore = ({ scopedId }: ScopedContext) => {
-  // wrap the store id with the scopedId() function
-  return defineStore(scopedId('vehicles'), () => {
+export const VehicleStore = ({ addScope }: ScopedContext) => {
+  // wrap the store id with the addScope() function
+  return defineStore(addScope('vehicles'), () => {
     //...
   })
 }
@@ -350,6 +350,7 @@ const vehicleStore = useStore(VehicleStore)
 ## Testing
 
 `$ pnpm run test`
+`$ pnpm run test:mutation`
 
 ## References
 
