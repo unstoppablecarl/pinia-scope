@@ -19,9 +19,9 @@ const getStoreWithScope: GetStoreWithScope = (
   const ctx = makeContext(scope)
   const store = storeCreator(ctx)
 
-  const storeId = ctx.lastStoreId()
+  const storeId = ctx.getBaseStoreId()
   if (!storeId) {
-    throw new Error('Attempting to use a Pinia Scoped Store that did not call scopedId().')
+    throw new Error('Attempting to use a Pinia Scoped Store that did not call addScope().')
   }
 
   const result = store()

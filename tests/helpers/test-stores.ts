@@ -5,8 +5,8 @@ import { ScopedContext } from '../../src/functions/makeContext'
 export const NameStore_DEFAULT_NAME = 'default-name'
 export const NameStore_ID = 'name-store'
 
-export const NameStore = ({ scopedId }: ScopedContext) => {
-  return defineStore(scopedId(NameStore_ID), () => {
+export const NameStore = ({ addScope }: ScopedContext) => {
+  return defineStore(addScope(NameStore_ID), () => {
     const name = ref<string>(NameStore_DEFAULT_NAME)
 
     function setName(nameValue: string) {
@@ -20,8 +20,8 @@ export const NameStore = ({ scopedId }: ScopedContext) => {
   })
 }
 
-export const NameTreeStore = ({ scopedId, useStore }: ScopedContext) => {
-  return defineStore(scopedId(NameStore_ID), () => {
+export const NameTreeStore = ({ addScope, useStore }: ScopedContext) => {
+  return defineStore(addScope(NameStore_ID), () => {
     const name = ref<string>('')
 
     const child1NameStore = useStore(Child1NameStore)
@@ -45,8 +45,8 @@ export const NameTreeStore = ({ scopedId, useStore }: ScopedContext) => {
   })
 }
 
-export const Child1NameStore = ({ scopedId, useStore, useStoreWithoutScope }: ScopedContext) => {
-  return defineStore(scopedId('child-1-name-store'), () => {
+export const Child1NameStore = ({ addScope, useStore, useStoreWithoutScope }: ScopedContext) => {
+  return defineStore(addScope('child-1-name-store'), () => {
     const child1Name = ref<string>('')
 
     const child2NameStore = useStore(Child2NameStore)
@@ -67,8 +67,8 @@ export const Child1NameStore = ({ scopedId, useStore, useStoreWithoutScope }: Sc
   })
 }
 
-export const Child2NameStore = ({ scopedId }: ScopedContext) => {
-  return defineStore(scopedId('child-2-name-store'), () => {
+export const Child2NameStore = ({ addScope }: ScopedContext) => {
+  return defineStore(addScope('child-2-name-store'), () => {
     const child2Name = ref<string>('')
 
     function setChild2Name(nameValue: string) {
