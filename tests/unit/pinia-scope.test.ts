@@ -11,9 +11,11 @@ import {
   getScopeOptionsDefault,
   hasPiniaScope,
   setScopeOptionsDefault,
+  setPiniaScopeNameGenerator,
 } from '../../src/pinia-scope'
 import * as scopeTracker from '../../src/scope-tracker'
 import { createScopeTracker } from '../../src/scope-tracker'
+import { ScopeNameGenerator } from '../../src'
 
 const SCOPE_A = 'scope-a'
 
@@ -138,6 +140,20 @@ describe('pinia-scope APIs', () => {
     expect(() => {
       setScopeOptionsDefault(SCOPE_A, { autoDispose: false })
     }).toThrowError('"setScopeOptionsDefault()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
+  })
+
+
+  it('setPiniaScopeNameGenerator() throws an error when not attached', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+
+    expect(() => {
+      const generator: ScopeNameGenerator = (scope: string, id: string): string => {
+        return `${scope}------${id}`
+      }
+      setPiniaScopeNameGenerator(generator)
+
+    }).toThrowError('"setPiniaScopeNameGenerator()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
   })
 })
 

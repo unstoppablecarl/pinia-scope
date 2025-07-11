@@ -20,6 +20,12 @@ importers:
       '@rollup/plugin-terser':
         specifier: ^0.4.4
         version: 0.4.4(rollup@4.44.2)
+      '@stryker-mutator/core':
+        specifier: ^9.0.1
+        version: 9.0.1(@types/node@24.0.10)
+      '@stryker-mutator/typescript-checker':
+        specifier: ^9.0.1
+        version: 9.0.1(@stryker-mutator/core@9.0.1(@types/node@24.0.10))(typescript@5.8.3)
       '@stryker-mutator/vitest-runner':
         specifier: ^9.0.1
         version: 9.0.1(@stryker-mutator/core@9.0.1(@types/node@24.0.10))(vitest@3.2.4(@types/node@24.0.10)(happy-dom@18.0.1)(sass@1.89.2)(terser@5.43.1))
@@ -1004,6 +1010,13 @@ packages:
   '@stryker-mutator/instrumenter@9.0.1':
     resolution: {integrity: sha512-ZIIS39w6X4LkYwsTdOneUSIBIY+QFKrmuJdI5LI4XI5FCwOQVN1UnBTFYpaKuKOBznBdRiBUEZXxm5Y42/To+A==}
     engines: {node: '>=20.0.0'}
+
+  '@stryker-mutator/typescript-checker@9.0.1':
+    resolution: {integrity: sha512-S/oYlIAj9BysYNspk8gS4u42rFE8eBm4NujrW00ZJ6BcK86DM/OQEnfus3SzGxi5z9fDDcrrURBSafme2zW4IA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@stryker-mutator/core': ~9.0.0
+      typescript: '>=3.6'
 
   '@stryker-mutator/util@9.0.1':
     resolution: {integrity: sha512-bpE6IMVqpxeSODZK/HH+dKwhfzzE/jc8vX3UgU3ybmBrpQvAthGpSf4lbccUCUMkBp6WQyGqTq25pGhFj3ErWA==}
@@ -2325,7 +2338,7 @@ snapshots:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@babel/code-frame': 7.27.1
-      '@babel/generator': 7.27.5
+      '@babel/generator': 7.28.0
       '@babel/helper-compilation-targets': 7.27.2
       '@babel/helper-module-transforms': 7.27.3(@babel/core@7.27.7)
       '@babel/helpers': 7.27.6
@@ -3087,6 +3100,14 @@ snapshots:
       weapon-regex: 1.3.2
     transitivePeerDependencies:
       - supports-color
+
+  '@stryker-mutator/typescript-checker@9.0.1(@stryker-mutator/core@9.0.1(@types/node@24.0.10))(typescript@5.8.3)':
+    dependencies:
+      '@stryker-mutator/api': 9.0.1
+      '@stryker-mutator/core': 9.0.1(@types/node@24.0.10)
+      '@stryker-mutator/util': 9.0.1
+      semver: 7.7.2
+      typescript: 5.8.3
 
   '@stryker-mutator/util@9.0.1': {}
 

@@ -2,9 +2,10 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { getStoreWithScope } from '../src'
 import { NameStore, NameStore_ID } from './helpers/test-stores'
 import { createPinia, setActivePinia } from 'pinia'
-import { attachPiniaScope, setPiniaScopeNameGenerator } from '../src/pinia-scope'
+import { attachPiniaScope } from '../src/pinia-scope'
+import { setPiniaScopeNameGenerator } from '../src/pinia-scope'
 
-describe('scope name generator', () => {
+describe('scope name factory', () => {
   beforeEach(() => {
     const pinia = createPinia()
     attachPiniaScope(pinia)

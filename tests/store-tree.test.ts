@@ -2,7 +2,13 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, Pinia, setActivePinia } from 'pinia'
 import { getStoreScope, setStoreScope, useStore, useStoreWithoutScope } from '../src'
-import { Child1NameStore, Child2NameStore, NameTreeStore } from './helpers/test-stores'
+import {
+  Child1NameStore,
+  Child2NameStore,
+  Child2NameStore_NAME,
+  NameStore_ID,
+  NameTreeStore,
+} from './helpers/test-stores'
 import { onMounted } from 'vue'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
 
@@ -154,9 +160,13 @@ describe('useProvideStores', () => {
     expect(compA.vm.scope).toBe(SCOPE_A)
     expect(compA.vm.nameStore.name).toBe(nameA)
     expect(compA.vm.nameStoreUnscoped.name).toBe(nameB + '-unscoped')
+    expect(compA.vm.nameStoreUnscoped.$id).toBe(NameStore_ID)
 
     expect(compA.vm.child1NameStore.child1Name)
       .toBe('from-name-store: ' + nameAChild1)
+
+    expect(compA.vm.child1NameStore.child2NameStoreWithoutScopeId)
+      .toBe(Child2NameStore_NAME)
 
     expect(compA.vm.child1NameStoreUnscoped.child1Name)
       .toBe('from-name-store: ' + nameBChild1 + '-unscoped')

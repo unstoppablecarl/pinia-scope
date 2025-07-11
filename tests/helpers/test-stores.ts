@@ -63,12 +63,14 @@ export const Child1NameStore = ({ addScope, useStore, useStoreWithoutScope }: Sc
       child1Name: child1Name,
       setChild1Name,
       child2NameWithoutScope,
+      child2NameStoreWithoutScopeId: child2NameStoreWithoutScope.$id
     }
   })
 }
 
+export const Child2NameStore_NAME = 'child2-name-store'
 export const Child2NameStore = ({ addScope }: ScopedContext) => {
-  return defineStore(addScope('child-2-name-store'), () => {
+  return defineStore(addScope(Child2NameStore_NAME), () => {
     const child2Name = ref<string>('')
 
     function setChild2Name(nameValue: string) {
@@ -84,5 +86,10 @@ export const Child2NameStore = ({ addScope }: ScopedContext) => {
 
 export function makeStore(id: string) {
   return defineStore(id, () => {
+    const some = ref('state')
+
+    return {
+      some,
+    }
   })()
 }

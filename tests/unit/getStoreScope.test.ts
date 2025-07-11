@@ -25,6 +25,33 @@ describe('getStoreScope()', () => {
     ).toThrowError('getStoreScope() can only be used inside setup() or functional components.')
   })
 
+  it('can get default scope', async () => {
+    const App = {
+      setup() {
+
+        const instance = getCurrentInstance() as any
+        instance[instanceKey] = ''
+
+        const scope = getStoreScope()
+
+        return {
+          scope,
+        }
+      },
+      template: `a`,
+    }
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [pinia],
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.scope).toBe('')
+    expect(getActivePiniaScopeTracker().keys()).toEqual([])
+  })
+
   it('can get self set scope', async () => {
     const App = {
       setup() {

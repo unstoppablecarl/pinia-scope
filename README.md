@@ -350,6 +350,7 @@ const vehicleStore = useStore(VehicleStore)
 ## Testing
 
 `$ pnpm run test`
+`$ pnpm run test:mutation`
 
 ## References
 
