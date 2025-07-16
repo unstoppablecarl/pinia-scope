@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getStoreScope, useStore } from 'pinia-scope'
+import { useStore } from 'pinia-scope'
 import { VehicleStore } from '../../store/vehicle-store.ts'
 import { computed } from 'vue'
 import VehicleEngineEdit from './VehicleEngineEdit.vue'
@@ -24,7 +24,7 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 		<div class="card-header">
 			<strong>Vehicle:</strong>
 			{{ info.name }}
-			<CurrentScopeBadge/>
+			<CurrentScopeBadge />
 		</div>
 		<div class="card-body">
 			<div class="row">
