@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { injectorKey, instanceKey } from '../../src/types'
-import getStoreScope from '../../src/functions/getStoreScope'
+import getComponentStoreScope from '../../src/functions/getComponentStoreScope'
 import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
@@ -9,7 +9,7 @@ import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '.
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('getStoreScope()', () => {
+describe('getComponentStoreScope()', () => {
 
   let pinia: Pinia
 
@@ -21,8 +21,8 @@ describe('getStoreScope()', () => {
 
   it('outside of component', async () => {
     expect(
-      () => getStoreScope(),
-    ).toThrowError('getStoreScope() can only be used inside setup() or functional components.')
+      () => getComponentStoreScope(),
+    ).toThrowError('getComponentStoreScope() can only be used inside setup() or functional components.')
   })
 
   it('can get default scope', async () => {
@@ -32,7 +32,7 @@ describe('getStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = ''
 
-        const scope = getStoreScope()
+        const scope = getComponentStoreScope()
 
         return {
           scope,
@@ -59,7 +59,7 @@ describe('getStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_A
 
-        const scope = getStoreScope()
+        const scope = getComponentStoreScope()
 
         return {
           scope,
@@ -83,7 +83,7 @@ describe('getStoreScope()', () => {
 
     const Child = {
       setup() {
-        const scope = getStoreScope()
+        const scope = getComponentStoreScope()
         return {
           scope,
         }
@@ -125,7 +125,7 @@ describe('getStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_B
 
-        const scope = getStoreScope()
+        const scope = getComponentStoreScope()
         return {
           scope,
         }

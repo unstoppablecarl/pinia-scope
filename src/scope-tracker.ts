@@ -8,14 +8,19 @@ import {
   ScopeOptionsInput,
 } from './scope-options'
 import createScopeNameFactory, { ScopeNameGenerator } from './functions/createScopeNameFactory'
-import makeContext, { ScopedContext } from './functions/makeContext'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
+
+export enum DefaultStoreBehavior {
+  unScoped = 'unScoped',
+  componentScoped = 'componentScoped',
+}
 
 export function createScopeTracker(pinia: Pinia) {
   const scopes = new Map<string, Scope>()
   const defaultOptions = createDefaultOptionsCollection()
   const scopeNameFactory = createScopeNameFactory()
+  let defaultStoreBehavior: DefaultStoreBehavior = DefaultStoreBehavior.unScoped
 
   function dispose(scope: string) {
     const result = scopes.get(scope)
@@ -110,11 +115,21 @@ export function createScopeTracker(pinia: Pinia) {
     },
     dispose,
     disposeAndClearState,
-    makeContext(scope: string): ScopedContext {
-      return makeContext(scope, scopeNameFactory.generate)
+    makeScopedId(scope: string, id: string): string {
+      if (scope === '') {
+        return id
+      }
+
+      return scopeNameFactory.generate(scope, id)
     },
     setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
       scopeNameFactory.set(scopeNameGenerator)
+    },
+    setDefaultStoreBehavior(value: DefaultStoreBehavior): void {
+      defaultStoreBehavior = value
+    },
+    getDefaultStoreBehavior(): DefaultStoreBehavior {
+      return defaultStoreBehavior
     },
   }
 }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
-import { TireStore } from '../../store/tire-store.ts'
 
-const tireStore = useStore(TireStore)
+import { useTireStore } from '../../store/tire-store.ts'
+
+const tireStore = useTireStore()
 const model = defineModel()
 </script>
 <template>

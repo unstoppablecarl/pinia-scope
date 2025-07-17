@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createPinia, Pinia, setActivePinia } from 'pinia'
-import { getStoreScope, setStoreScope, useStore, useStoreWithoutScope } from '../src'
+import { createPinia, Pinia } from 'pinia'
+import { getStoreScope, setStoreScope } from '../src'
 import {
-  Child1NameStore,
-  Child2NameStore,
   Child2NameStore_NAME,
   NameStore_ID,
-  NameTreeStore,
+  useChild1NameStore,
+  useChild2NameStore,
+  useNameTreeStore,
 } from './helpers/test-stores'
 import { onMounted } from 'vue'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
@@ -38,14 +38,14 @@ describe('useProvideStores', () => {
     const CompChild2 = {
       setup() {
 
-        const nameStore = useStore(NameTreeStore)
-        const child1NameStore = useStore(Child1NameStore)
-        const child2NameStore = useStore(Child2NameStore)
+        const nameStore = useNameTreeStore.componentScoped()
+        const child1NameStore = useChild1NameStore.componentScoped()
+        const child2NameStore = useChild2NameStore.componentScoped()
         const scope = getStoreScope()
 
-        const nameStoreUnscoped = useStoreWithoutScope(NameTreeStore)
-        const child1NameStoreUnscoped = useStoreWithoutScope(Child1NameStore)
-        const child2NameStoreUnscoped = useStoreWithoutScope(Child2NameStore)
+        const nameStoreUnscoped = useNameTreeStore()
+        const child1NameStoreUnscoped = useChild1NameStore()
+        const child2NameStoreUnscoped = useChild2NameStore()
 
         return {
           scope,
@@ -76,13 +76,13 @@ describe('useProvideStores', () => {
         setStoreScope(props.storeScope as string)
 
         const scope = getStoreScope()
-        const nameStore = useStore(NameTreeStore)
-        const child1NameStore = useStore(Child1NameStore)
-        const child2NameStore = useStore(Child2NameStore)
+        const nameStore = useNameTreeStore.componentScoped()
+        const child1NameStore = useChild1NameStore.componentScoped()
+        const child2NameStore = useChild2NameStore.componentScoped()
 
-        const nameStoreUnscoped = useStoreWithoutScope(NameTreeStore)
-        const child1NameStoreUnscoped = useStoreWithoutScope(Child1NameStore)
-        const child2NameStoreUnscoped = useStoreWithoutScope(Child2NameStore)
+        const nameStoreUnscoped = useNameTreeStore()
+        const child1NameStoreUnscoped = useChild1NameStore()
+        const child2NameStoreUnscoped = useChild2NameStore()
 
         onMounted(() => {
           nameStore.setName(props.name, props.nameChild1, props.nameChild2)

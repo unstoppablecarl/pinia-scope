@@ -1,6 +1,5 @@
-import { defineStore } from 'pinia'
-import { type ScopedContext } from 'pinia-scope'
 import { computed } from 'vue'
+import { defineScopedStore } from '../../../../src'
 
 export type Tire = {
   id: string;
@@ -30,30 +29,28 @@ const TIRE_DATA: { [key: string]: Tire } = {
   },
 }
 
-export function TireStore({ addScope }: ScopedContext) {
-  return defineStore(addScope('tires'), () => {
-    const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
+export const useTireStore = defineScopedStore('tires', ({}) => {
+  const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
 
-    const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
+  const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
 
-    const maxSpeed = computed(() => {
-      const tireSpeeds = tires.value.map(tire => tire.speed);
-      return Math.max(...tireSpeeds)
-    })
-
-    function get(id: string): Tire {
-      if (id in TIRE_DATA) {
-        return TIRE_DATA[id]
-      }
-
-      throw new Error(`Tire ${id} not found`)
-    }
-
-    return {
-      defaultTire,
-      tires,
-      maxSpeed,
-      get,
-    }
+  const maxSpeed = computed(() => {
+    const tireSpeeds = tires.value.map(tire => tire.speed)
+    return Math.max(...tireSpeeds)
   })
-}
+
+  function get(id: string): Tire {
+    if (id in TIRE_DATA) {
+      return TIRE_DATA[id]
+    }
+
+    throw new Error(`Tire ${id} not found`)
+  }
+
+  return {
+    defaultTire,
+    tires,
+    maxSpeed,
+    get,
+  }
+})

@@ -1,8 +1,8 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia, getActivePinia, storeToRefs } from 'pinia'
-import { getStoreWithScope, setStoreScope, useStore } from '../src'
-import { NameStore, NameStore_DEFAULT_NAME } from './helpers/test-stores'
+import { setStoreScope } from '../src'
+import { NameStore_DEFAULT_NAME, useNameStore } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
 import { attachPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
@@ -26,7 +26,7 @@ describe('setStoreScope() used in component', () => {
     },
     setup(props: { storeScope: string }) {
       setStoreScope(props.storeScope)
-      const nameStore = useStore(NameStore)
+      const nameStore = useNameStore.componentScoped()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -121,7 +121,7 @@ describe('StoreScopeProvider component', () => {
       Comp2,
     },
     setup() {
-      const nameStore = useStore(NameStore)
+      const nameStore = useNameStore.componentScoped()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -188,10 +188,10 @@ describe('StoreScopeProvider component', () => {
 async function testTree(wrapper: VueWrapper) {
   const newName = 'bobby'
   const newName2 = 'jimmy'
-  const storeA = getStoreWithScope(NameStore, SCOPE_A)
+  const storeA = useNameStore.scoped(SCOPE_A)
   storeA.setName(newName)
 
-  const storeAWithoutScope = getStoreWithScope(NameStore, '')
+  const storeAWithoutScope = useNameStore()
   storeAWithoutScope.setName(newName2)
 
   await wrapper.vm.$nextTick()

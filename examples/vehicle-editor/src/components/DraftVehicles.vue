@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { setStoreScope, useStore, useStoreWithoutScope } from 'pinia-scope'
+import { setStoreScope } from 'pinia-scope'
 import Vehicles from './Vehicles.vue'
-import { VehicleStore } from '../store/vehicle-store.ts'
-import { EngineStore } from '../store/engine-store.ts'
+import { useVehicleStore } from '../store/vehicle-store.ts'
+import { useEngineStore } from '../store/engine-store.ts'
 
 const visible = defineModel()
 
 // create a scope for the draft vehicles separate from the un-scoped stores
 setStoreScope('draft')
 
-const draftVehicleStore = useStore(VehicleStore)
-const draftEngineStore = useStore(EngineStore)
+const draftVehicleStore = useVehicleStore()
+const draftEngineStore = useEngineStore()
 
-const vehicleStore = useStoreWithoutScope(VehicleStore)
-const engineStore = useStoreWithoutScope(EngineStore)
+const vehicleStore = useVehicleStore.unScoped()
+const engineStore = useEngineStore.unScoped()
 
 // copy data from the draft store to the app store
 function importDraftVehicles() {

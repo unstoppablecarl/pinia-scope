@@ -57,6 +57,10 @@ describe('pinia-scope APIs', () => {
 
 
   it('disposeOfPiniaScope() throws an error when pinia-scope is not attached', async () => {
+    expect(() => {
+      disposeOfPiniaScope(SCOPE_A)
+    }).toThrowError('[🍍]: "disposeOfPiniaScope()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
@@ -77,6 +81,10 @@ describe('pinia-scope APIs', () => {
   })
 
   it('disposeAndClearStateOfPiniaScope() throws an error when pinia-scope is not attached', async () => {
+    expect(() => {
+      disposeAndClearStateOfPiniaScope(SCOPE_A)
+    }).toThrowError('[🍍]: "disposeAndClearStateOfPiniaScope()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
@@ -94,6 +102,11 @@ describe('pinia-scope APIs', () => {
   })
 
   it('getActivePiniaScopeTracker() throws an error when not attached', async () => {
+
+    expect(() => {
+      getActivePiniaScopeTracker()
+    }).toThrowError('[🍍]: "getActivePiniaScopeTracker()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
@@ -125,6 +138,11 @@ describe('pinia-scope APIs', () => {
   })
 
   it('getScopeOptionsDefault() throws an error when not attached', async () => {
+
+    expect(() => {
+      getScopeOptionsDefault(SCOPE_A)
+    }).toThrowError('[🍍]: "getScopeOptionsDefault()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
@@ -134,6 +152,11 @@ describe('pinia-scope APIs', () => {
   })
 
   it('setScopeOptionsDefault() throws an error when not attached', async () => {
+
+    expect(() => {
+      setScopeOptionsDefault(SCOPE_A, { autoDispose: false })
+    }).toThrowError('[🍍]: "setScopeOptionsDefault()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
@@ -144,15 +167,20 @@ describe('pinia-scope APIs', () => {
 
 
   it('setPiniaScopeNameGenerator() throws an error when not attached', async () => {
+    const generator: ScopeNameGenerator = (scope: string, id: string): string => {
+      return `${scope}------${id}`
+    }
+
+    expect(() => {
+      setPiniaScopeNameGenerator(generator)
+    }).toThrowError('[🍍]: "setPiniaScopeNameGenerator()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
+
+
     const pinia = createPinia()
     setActivePinia(pinia)
 
     expect(() => {
-      const generator: ScopeNameGenerator = (scope: string, id: string): string => {
-        return `${scope}------${id}`
-      }
       setPiniaScopeNameGenerator(generator)
-
     }).toThrowError('"setPiniaScopeNameGenerator()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
   })
 })

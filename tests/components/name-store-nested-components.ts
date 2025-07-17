@@ -1,13 +1,12 @@
-import { useStore, useStoreWithoutScope } from '../../src'
-import { NameStore } from '../helpers/test-stores'
+import { useNameStore } from '../helpers/test-stores'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 export const Comp3 = {
   name: 'Comp3',
   setup: function() {
-    const nameStore = useStore(NameStore)
-    const nameStoreWithoutScope = useStoreWithoutScope(NameStore)
+    const nameStore = useNameStore.componentScoped()
+    const nameStoreWithoutScope = useNameStore()
 
     const { name } = storeToRefs(nameStore)
 
@@ -18,7 +17,7 @@ export const Comp3 = {
     }
   },
   template: `
-    Comp3:[{{name}}][{{nameWithoutScope}}]
+		Comp3:[{{name}}][{{nameWithoutScope}}]
   `,
 }
 export const Comp2 = {
@@ -27,8 +26,8 @@ export const Comp2 = {
     Comp3,
   },
   setup() {
-    const nameStore = useStore(NameStore)
-    const nameStoreWithoutScope = useStoreWithoutScope(NameStore)
+    const nameStore = useNameStore.componentScoped()
+    const nameStoreWithoutScope = useNameStore()
 
     return {
       nameStore,
@@ -36,7 +35,7 @@ export const Comp2 = {
     }
   },
   template: `
-    Comp2:[{{nameStore.name}}][{{nameStoreWithoutScope.name}}]
-    <Comp3 ref="comp3" />
+		Comp2:[{{nameStore.name}}][{{nameStoreWithoutScope.name}}]
+		<Comp3 ref="comp3" />
   `,
 }

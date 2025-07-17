@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
 import { storeToRefs } from 'pinia'
-import { EngineStore } from '../store/engine-store.ts'
+import { useEngineStore } from '../store/engine-store.ts'
 import CustomEngineEdit from './CustomEngines/CustomEngineEdit.vue'
 import CurrentScopeBadge from './CurrentScopeBadge.vue'
 
-const engineStore = useStore(EngineStore)
+const engineStore = useEngineStore()
 const { customEngines } = storeToRefs(engineStore)
 </script>
 <template>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
-import { EngineStore } from '../../store/engine-store.ts'
 import { computed } from 'vue'
 import CurrentScopeBadge from '../CurrentScopeBadge.vue'
+import { useEngineStore } from '../../store/engine-store.ts'
 
-const engineStore = useStore(EngineStore)
+const engineStore = useEngineStore()
 
 const { engineId } = defineProps({
 	engineId: {
@@ -25,7 +24,6 @@ const engineIsUsed = computed(() => engineStore.engineIsUsed(engineId))
 				Custom Engine
 			</strong>
 
-
 			&nbsp;
 			<CurrentScopeBadge />
 
@@ -33,13 +31,13 @@ const engineIsUsed = computed(() => engineStore.engineIsUsed(engineId))
 		</div>
 		<div class="card-body">
 			<div class="form-floating mb-3">
-				<input class="form-control" id="engine-name" v-model="engine.name">
+				<input class="form-control" :id="`${engineId}-engine-name`" v-model="engine.name">
 				<label for="engine-name">Name</label>
 			</div>
 
 			<div class="form-floating mb-3">
 				<input class="form-control" id="engine-name" type="number" v-model="engine.speed">
-				<label for="engine-name">Speed</label>
+				<label :for="`${engineId}-engine-name`">Speed</label>
 			</div>
 		</div>
 		<div class="card-footer">

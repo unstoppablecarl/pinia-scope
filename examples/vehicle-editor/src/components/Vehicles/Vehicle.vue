@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { getStoreScope, useStore } from 'pinia-scope'
-import { VehicleStore } from '../../store/vehicle-store.ts'
+import { useVehicleStore } from '../../store/vehicle-store.ts'
 import { computed } from 'vue'
 import VehicleEngineEdit from './VehicleEngineEdit.vue'
 import VehicleTireEdit from './VehicleTireEdit.vue'
 import SpeedProgress from './SpeedProgress.vue'
 import CurrentScopeBadge from '../CurrentScopeBadge.vue'
 
-const vehicleStore = useStore(VehicleStore)
+const vehicleStore = useVehicleStore()
 
 const { vehicleId } = defineProps({
 	vehicleId: {

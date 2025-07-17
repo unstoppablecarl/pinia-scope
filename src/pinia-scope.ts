@@ -1,10 +1,12 @@
 import { getActivePinia, Pinia } from 'pinia'
-import { createScopeTracker, ScopeTracker } from './scope-tracker'
+import { createScopeTracker, DefaultStoreBehavior, ScopeTracker } from './scope-tracker'
 import { ScopeOptions, ScopeOptionsInput } from './scope-options'
 import { ScopeNameGenerator } from './functions/createScopeNameFactory'
 
-const KEY = Symbol('PINIA_SCOPE')
-
+// A Symbol would be better, but it doesn't work
+// in vite hot-module reloading environment
+// const KEY = Symbol('PINIA_SCOPE_TRACKER')
+const KEY = '__PINIA_SCOPE_TRACKER__'
 export function attachPiniaScope(pinia: Pinia): void {
   if (hasPiniaScope(pinia)) {
     throw new Error('"attachPiniaScope()": was called but pinia scope is already attached.')
@@ -59,6 +61,11 @@ export function getScopeOptionsDefault(scope: string): ScopeOptions {
 export function setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
   return getActiveTracker('setPiniaScopeNameGenerator')
     .setPiniaScopeNameGenerator(scopeNameGenerator)
+}
+
+export function setDefaultStoreBehavior(value: DefaultStoreBehavior): void {
+  return getActiveTracker('setDefaultStoreBehavior')
+    .setDefaultStoreBehavior(value)
 }
 
 export function getActiveTracker(methodName: string): ScopeTracker {
