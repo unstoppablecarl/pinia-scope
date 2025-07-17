@@ -6,10 +6,9 @@ import * as createScopeNameFactory from '../../src/functions/createScopeNameFact
 import * as global from '../../src/pinia-scope'
 import { attachPiniaScope, getActivePiniaScopeTracker, getActiveTracker } from '../../src/pinia-scope'
 
-import { ScopedContext } from '../../src'
+import { ScopedContext, StoreCreator } from '../../src'
 import { mount } from '@vue/test-utils'
 import { NameStore } from '../helpers/test-stores'
-import { StoreCreator } from '../../types'
 
 const SCOPE_A = 'scope-a'
 const STORE_ID = 'test-store-id'
