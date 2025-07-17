@@ -6,21 +6,23 @@ import {
   optionsDiffToMessage,
   ScopeOptions,
   ScopeOptionsInput,
+  ScopeOptionsList,
 } from './scope-options'
-import createScopeNameFactory, { ScopeNameGenerator } from './functions/createScopeNameFactory'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
 
-export enum DefaultStoreBehavior {
-  unScoped = 'unScoped',
-  componentScoped = 'componentScoped',
+export type ScopeTrackerOptions = {
+  autoInjectScope?: boolean,
+  scopeDefaults?: ScopeOptionsList,
+  scopeNameGenerator?: ScopeNameGenerator,
 }
+export type ScopeNameGenerator = (scope: string, id: string) => string;
 
-export function createScopeTracker(pinia: Pinia) {
+export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) {
+  const autoInjectScope = options?.autoInjectScope ?? false
   const scopes = new Map<string, Scope>()
-  const defaultOptions = createDefaultOptionsCollection()
-  const scopeNameFactory = createScopeNameFactory()
-  let defaultStoreBehavior: DefaultStoreBehavior = DefaultStoreBehavior.unScoped
+  const defaultOptions = createDefaultOptionsCollection(options?.scopeDefaults)
+  const scopeNameGenerator = options?.scopeNameGenerator ?? defaultGenerator
 
   function dispose(scope: string) {
     const result = scopes.get(scope)
@@ -39,6 +41,7 @@ export function createScopeTracker(pinia: Pinia) {
   }
 
   return {
+    autoInjectScope: (): boolean => autoInjectScope,
     keys(): string[] {
       return [...scopes.keys()]
     },
@@ -48,13 +51,7 @@ export function createScopeTracker(pinia: Pinia) {
     has(scope: string): boolean {
       return !!scopes.get(scope)
     },
-    setScopeOptionsDefault(scope: string, options: ScopeOptionsInput) {
-      defaultOptions.set(scope, options)
-    },
-    getScopeOptionsDefault(scope: string): ScopeOptions {
-      return defaultOptions.get(scope)
-    },
-    init: (scope: string, optionsInput: ScopeOptionsInput | null = null) => {
+    init: (scope: string, optionsInput?: ScopeOptionsInput) => {
       const existingScope = scopes.get(scope)
       if (existingScope) {
         if (optionsInput) {
@@ -120,16 +117,7 @@ export function createScopeTracker(pinia: Pinia) {
         return id
       }
 
-      return scopeNameFactory.generate(scope, id)
-    },
-    setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
-      scopeNameFactory.set(scopeNameGenerator)
-    },
-    setDefaultStoreBehavior(value: DefaultStoreBehavior): void {
-      defaultStoreBehavior = value
-    },
-    getDefaultStoreBehavior(): DefaultStoreBehavior {
-      return defaultStoreBehavior
+      return scopeNameGenerator(scope, id)
     },
   }
 }
@@ -192,4 +180,9 @@ class Scope {
       delete this.pinia.state.value[store.$id]
     })
   }
+}
+
+
+function defaultGenerator(scope: string, id: string): string {
+  return `${scope}-${id}`
 }

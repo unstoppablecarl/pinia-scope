@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import setStoreScope from '../functions/setStoreScope'
+import { setStoreScope } from '../functions/setStoreScope'
 
 const PiniaScopeProvider = defineComponent({
   name: 'StoreScopeProvider',

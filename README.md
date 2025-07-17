@@ -281,13 +281,13 @@ import { useStoreWithoutScope } from 'pinia-scope'
 const vehicleStore = useStoreWithoutScope(VehicleStore)
 ```
 
-### `getComponentStoreScope()`
+### `getInjectedScope()`
 
 Returns the current scope or an empty string if no scope is set. Useful when debugging component scopes.
 ```ts
-import { getComponentStoreScope } from 'pinia-scope'
+import { getInjectedScope } from 'pinia-scope'
 
-console.log(getComponentStoreScope())
+console.log(getInjectedScope())
 ```
 
 ### `getStoreWithScope()`

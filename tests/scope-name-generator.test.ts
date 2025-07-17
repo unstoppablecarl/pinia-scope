@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { NameStore_ID, useNameStore } from './helpers/test-stores'
-import { createPinia, setActivePinia } from 'pinia'
-import { attachPiniaScope, setPiniaScopeNameGenerator } from '../src/pinia-scope'
+import { createPinia, Pinia, setActivePinia } from 'pinia'
+import { attachPiniaScope } from '../src/pinia-scope'
 
 describe('scope name factory', () => {
   beforeEach(() => {
@@ -12,30 +12,39 @@ describe('scope name factory', () => {
 
   it('generates default scope names', async () => {
     const scopeName = 'scope-name'
-    const store = useNameStore.scoped(scopeName)
+    const store = useNameStore(scopeName)
 
     expect(store.$id).toEqual(scopeName + '-' + NameStore_ID)
   })
 
   it('generates default scope names when scope is empty string', async () => {
     const scopeName = ''
-    const store = useNameStore.scoped(scopeName)
+    const store = useNameStore(scopeName)
 
     expect(store.$id).toEqual(NameStore_ID)
   })
 
   it('generates custom scope names', async () => {
+    let pinia: Pinia = createPinia()
+    attachPiniaScope(pinia, {
+      scopeNameGenerator: (scope: string, id: string) => scope + '-foo-' + id,
+    })
+    setActivePinia(pinia)
+
     const scopeName = 'scope-name'
-    setPiniaScopeNameGenerator((scope: string, id: string) => scope + '-foo-' + id)
-    const store = useNameStore.scoped(scopeName)
+    const store = useNameStore(scopeName)
 
     expect(store.$id).toEqual(scopeName + '-foo-' + NameStore_ID)
   })
 
   it('generates custom scope names when scope is empty string', async () => {
     const scopeName = ''
-    setPiniaScopeNameGenerator((scope: string, id: string) => scope + '-foo-' + id)
-    const store = useNameStore.scoped(scopeName)
+    let pinia: Pinia = createPinia()
+    attachPiniaScope(pinia, {
+      scopeNameGenerator: (scope: string, id: string) => scope + '-foo-' + id,
+    })
+    setActivePinia(pinia)
+    const store = useNameStore(scopeName)
 
     expect(store.$id).toEqual(NameStore_ID)
   })

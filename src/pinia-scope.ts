@@ -1,17 +1,16 @@
 import { getActivePinia, Pinia } from 'pinia'
-import { createScopeTracker, DefaultStoreBehavior, ScopeTracker } from './scope-tracker'
-import { ScopeOptions, ScopeOptionsInput } from './scope-options'
-import { ScopeNameGenerator } from './functions/createScopeNameFactory'
+import { createScopeTracker, ScopeTracker, ScopeTrackerOptions } from './scope-tracker'
 
 // A Symbol would be better, but it doesn't work
 // in vite hot-module reloading environment
 // const KEY = Symbol('PINIA_SCOPE_TRACKER')
 const KEY = '__PINIA_SCOPE_TRACKER__'
-export function attachPiniaScope(pinia: Pinia): void {
+
+export function attachPiniaScope(pinia: Pinia, options?: ScopeTrackerOptions): void {
   if (hasPiniaScope(pinia)) {
     throw new Error('"attachPiniaScope()": was called but pinia scope is already attached.')
   }
-  attachPiniaScopeTracker(pinia, createScopeTracker(pinia))
+  attachPiniaScopeTracker(pinia, createScopeTracker(pinia, options))
 }
 
 export function hasPiniaScope(pinia: Pinia): boolean {
@@ -46,26 +45,6 @@ export function disposeOfPiniaScope(scope: string): void {
 export function disposeAndClearStateOfPiniaScope(scope: string): void {
   getActiveTracker('disposeAndClearStateOfPiniaScope')
     .disposeAndClearState(scope)
-}
-
-export function setScopeOptionsDefault(scope: string, options: ScopeOptionsInput): void {
-  getActiveTracker('setScopeOptionsDefault')
-    .setScopeOptionsDefault(scope, options)
-}
-
-export function getScopeOptionsDefault(scope: string): ScopeOptions {
-  return getActiveTracker('getScopeOptionsDefault')
-    .getScopeOptionsDefault(scope)
-}
-
-export function setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
-  return getActiveTracker('setPiniaScopeNameGenerator')
-    .setPiniaScopeNameGenerator(scopeNameGenerator)
-}
-
-export function setDefaultStoreBehavior(value: DefaultStoreBehavior): void {
-  return getActiveTracker('setDefaultStoreBehavior')
-    .setDefaultStoreBehavior(value)
 }
 
 export function getActiveTracker(methodName: string): ScopeTracker {

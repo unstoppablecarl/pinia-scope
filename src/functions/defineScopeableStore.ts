@@ -10,8 +10,7 @@ import {
 import { getActiveTracker } from '../pinia-scope'
 import { ScopeOptionsInput } from '../scope-options'
 import { getCurrentInstance, onUnmounted } from 'vue'
-import getComponentStoreScope from './getComponentStoreScope'
-import { DefaultStoreBehavior } from '../scope-tracker'
+import { getInjectedScope } from './getInjectedScope'
 
 export type ScopedContext = {
   scope: string;
@@ -25,30 +24,32 @@ export type ScopeableStoreOptions<Id extends string, SS> = DefineSetupStoreOptio
 >
 
 export type ScopeableStoreResult<S> = {
-  (): S;
-  componentScoped(): S;
-  scoped(scope: string): S;
+  (scope?: string, options?: ScopeOptionsInput): S;
+  injectedScope(): S;
   unScoped(): S;
+}
+export type StoreCreatorContext = { scope: string }
+export type StoreCreator<R> = {
+  (context: StoreCreatorContext): R,
 }
 
 export type StoreDef<Id extends string, SS> = StoreDefinition<Id, _ExtractStateFromSetupStore<SS>, _ExtractGettersFromSetupStore<SS>, _ExtractActionsFromSetupStore<SS>>
 
-export default function defineScopeableStore<Id extends string, SS, SD extends StoreDef<Id, SS>, S = ReturnType<SD>>(
+export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<Id, SS>, S = ReturnType<SD>>(
   id: Id,
-  storeCreator: (ctx: { scope: string }) => SS,
+  storeCreator: StoreCreator<SS>,
   setupOptions?: ScopeableStoreOptions<Id, SS>,
 ): ScopeableStoreResult<S> {
 
-  function makeStore(scope: string, options: ScopeOptionsInput | null = null) {
+  function makeStore(scope: string, options?: ScopeOptionsInput) {
     const tracker = getActiveTracker('defineScopeableStore')
     const context = { scope }
-    const scopedId = tracker.makeScopedId(scope, id) as string
+    const scopedId = tracker.makeScopedId(scope, id)
     const setup = (): SS => storeCreator(context)
     const useStore = defineStore(scopedId, setup, setupOptions) as SD
     const store = useStore() as S
 
     if (scope !== '') {
-
       tracker.init(scope, options)
       tracker.addStore(scope, store as Store)
 
@@ -64,25 +65,28 @@ export default function defineScopeableStore<Id extends string, SS, SD extends S
     return store
   }
 
-  function componentScoped(): S {
-    return makeStore(getComponentStoreScope())
+  function injectedScope(): S {
+    return makeStore(getInjectedScope())
   }
 
   function unScoped(): S {
     return makeStore('')
   }
 
-  function factory(): S {
-    const tracker = getActiveTracker('defineScopeableStore')
-    if (tracker.getDefaultStoreBehavior() === DefaultStoreBehavior.unScoped) {
-      return unScoped()
+  function factory(scope?: string, options?: ScopeOptionsInput): S {
+    if (scope !== undefined) {
+      return makeStore(scope, options)
     }
-    return componentScoped()
+
+    const tracker = getActiveTracker('defineScopeableStore')
+    if (tracker.autoInjectScope()) {
+      return injectedScope()
+    }
+    return unScoped()
   }
 
-  factory.componentScoped = componentScoped
+  factory.injectedScope = injectedScope
   factory.unScoped = unScoped
-  factory.scoped = (scope: string): S => makeStore(scope)
 
   return factory
 }

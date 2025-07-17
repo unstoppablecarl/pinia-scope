@@ -30,7 +30,7 @@ const ENGINE_DATA: { [key: string]: Engine } = {
 
 export const useEngineStore = defineScopedStore('engines', ({scope}) => {
 
-  const vehicleStore = useVehicleStore.scoped(scope)
+  const vehicleStore = useVehicleStore(scope)
 
   const customEngines = ref<Engine[]>([])
   const customEnginesIdIncrement = ref<number>(1)

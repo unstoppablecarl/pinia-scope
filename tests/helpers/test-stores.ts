@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import defineScopeableStore, { ScopedContext } from '../../src/functions/defineScopeableStore'
+import { defineScopeableStore, ScopedContext } from '../../src/functions/defineScopeableStore'
 
 export const NameStore_DEFAULT_NAME = 'default-name'
 export const NameStore_ID = 'name-store'
@@ -21,7 +21,7 @@ export const useNameStore = defineScopeableStore(NameStore_ID, ({ scope }: Scope
 export const useNameTreeStore = defineScopeableStore(NameStore_ID, ({ scope }: ScopedContext) => {
   const name = ref<string>('')
 
-  const child1NameStore = useChild1NameStore.scoped(scope)
+  const child1NameStore = useChild1NameStore(scope)
 
   function setName(
     nameValue: string,
@@ -44,7 +44,7 @@ export const useNameTreeStore = defineScopeableStore(NameStore_ID, ({ scope }: S
 export const useChild1NameStore = defineScopeableStore('child-1-name-store', ({ scope }: ScopedContext) => {
   const child1Name = ref<string>('')
 
-  const child2NameStore = useChild2NameStore.scoped(scope)
+  const child2NameStore = useChild2NameStore(scope)
   const child2NameStoreWithoutScope = useChild2NameStore()
 
   const child2NameWithoutScope = computed(() => child2NameStoreWithoutScope.child2Name)

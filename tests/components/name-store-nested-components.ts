@@ -5,7 +5,7 @@ import { computed } from 'vue'
 export const Comp3 = {
   name: 'Comp3',
   setup: function() {
-    const nameStore = useNameStore.componentScoped()
+    const nameStore = useNameStore.injectedScope()
     const nameStoreWithoutScope = useNameStore()
 
     const { name } = storeToRefs(nameStore)
@@ -26,7 +26,7 @@ export const Comp2 = {
     Comp3,
   },
   setup() {
-    const nameStore = useNameStore.componentScoped()
+    const nameStore = useNameStore.injectedScope()
     const nameStoreWithoutScope = useNameStore()
 
     return {

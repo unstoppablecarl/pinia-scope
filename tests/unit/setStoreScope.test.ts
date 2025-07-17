@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import setStoreScope from '../../src/functions/setStoreScope'
+import { setStoreScope } from '../../src/functions/setStoreScope'
 import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, useTemplateRef } from 'vue'
 import { createScopeTracker } from '../../src/scope-tracker'
 import { attachPiniaScopeTracker } from '../../src/pinia-scope'
-import { instanceKey } from '../../src/types'
+import { instanceKey } from '../../src/constants'
 
 const SCOPE_A = 'scope-a'
 

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, Pinia } from 'pinia'
-import { getStoreScope, setStoreScope } from '../src'
+import { getInjectedScope, setStoreScope } from '../src'
 import {
   Child2NameStore_NAME,
   NameStore_ID,
@@ -38,10 +38,10 @@ describe('useProvideStores', () => {
     const CompChild2 = {
       setup() {
 
-        const nameStore = useNameTreeStore.componentScoped()
-        const child1NameStore = useChild1NameStore.componentScoped()
-        const child2NameStore = useChild2NameStore.componentScoped()
-        const scope = getStoreScope()
+        const nameStore = useNameTreeStore.injectedScope()
+        const child1NameStore = useChild1NameStore.injectedScope()
+        const child2NameStore = useChild2NameStore.injectedScope()
+        const scope = getInjectedScope()
 
         const nameStoreUnscoped = useNameTreeStore()
         const child1NameStoreUnscoped = useChild1NameStore()
@@ -75,10 +75,10 @@ describe('useProvideStores', () => {
       setup(props: any) {
         setStoreScope(props.storeScope as string)
 
-        const scope = getStoreScope()
-        const nameStore = useNameTreeStore.componentScoped()
-        const child1NameStore = useChild1NameStore.componentScoped()
-        const child2NameStore = useChild2NameStore.componentScoped()
+        const scope = getInjectedScope()
+        const nameStore = useNameTreeStore.injectedScope()
+        const child1NameStore = useChild1NameStore.injectedScope()
+        const child2NameStore = useChild2NameStore.injectedScope()
 
         const nameStoreUnscoped = useNameTreeStore()
         const child1NameStoreUnscoped = useChild1NameStore()

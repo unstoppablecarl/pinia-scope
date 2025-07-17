@@ -26,7 +26,7 @@ describe('setStoreScope() used in component', () => {
     },
     setup(props: { storeScope: string }) {
       setStoreScope(props.storeScope)
-      const nameStore = useNameStore.componentScoped()
+      const nameStore = useNameStore.injectedScope()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -121,7 +121,7 @@ describe('StoreScopeProvider component', () => {
       Comp2,
     },
     setup() {
-      const nameStore = useNameStore.componentScoped()
+      const nameStore = useNameStore.injectedScope()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -188,7 +188,7 @@ describe('StoreScopeProvider component', () => {
 async function testTree(wrapper: VueWrapper) {
   const newName = 'bobby'
   const newName2 = 'jimmy'
-  const storeA = useNameStore.scoped(SCOPE_A)
+  const storeA = useNameStore(SCOPE_A)
   storeA.setName(newName)
 
   const storeAWithoutScope = useNameStore()

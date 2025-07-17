@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, Pinia, setActivePinia } from 'pinia'
-import { makeStore } from '../helpers/test-stores'
+import { makeStore, NameStore_ID, useNameStore } from '../helpers/test-stores'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
+import { setStoreScope } from '../../src/functions/setStoreScope'
+import { mount } from '@vue/test-utils'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
@@ -186,8 +188,8 @@ describe('getActivePiniaScopeTracker()', async () => {
     const storeA1 = makeStore('store-A1')
     const storeA2 = makeStore('store-A2')
 
-    const storeA1State = {...storeA1.$state}
-    const storeA2State = {...storeA2.$state}
+    const storeA1State = { ...storeA1.$state }
+    const storeA2State = { ...storeA2.$state }
 
     const storeA1DisposeSpy = vi.spyOn(storeA1, '$dispose')
     const storeA2DisposeSpy = vi.spyOn(storeA2, '$dispose')
@@ -230,15 +232,17 @@ describe('getActivePiniaScopeTracker()', async () => {
   })
 
   it('uses scope default options', async () => {
+    let pinia: Pinia = createPinia()
+    attachPiniaScope(pinia, {
+      scopeDefaults: {
+        [SCOPE_A]: {
+          autoDispose: false,
+          autoClearState: false,
+        },
+      },
+    })
+    setActivePinia(pinia)
     const tracker = getActivePiniaScopeTracker()
-    let options = {
-      autoDispose: false,
-      autoClearState: false,
-    }
-    tracker.setScopeOptionsDefault(SCOPE_A, options)
-
-    expect(tracker.getScopeOptionsDefault(SCOPE_A)).toEqual(options)
-
     tracker.init(SCOPE_A)
 
     expect(tracker.get(SCOPE_A)?.autoDispose).toBe(false)
@@ -246,12 +250,18 @@ describe('getActivePiniaScopeTracker()', async () => {
   })
 
   it('overrides scope default options', async () => {
+    let pinia: Pinia = createPinia()
+    attachPiniaScope(pinia, {
+      scopeDefaults: {
+        [SCOPE_A]: {
+          autoDispose: false,
+          autoClearState: false,
+        },
+      },
+    })
+    setActivePinia(pinia)
+
     const tracker = getActivePiniaScopeTracker()
-    let options = {
-      autoDispose: false,
-      autoClearState: false,
-    }
-    tracker.setScopeOptionsDefault(SCOPE_A, options)
 
     tracker.init(SCOPE_A, {
       autoDispose: true,
@@ -294,5 +304,34 @@ describe('getActivePiniaScopeTracker()', async () => {
       '\n' + `existing scope.autoClearState = true` +
       '\n' + `option.autoClearState = false`,
     )
+  })
+
+  it('sets autoInjectScope scope behavior', async () => {
+    let pinia: Pinia = createPinia()
+    attachPiniaScope(pinia, {
+      autoInjectScope: true,
+    })
+    setActivePinia(pinia)
+
+    const App = {
+      setup() {
+        setStoreScope(SCOPE_A)
+
+        const store = useNameStore()
+
+        return {
+          storeId: store.$id,
+        }
+      },
+      template: `A`,
+    }
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [pinia],
+      },
+    })
+
+    expect(wrapper.vm.storeId).toBe(SCOPE_A + '-' + NameStore_ID)
   })
 })

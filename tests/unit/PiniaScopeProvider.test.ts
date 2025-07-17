@@ -33,7 +33,7 @@ describe('PiniaScopeProvider', () => {
 				</PiniaScopeProvider>`,
     }
 
-    const setStoreScopeSpy = vi.spyOn(setStoreScope, 'default')
+    const setStoreScopeSpy = vi.spyOn(setStoreScope, 'setStoreScope')
 
     const wrapper = mount(App, {
       global: {

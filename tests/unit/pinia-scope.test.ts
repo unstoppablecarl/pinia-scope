@@ -8,14 +8,10 @@ import {
   disposeOfPiniaScope,
   getActivePiniaScopeTracker,
   getPiniaScopeTracker,
-  getScopeOptionsDefault,
   hasPiniaScope,
-  setScopeOptionsDefault,
-  setPiniaScopeNameGenerator,
 } from '../../src/pinia-scope'
 import * as scopeTracker from '../../src/scope-tracker'
 import { createScopeTracker } from '../../src/scope-tracker'
-import { ScopeNameGenerator } from '../../src'
 
 const SCOPE_A = 'scope-a'
 
@@ -113,75 +109,6 @@ describe('pinia-scope APIs', () => {
     expect(() => {
       getActivePiniaScopeTracker()
     }).toThrowError('"getActivePiniaScopeTracker()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
-  })
-
-  it('getScopeOptionsDefault() and setScopeOptionsDefault()', async () => {
-    const pinia = createPinia()
-    setActivePinia(pinia)
-    const scopeTrackerObj = createScopeTracker(pinia)
-    const scopeTrackerGetSpy = vi.spyOn(scopeTrackerObj, 'getScopeOptionsDefault')
-    const scopeTrackerSetSpy = vi.spyOn(scopeTrackerObj, 'setScopeOptionsDefault')
-    attachPiniaScopeTracker(pinia, scopeTrackerObj)
-
-    expect(getScopeOptionsDefault(SCOPE_A)).toEqual({autoDispose: true, autoClearState: true})
-    expect(scopeTrackerGetSpy).toHaveBeenNthCalledWith(1, SCOPE_A)
-
-    const options = {
-      autoDispose: false,
-      autoClearState: false,
-    };
-
-    setScopeOptionsDefault(SCOPE_A, options)
-    expect(scopeTrackerSetSpy).toHaveBeenNthCalledWith(1, SCOPE_A, options)
-
-    expect(getScopeOptionsDefault(SCOPE_A)).toEqual(options)
-  })
-
-  it('getScopeOptionsDefault() throws an error when not attached', async () => {
-
-    expect(() => {
-      getScopeOptionsDefault(SCOPE_A)
-    }).toThrowError('[🍍]: "getScopeOptionsDefault()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
-
-    const pinia = createPinia()
-    setActivePinia(pinia)
-
-    expect(() => {
-      getScopeOptionsDefault(SCOPE_A)
-    }).toThrowError('"getScopeOptionsDefault()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
-  })
-
-  it('setScopeOptionsDefault() throws an error when not attached', async () => {
-
-    expect(() => {
-      setScopeOptionsDefault(SCOPE_A, { autoDispose: false })
-    }).toThrowError('[🍍]: "setScopeOptionsDefault()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
-
-    const pinia = createPinia()
-    setActivePinia(pinia)
-
-    expect(() => {
-      setScopeOptionsDefault(SCOPE_A, { autoDispose: false })
-    }).toThrowError('"setScopeOptionsDefault()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
-  })
-
-
-  it('setPiniaScopeNameGenerator() throws an error when not attached', async () => {
-    const generator: ScopeNameGenerator = (scope: string, id: string): string => {
-      return `${scope}------${id}`
-    }
-
-    expect(() => {
-      setPiniaScopeNameGenerator(generator)
-    }).toThrowError('[🍍]: "setPiniaScopeNameGenerator()" was called but there was no active Pinia. Are you trying to use a store before calling "app.use(pinia)"?\nSee https://pinia.vuejs.org/core-concepts/outside-component-usage.html for help.\nThis will fail in production.')
-
-
-    const pinia = createPinia()
-    setActivePinia(pinia)
-
-    expect(() => {
-      setPiniaScopeNameGenerator(generator)
-    }).toThrowError('"setPiniaScopeNameGenerator()": pinia-scope has not been attached. Did you forget to call attachPiniaScope(pinia) ?')
   })
 })
 

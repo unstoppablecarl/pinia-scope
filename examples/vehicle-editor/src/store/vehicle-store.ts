@@ -20,8 +20,8 @@ export type VehicleInfo = Vehicle & {
 }
 
 export const useVehicleStore = defineScopedStore('vehicles', ({ scope }) => {
-  const tireStore = useTireStore.scoped(scope)
-  const engineStore = useEngineStore.scoped(scope)
+  const tireStore = useTireStore(scope)
+  const engineStore = useEngineStore(scope)
 
   const vehicles = ref<Vehicle[]>([])
   const vehiclesIdIncrement = ref<number>(1)

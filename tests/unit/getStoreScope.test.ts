@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { injectorKey, instanceKey } from '../../src/types'
-import getComponentStoreScope from '../../src/functions/getComponentStoreScope'
+import { injectorKey, instanceKey } from '../../src/constants'
+import { getInjectedScope } from '../../src/functions/getInjectedScope'
 import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
@@ -9,7 +9,7 @@ import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '.
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('getComponentStoreScope()', () => {
+describe('getInjectedScope()', () => {
 
   let pinia: Pinia
 
@@ -21,8 +21,8 @@ describe('getComponentStoreScope()', () => {
 
   it('outside of component', async () => {
     expect(
-      () => getComponentStoreScope(),
-    ).toThrowError('getComponentStoreScope() can only be used inside setup() or functional components.')
+      () => getInjectedScope(),
+    ).toThrowError('getInjectedScope() can only be used inside setup() or functional components.')
   })
 
   it('can get default scope', async () => {
@@ -32,7 +32,7 @@ describe('getComponentStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = ''
 
-        const scope = getComponentStoreScope()
+        const scope = getInjectedScope()
 
         return {
           scope,
@@ -59,7 +59,7 @@ describe('getComponentStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_A
 
-        const scope = getComponentStoreScope()
+        const scope = getInjectedScope()
 
         return {
           scope,
@@ -83,7 +83,7 @@ describe('getComponentStoreScope()', () => {
 
     const Child = {
       setup() {
-        const scope = getComponentStoreScope()
+        const scope = getInjectedScope()
         return {
           scope,
         }
@@ -125,7 +125,7 @@ describe('getComponentStoreScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_B
 
-        const scope = getComponentStoreScope()
+        const scope = getInjectedScope()
         return {
           scope,
         }
