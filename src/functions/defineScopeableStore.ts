@@ -4,21 +4,19 @@ import {
   _ExtractStateFromSetupStore,
   DefineSetupStoreOptions,
   defineStore,
-  getActivePinia,
-  Pinia,
   Store,
   StoreDefinition,
 } from 'pinia'
-import { getActiveTracker, getPiniaScopeTracker } from '../pinia-scope'
+import { getActiveTracker } from '../pinia-scope'
 import { ScopeOptionsInput } from '../scope-options'
 import { getCurrentInstance, onUnmounted } from 'vue'
 import getComponentStoreScope from './getComponentStoreScope'
 import { DefaultStoreBehavior } from '../scope-tracker'
 
-
 export type ScopedContext = {
   scope: string;
 }
+
 export type ScopeableStoreOptions<Id extends string, SS> = DefineSetupStoreOptions<
   Id,
   _ExtractStateFromSetupStore<SS>,
@@ -42,10 +40,7 @@ export default function defineScopeableStore<Id extends string, SS, DS extends S
 ): ScopeableStoreResult<S> {
 
   function makeStore(scope: string, options: ScopeOptionsInput | null = null) {
-    // const scopeTracker = getPiniaScopeTracker(getActivePinia() as Pinia)
-    // console.log({ scopeTracker })
     const tracker = getActiveTracker('defineScopeableStore')
-    // console.log({ tracker })
     const context = { scope }
     const scopedId = tracker.makeScopedId(scope, id) as string
     const setup = (): SS => storeCreator(context)
