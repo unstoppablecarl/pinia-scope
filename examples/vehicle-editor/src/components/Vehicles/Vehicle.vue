@@ -24,7 +24,7 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 		<div class="card-header">
 			<strong>Vehicle:</strong>
 			{{ info.name }}
-			<CurrentScopeBadge />
+			<CurrentScopeBadge/>
 		</div>
 		<div class="card-body">
 			<div class="row">

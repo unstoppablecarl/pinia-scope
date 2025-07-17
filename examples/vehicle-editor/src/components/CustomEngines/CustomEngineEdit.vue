@@ -25,7 +25,6 @@ const engineIsUsed = computed(() => engineStore.engineIsUsed(engineId))
 				Custom Engine
 			</strong>
 
-
 			&nbsp;
 			<CurrentScopeBadge />
 
@@ -33,13 +32,13 @@ const engineIsUsed = computed(() => engineStore.engineIsUsed(engineId))
 		</div>
 		<div class="card-body">
 			<div class="form-floating mb-3">
-				<input class="form-control" id="engine-name" v-model="engine.name">
+				<input class="form-control" :id="`${engineId}-engine-name`" v-model="engine.name">
 				<label for="engine-name">Name</label>
 			</div>
 
 			<div class="form-floating mb-3">
 				<input class="form-control" id="engine-name" type="number" v-model="engine.speed">
-				<label for="engine-name">Speed</label>
+				<label :for="`${engineId}-engine-name`">Speed</label>
 			</div>
 		</div>
 		<div class="card-footer">
