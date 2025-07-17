@@ -33,7 +33,7 @@ export type ScopeableStoreResult<S> = {
 
 export type StoreDef<Id extends string, SS> = StoreDefinition<Id, _ExtractStateFromSetupStore<SS>, _ExtractGettersFromSetupStore<SS>, _ExtractActionsFromSetupStore<SS>>
 
-export default function defineScopeableStore<Id extends string, SS, DS extends StoreDef<Id, SS>, S = ReturnType<DS>>(
+export default function defineScopeableStore<Id extends string, SS, SD extends StoreDef<Id, SS>, S = ReturnType<SD>>(
   id: Id,
   storeCreator: (ctx: { scope: string }) => SS,
   setupOptions?: ScopeableStoreOptions<Id, SS>,
@@ -44,7 +44,7 @@ export default function defineScopeableStore<Id extends string, SS, DS extends S
     const context = { scope }
     const scopedId = tracker.makeScopedId(scope, id) as string
     const setup = (): SS => storeCreator(context)
-    const useStore = defineStore(scopedId, setup, setupOptions) as DS
+    const useStore = defineStore(scopedId, setup, setupOptions) as SD
     const store = useStore() as S
 
     if (scope !== '') {
