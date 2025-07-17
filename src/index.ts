@@ -1,4 +1,4 @@
-export { defineScopeableStore, StoreCreatorContext } from './functions/defineScopeableStore'
+export { defineScopeableStore, type StoreCreatorContext } from './functions/defineScopeableStore'
 export { getInjectedScope } from './functions/getInjectedScope'
 export { setStoreScope } from './functions/setStoreScope'
 export { default as StoreScopeProvider } from './components/PiniaScopeProvider'

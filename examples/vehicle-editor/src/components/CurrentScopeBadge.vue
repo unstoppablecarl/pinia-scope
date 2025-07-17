@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { getStoreScope } from 'pinia-scope'
+import { getInjectedScope } from 'pinia-scope'
 
-const scope = getStoreScope()
+const scope = getInjectedScope()
 </script>
 <template>
 	<span class="badge text-bg-secondary">

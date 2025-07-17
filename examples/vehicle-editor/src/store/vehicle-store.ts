@@ -1,4 +1,4 @@
-import { defineScopedStore } from 'pinia-scope'
+import { defineScopeableStore } from 'pinia-scope'
 import { computed, ref } from 'vue'
 import { type Tire, useTireStore } from './tire-store.ts'
 import { type Engine, useEngineStore } from './engine-store.ts'
@@ -19,7 +19,7 @@ export type VehicleInfo = Vehicle & {
   total_speed: number,
 }
 
-export const useVehicleStore = defineScopedStore('vehicles', ({ scope }) => {
+export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }) => {
   const tireStore = useTireStore(scope)
   const engineStore = useEngineStore(scope)
 

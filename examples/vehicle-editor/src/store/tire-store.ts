@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { defineScopedStore } from '../../../../src'
+import { defineScopeableStore } from '../../../../src'
 
 export type Tire = {
   id: string;
@@ -29,7 +29,7 @@ const TIRE_DATA: { [key: string]: Tire } = {
   },
 }
 
-export const useTireStore = defineScopedStore('tires', ({}) => {
+export const useTireStore = defineScopeableStore('tires', ({}) => {
   const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
 
   const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])

@@ -1,4 +1,4 @@
-import { defineScopedStore } from 'pinia-scope'
+import { defineScopeableStore } from 'pinia-scope'
 import { computed, ref } from 'vue'
 import { useVehicleStore, type Vehicle } from './vehicle-store.ts'
 
@@ -28,7 +28,7 @@ const ENGINE_DATA: { [key: string]: Engine } = {
   },
 }
 
-export const useEngineStore = defineScopedStore('engines', ({scope}) => {
+export const useEngineStore = defineScopeableStore('engines', ({scope}) => {
 
   const vehicleStore = useVehicleStore(scope)
 
