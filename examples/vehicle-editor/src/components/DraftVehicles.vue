@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { setStoreScope } from 'pinia-scope'
+import { setComponentScope } from 'pinia-scope'
 import Vehicles from './Vehicles.vue'
 import { useVehicleStore } from '../store/vehicle-store.ts'
 import { useEngineStore } from '../store/engine-store.ts'
@@ -7,7 +7,7 @@ import { useEngineStore } from '../store/engine-store.ts'
 const visible = defineModel()
 
 // create a scope for the draft vehicles separate from the un-scoped stores
-setStoreScope('draft')
+setComponentScope('draft')
 
 const draftVehicleStore = useVehicleStore()
 const draftEngineStore = useEngineStore()
