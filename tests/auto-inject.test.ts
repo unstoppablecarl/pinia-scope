@@ -32,7 +32,7 @@ describe('autoInjectScope = true', async () => {
     const Child = {
       setup() {
         const nameStore = useNameStore()
-        const nameStoreInjected = useNameStore.injectedScope()
+        const nameStoreInjected = useNameStore.componentScope()
 
         return {
           nameStore,

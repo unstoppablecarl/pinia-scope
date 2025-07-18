@@ -1,8 +1,7 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { fileURLToPath, URL } from 'node:url'
-import fs from 'node:fs/promises'
 
 export default defineConfig({
   plugins: [vue()],
@@ -28,7 +27,7 @@ export default defineConfig({
       scss: {
         // maybe one day bootstrap will update
         // to the lastest version of sass
-        quietDeps: true
+        quietDeps: true,
       },
     },
   },

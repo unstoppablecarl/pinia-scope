@@ -25,7 +25,7 @@ export type ScopeableStoreOptions<Id extends string, SS> = DefineSetupStoreOptio
 
 export type ScopeableStoreResult<S> = {
   (scope?: string, options?: ScopeOptionsInput): S;
-  injectedScope(): S;
+  componentScope(): S;
   unScoped(): S;
 }
 export type StoreCreatorContext = { scope: string }
@@ -84,7 +84,7 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
     return store
   }
 
-  function injectedScope(): S {
+  function componentScope(): S {
     return makeStore(getComponentScope())
   }
 
@@ -107,7 +107,7 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
     return unScoped()
   }
 
-  factory.injectedScope = injectedScope
+  factory.componentScope = componentScope
   factory.unScoped = unScoped
 
   return factory
