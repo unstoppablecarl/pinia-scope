@@ -37,6 +37,10 @@ export type StoreDef<Id extends string, SS> = StoreDefinition<Id, _ExtractStateF
 
 let definingStoreDepth = 0
 
+export function getDefiningStoreDepth(): number {
+  return definingStoreDepth
+}
+
 export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<Id, SS>, S = ReturnType<SD>>(
   id: Id,
   storeCreator: StoreCreator<SS>,
@@ -50,12 +54,14 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
 
     let setup = (): SS => storeCreator(context)
     if (__DEV__) {
-      setup = (): SS => {
-        definingStoreDepth++
-        try {
-          return storeCreator(context)
-        } finally {
-          definingStoreDepth--
+      if (tracker.autoInjectScope()) {
+        setup = (): SS => {
+          definingStoreDepth++
+          try {
+            return storeCreator(context)
+          } finally {
+            definingStoreDepth--
+          }
         }
       }
     }
@@ -94,7 +100,7 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
     const tracker = getActiveTracker('defineScopeableStore')
     if (tracker.autoInjectScope()) {
       if (__DEV__ && definingStoreDepth > 0) {
-        console.warn('[Pinia Scope]: Attempting to auto-inject scope from a component via "useMyStore()" inside of another store. You should do "useMyStore(scope)" or "useMyStore.unScoped()" instead.')
+        console.warn(`[Pinia Scope]: Attempting to auto-inject scope from a component via "useMyStore()" with store id: "${id}" inside of another store. You should do "useMyStore(scope)" or "useMyStore.unScoped()" instead.`)
       }
       return makeStore(getComponentScopeIfAvailable())
     }

@@ -25,6 +25,9 @@ describe('pinia-scope APIs', () => {
     expect(getPiniaScopeTracker(pinia)).toBe(scopeTrackerObj)
     expect(hasPiniaScope(pinia)).toBe(true)
 
+    const pinia2 = pinia as any
+    expect(pinia2.__PINIA_SCOPE_TRACKER__).toBe(scopeTrackerObj)
+
     clearPiniaScope(pinia)
     expect(getPiniaScopeTracker(pinia)).toBe(undefined)
     expect(hasPiniaScope(pinia)).toBe(false)
