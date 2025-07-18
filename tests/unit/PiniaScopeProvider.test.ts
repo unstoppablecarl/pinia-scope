@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createPinia, Pinia } from 'pinia'
+import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { attachPiniaScope, clearPiniaScope } from '../../src/pinia-scope'
 import PiniaScopeProvider from '../../src/components/PiniaScopeProvider'

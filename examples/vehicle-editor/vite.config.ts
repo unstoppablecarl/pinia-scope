@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 import fs from 'node:fs/promises'
 
 export default defineConfig({
-  plugins: [vue(), copyPiniaScopePlugin()],
+  plugins: [vue()],
   define: {
     __DEV__: true,
     __TEST__: false,
@@ -23,26 +23,13 @@ export default defineConfig({
   server: {
     port: 8080,
   },
-})
-
-
-function copyPiniaScopePlugin(): Plugin {
-  return {
-    name: 'copy-pinia',
-    async generateBundle() {
-      const filePath = fileURLToPath(
-        new URL('../pinia/dist/pinia.mjs', import.meta.url)
-      )
-
-      // throws if file doesn't exist
-      await fs.access(filePath)
-
-      this.emitFile({
-        type: 'asset',
-        fileName: 'pinia.mjs',
-        source: await fs.readFile(filePath, 'utf-8'),
-      })
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // maybe one day bootstrap will update
+        // to the lastest version of sass
+        quietDeps: true
+      },
     },
-  }
-}
-
+  },
+})

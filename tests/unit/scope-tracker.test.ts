@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createPinia, Pinia, setActivePinia } from 'pinia'
+import { createPinia, type Pinia, setActivePinia } from 'pinia'
 import { makeStore, NameStore_ID, useNameStore } from '../helpers/test-stores'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
 import { setStoreScope } from '../../src/functions/setStoreScope'

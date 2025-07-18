@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { NameStore_ID, useNameStore } from './helpers/test-stores'
-import { createPinia, Pinia, setActivePinia } from 'pinia'
+import { createPinia, type Pinia, setActivePinia } from 'pinia'
 import { attachPiniaScope } from '../src/pinia-scope'
 
 describe('scope name factory', () => {

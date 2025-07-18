@@ -1,7 +1,7 @@
 import { getCurrentInstance, onUnmounted, provide } from 'vue'
 import { injectorKey, instanceKey } from '../constants'
 import { getActivePiniaScopeTracker } from '../pinia-scope'
-import { ScopeOptionsInput } from '../scope-options'
+import { type ScopeOptionsInput } from '../scope-options'
 
 export function setStoreScope(name: string, options?: ScopeOptionsInput): void {
   const instance = getCurrentInstance() as any

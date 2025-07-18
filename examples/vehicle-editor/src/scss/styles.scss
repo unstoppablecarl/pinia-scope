@@ -2,6 +2,5 @@ $enable-shadows: true;
 @use "~bootstrap/scss/bootstrap";
 
 .card {
-  box-shadow:  0 .125rem .25rem rgba($black, .3);
-  //border: 1px solid red !important;
+  box-shadow:  0 .125rem .25rem rgba(0,0,0, .3);
 }

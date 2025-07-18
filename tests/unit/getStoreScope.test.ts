@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { injectorKey, instanceKey } from '../../src/constants'
 import { getComponentScope } from '../../src/functions/getComponentScope'
-import { createPinia, Pinia } from 'pinia'
+import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'

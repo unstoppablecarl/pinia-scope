@@ -8,6 +8,6 @@ import { attachPiniaScope } from 'pinia-scope'
 const app = createApp(App)
 const pinia = createPinia()
 
-attachPiniaScope(pinia, { autoInjectScope: true })
+attachPiniaScope(pinia)
 app.use(pinia)
 app.mount('#app')

@@ -1,5 +1,5 @@
-import { getActivePinia, Pinia } from 'pinia'
-import { createScopeTracker, ScopeTracker, ScopeTrackerOptions } from './scope-tracker'
+import { getActivePinia, type Pinia } from 'pinia'
+import { createScopeTracker, type ScopeTracker, type ScopeTrackerOptions } from './scope-tracker'
 
 // A Symbol would be better, but it doesn't work
 // in vite hot-module reloading environment

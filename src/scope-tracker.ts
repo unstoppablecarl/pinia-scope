@@ -1,12 +1,12 @@
-import { Pinia, Store } from 'pinia'
+import { type Pinia, type Store } from 'pinia'
 import {
   createDefaultOptionsCollection,
   getScopeOptionsDiff,
   normalizeScopeOptions,
   optionsDiffToMessage,
-  ScopeOptions,
-  ScopeOptionsInput,
-  ScopeOptionsList,
+  type ScopeOptions,
+  type ScopeOptionsInput,
+  type ScopeOptionsList,
 } from './scope-options'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>

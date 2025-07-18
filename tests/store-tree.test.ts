@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createPinia, Pinia } from 'pinia'
+import { createPinia, type Pinia } from 'pinia'
 import { getComponentScope, setStoreScope } from '../src'
 import {
   Child2NameStore_NAME,

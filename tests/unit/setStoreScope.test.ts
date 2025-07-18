@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { setStoreScope } from '../../src/functions/setStoreScope'
-import { createPinia, Pinia } from 'pinia'
+import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, useTemplateRef } from 'vue'
 import { createScopeTracker } from '../../src/scope-tracker'

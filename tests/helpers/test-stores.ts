@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { defineScopeableStore, ScopedContext } from '../../src/functions/defineScopeableStore'
+import { defineScopeableStore, type ScopedContext } from '../../src/functions/defineScopeableStore'
 
 export const NameStore_DEFAULT_NAME = 'default-name'
 export const NameStore_ID = 'name-store'

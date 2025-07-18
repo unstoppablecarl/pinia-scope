@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { NameStore_ID, useNameStore } from './helpers/test-stores'
-import { createPinia, setActivePinia, Store } from 'pinia'
+import { createPinia, setActivePinia, type Store } from 'pinia'
 import { attachPiniaScope, defineScopeableStore, setStoreScope } from '../src'
 import { mount } from '@vue/test-utils'
-import { ScopedContext } from '../src/functions/defineScopeableStore'
+import { type ScopedContext } from '../src/functions/defineScopeableStore'
 
 const SCOPE_A = 'scope-a'
 

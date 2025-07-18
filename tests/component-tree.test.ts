@@ -1,12 +1,11 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createPinia, getActivePinia, Pinia, setActivePinia, storeToRefs } from 'pinia'
+import { createPinia, getActivePinia, setActivePinia, storeToRefs } from 'pinia'
 import { setStoreScope } from '../src'
 import { NameStore_DEFAULT_NAME, useNameStore } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
 import { attachPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
-import { before, beforeEach } from 'node:test'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'

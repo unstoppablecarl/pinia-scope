@@ -1,14 +1,14 @@
 import {
-  _ExtractActionsFromSetupStore,
-  _ExtractGettersFromSetupStore,
-  _ExtractStateFromSetupStore,
-  DefineSetupStoreOptions,
+  type _ExtractActionsFromSetupStore,
+  type _ExtractGettersFromSetupStore,
+  type _ExtractStateFromSetupStore,
+  type DefineSetupStoreOptions,
   defineStore,
-  Store,
-  StoreDefinition,
+  type Store,
+  type StoreDefinition,
 } from 'pinia'
 import { getActiveTracker } from '../pinia-scope'
-import { ScopeOptionsInput } from '../scope-options'
+import { type ScopeOptionsInput } from '../scope-options'
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { getComponentScope, getComponentScopeIfAvailable } from './getComponentScope'
 
