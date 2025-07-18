@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, type Pinia, setActivePinia } from 'pinia'
 import { makeStore, NameStore_ID, useNameStore } from '../helpers/test-stores'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
-import { setStoreScope } from '../../src/functions/setStoreScope'
+import { setComponentScope } from '../../src/functions/setComponentScope'
 import { mount } from '@vue/test-utils'
 
 const SCOPE_A = 'scope-a'
@@ -315,7 +315,7 @@ describe('getActivePiniaScopeTracker()', async () => {
 
     const App = {
       setup() {
-        setStoreScope(SCOPE_A)
+        setComponentScope(SCOPE_A)
 
         const store = useNameStore()
 

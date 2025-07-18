@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, type Pinia } from 'pinia'
-import { getComponentScope, setStoreScope } from '../src'
+import { getComponentScope, setComponentScope } from '../src'
 import {
   Child2NameStore_NAME,
   NameStore_ID,
@@ -73,7 +73,7 @@ describe('useProvideStores', () => {
         storeScope: String,
       },
       setup(props: any) {
-        setStoreScope(props.storeScope as string)
+        setComponentScope(props.storeScope as string)
 
         const scope = getComponentScope()
         const nameStore = useNameTreeStore()

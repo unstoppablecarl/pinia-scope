@@ -3,7 +3,7 @@ import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { attachPiniaScope, clearPiniaScope } from '../../src/pinia-scope'
 import PiniaScopeProvider from '../../src/components/PiniaScopeProvider'
-import * as setStoreScope from '../../src/functions/setStoreScope'
+import * as setStoreScope from '../../src/functions/setComponentScope'
 
 const SCOPE_A = 'scope-a'
 
@@ -33,7 +33,7 @@ describe('PiniaScopeProvider', () => {
 				</PiniaScopeProvider>`,
     }
 
-    const setStoreScopeSpy = vi.spyOn(setStoreScope, 'setStoreScope')
+    const setStoreScopeSpy = vi.spyOn(setStoreScope, 'setComponentScope')
 
     const wrapper = mount(App, {
       global: {

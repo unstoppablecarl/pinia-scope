@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { NameStore_ID, useNameStore } from './helpers/test-stores'
 import { createPinia, type Pinia, setActivePinia, type Store } from 'pinia'
-import { attachPiniaScope, defineScopeableStore, setStoreScope } from '../src'
+import { attachPiniaScope, defineScopeableStore, setComponentScope } from '../src'
 import { mount } from '@vue/test-utils'
 
 const SCOPE_A = 'scope-a'
@@ -14,7 +14,7 @@ describe('autoInjectScope = true', async () => {
     testInsideComponentWithoutInjection(pinia)
   })
 
-  it('inside component with setStoreScope()', async () => {
+  it('inside component with setComponentScope()', async () => {
     const pinia = createPinia()
     attachPiniaScope(pinia)
 
@@ -47,7 +47,7 @@ describe('autoInjectScope = true', async () => {
         Child,
       },
       setup() {
-        setStoreScope(SCOPE_A)
+        setComponentScope(SCOPE_A)
       },
       template: `
 				<Child ref="child" />`,
@@ -129,7 +129,7 @@ describe('autoInjectScope = false', async () => {
     testInsideComponentWithoutInjection(pinia)
   })
 
-  it('inside component with setStoreScope()', async () => {
+  it('inside component with setComponentScope()', async () => {
     const pinia = createPinia()
     attachPiniaScope(pinia, { autoInjectScope: false })
 
@@ -173,7 +173,7 @@ function testInsideComponentWithoutInjection(pinia: Pinia) {
 function insideComponentWithSetStoreScope(pinia: Pinia) {
   const App = {
     setup() {
-      setStoreScope(SCOPE_A)
+      setComponentScope(SCOPE_A)
       const nameStore = useNameStore()
       return {
         nameStore,

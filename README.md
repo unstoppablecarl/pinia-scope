@@ -97,7 +97,7 @@ vehicleStoreUnScoped.$id // 'my-scope-vehicles'
 const vehicleStoreUnScoped = useVehicleStore.unScoped()
 vehicleStoreUnScoped.$id // 'vehicles'
 
-// scoped by in this or parent component setStoreScope()
+// scoped by in this or parent component setComponentScope()
 // or unScoped if never set
 const vehicleStoreWithComponentScope = useVehicleStore()
 </script>
@@ -131,7 +131,7 @@ export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: Stor
 
 ```vue
 <script setup lang="ts">
-  import { setStoreScope } from 'pinia-scope'
+  import { setComponentScope } from 'pinia-scope'
   import { useVehicleStore } from 'vehicle-store.ts'
 
   // uses scope of a parent component if set
@@ -139,7 +139,7 @@ export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: Stor
   const parentScopedVehicleStore = useVehicleStore.injectedScope()
 
   // set scope for this component and its children
-  setStoreScope('order-preview')
+  setComponentScope('order-preview')
 
   // uses 'order-preview' scope from above
   const vehicleStore = useVehicleStore.injectedScope()
@@ -215,16 +215,16 @@ attachPiniaScope(pinia, {
 ```
 
 #### Setting Scope Options
-Scope Options can be se when calling `setStoreScope()`. If an `options` argument is provided, This will override any default scope options.
+Scope Options can be se when calling `setComponentScope()`. If an `options` argument is provided, This will override any default scope options.
 ```ts
-import { setStoreScope } from 'pinia-scope'
+import { setComponentScope } from 'pinia-scope'
 
 const storeOptions = {
   autoDispose: false,
   autoClearState: false,
 }
 
-setStoreScope('my-scope', storeOptions)
+setComponentScope('my-scope', storeOptions)
 ```
 
 ### Scoped Store Id Generation
@@ -270,7 +270,7 @@ import { useVehicleStore } from 'vehicle-store.ts'
 
 // always behaves the same as useVehicleStore.unScoped()
 const vehicleStore = useVehicleStore()
-// gets scope from component if set by setStoreScope()
+// gets scope from component if set by setComponentScope()
 // always behaves the same as useVehicleStore() when autoInjectScope = true
 const vehicleStoreUnscoped = useVehicleStore.componentScoped()
 

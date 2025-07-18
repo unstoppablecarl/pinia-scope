@@ -1,7 +1,7 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { createPinia, getActivePinia, setActivePinia, storeToRefs } from 'pinia'
-import { setStoreScope } from '../src'
+import { setComponentScope } from '../src'
 import { NameStore_DEFAULT_NAME, useNameStore } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
@@ -10,7 +10,7 @@ import { attachPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('setStoreScope() used in component', () => {
+describe('setComponentScope() used in component', () => {
 
   const Comp1 = {
     name: 'Comp1',
@@ -21,7 +21,7 @@ describe('setStoreScope() used in component', () => {
       storeScope: String,
     },
     setup(props: { storeScope: string }) {
-      setStoreScope(props.storeScope)
+      setComponentScope(props.storeScope)
       const nameStore = useNameStore()
       const { name } = storeToRefs(nameStore)
       return {
