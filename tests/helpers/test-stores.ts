@@ -45,7 +45,7 @@ export const useChild1NameStore = defineScopeableStore('child-1-name-store', ({ 
   const child1Name = ref<string>('')
 
   const child2NameStore = useChild2NameStore(scope)
-  const child2NameStoreWithoutScope = useChild2NameStore()
+  const child2NameStoreWithoutScope = useChild2NameStore.unScoped()
 
   const child2NameWithoutScope = computed(() => child2NameStoreWithoutScope.child2Name)
 

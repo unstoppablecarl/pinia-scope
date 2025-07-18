@@ -3,6 +3,12 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
+  define: {
+    __DEV__: true,
+    __TEST__: true,
+    __BROWSER__: true,
+    __USE_DEVTOOLS__: false,
+  },
   plugins: [vue()],
   test: {
     include: ['src/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.ts'],

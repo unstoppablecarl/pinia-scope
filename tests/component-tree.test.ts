@@ -1,20 +1,17 @@
 import { mount, VueWrapper } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createPinia, getActivePinia, storeToRefs } from 'pinia'
+import { createPinia, getActivePinia, Pinia, setActivePinia, storeToRefs } from 'pinia'
 import { setStoreScope } from '../src'
 import { NameStore_DEFAULT_NAME, useNameStore } from './helpers/test-stores'
 import { Comp2, Comp3 } from './components/name-store-nested-components'
 import PiniaScopeProvider from '../src/components/PiniaScopeProvider'
 import { attachPiniaScope, getActivePiniaScopeTracker } from '../src/pinia-scope'
+import { before, beforeEach } from 'node:test'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
 describe('setStoreScope() used in component', () => {
-
-  const pinia = createPinia()
-
-  attachPiniaScope(pinia)
 
   const Comp1 = {
     name: 'Comp1',
@@ -26,7 +23,7 @@ describe('setStoreScope() used in component', () => {
     },
     setup(props: { storeScope: string }) {
       setStoreScope(props.storeScope)
-      const nameStore = useNameStore.injectedScope()
+      const nameStore = useNameStore()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -52,8 +49,11 @@ describe('setStoreScope() used in component', () => {
 			</div>`,
   }
 
-
   it('can keep separate scoped trees', async () => {
+
+    let pinia = createPinia()
+    attachPiniaScope(pinia)
+
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],
@@ -69,6 +69,7 @@ describe('setStoreScope() used in component', () => {
     expect(wrapper.findComponent(Comp3).html()).toContain(
       `Comp3:[${NameStore_DEFAULT_NAME}]`,
     )
+    setActivePinia(pinia)
 
     await testTree(wrapper)
 
@@ -77,6 +78,9 @@ describe('setStoreScope() used in component', () => {
   })
 
   it('can maintain usage count', async () => {
+    let pinia = createPinia()
+    attachPiniaScope(pinia)
+
     const wrapper = mount(App, {
       global: {
         plugins: [pinia],
@@ -88,6 +92,7 @@ describe('setStoreScope() used in component', () => {
         plugins: [pinia],
       },
     })
+    setActivePinia(pinia)
 
     expect(getActivePiniaScopeTracker().useCount(SCOPE_A)).toEqual(8)
     expect(getActivePiniaScopeTracker().useCount(SCOPE_B)).toEqual(8)
@@ -121,7 +126,7 @@ describe('StoreScopeProvider component', () => {
       Comp2,
     },
     setup() {
-      const nameStore = useNameStore.injectedScope()
+      const nameStore = useNameStore()
       const { name } = storeToRefs(nameStore)
       return {
         nameStore,
@@ -186,8 +191,8 @@ describe('StoreScopeProvider component', () => {
 })
 
 async function testTree(wrapper: VueWrapper) {
-  const newName = 'bobby'
-  const newName2 = 'jimmy'
+  const newName = 'N1-scoped'
+  const newName2 = 'N2-unscoped'
   const storeA = useNameStore(SCOPE_A)
   storeA.setName(newName)
 

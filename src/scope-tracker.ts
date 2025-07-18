@@ -19,7 +19,7 @@ export type ScopeTrackerOptions = {
 export type ScopeNameGenerator = (scope: string, id: string) => string;
 
 export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) {
-  const autoInjectScope = options?.autoInjectScope ?? false
+  const autoInjectScope = options?.autoInjectScope ?? true
   const scopes = new Map<string, Scope>()
   const defaultOptions = createDefaultOptionsCollection(options?.scopeDefaults)
   const scopeNameGenerator = options?.scopeNameGenerator ?? defaultGenerator

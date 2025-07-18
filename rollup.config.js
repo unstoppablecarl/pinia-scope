@@ -3,11 +3,11 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import ts from 'rollup-plugin-typescript2'
+import replace from '@rollup/plugin-replace'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import pascalcase from 'pascalcase'
 import terser from '@rollup/plugin-terser'
-import circularDependencies from 'rollup-plugin-circular-dependencies'
 import del from 'rollup-plugin-delete'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -69,7 +69,11 @@ function createConfig(buildName, output, plugins = []) {
     pinia: 'pinia',
   }
 
+  const isProductionBuild = /\.prod\.[cm]?js$/.test(output.file)
   const isGlobalBuild = buildName === 'global'
+  const isRawESMBuild = buildName === 'browser'
+  const isNodeBuild = buildName === 'cjs'
+  const isBundlerESMBuild = buildName === 'browser' || buildName === 'mjs'
 
   if (isGlobalBuild) output.name = pascalcase(pkg.name)
 
@@ -117,9 +121,14 @@ function createConfig(buildName, output, plugins = []) {
     plugins: [
       ...clearPlugins,
       tsPlugin,
-      circularDependencies({
-        include: [/getStoreWithScope\.ts?$/],
-      }),
+      createReplacePlugin(
+        isProductionBuild,
+        isBundlerESMBuild,
+        // isBrowserBuild?
+        isRawESMBuild,
+        isGlobalBuild,
+        isNodeBuild
+      ),
       ...nodePlugins,
       ...plugins,
     ],
@@ -130,6 +139,58 @@ function createConfig(buildName, output, plugins = []) {
     //   }
     // },
   }
+}
+
+function createReplacePlugin(
+  isProduction,
+  isBundlerESMBuild,
+  isRawESMBuild,
+  isGlobalBuild,
+  isNodeBuild
+) {
+  const __DEV__ =
+    (isBundlerESMBuild && !isRawESMBuild) || (isNodeBuild && !isProduction)
+      ? // preserve to be handled by bundlers
+        `(process.env.NODE_ENV !== 'production')`
+      : // hard coded dev/prod builds
+        JSON.stringify(!isProduction)
+  const __FEATURE_PROD_DEVTOOLS__ = isBundlerESMBuild
+    ? `(typeof __VUE_PROD_DEVTOOLS__ !== 'undefined' && __VUE_PROD_DEVTOOLS__)`
+    : 'false'
+
+  const __TEST__ =
+    (isBundlerESMBuild && !isRawESMBuild) || isNodeBuild
+      ? `(process.env.NODE_ENV === 'test')`
+      : 'false'
+
+  const replacements = {
+    __COMMIT__: `"${process.env.COMMIT}"`,
+    __VERSION__: `"${pkg.version}"`,
+    __USE_DEVTOOLS__: `((${__DEV__} || ${__FEATURE_PROD_DEVTOOLS__}) && !${__TEST__})`,
+    __DEV__,
+    // this is only used during tests
+    __TEST__,
+    __FEATURE_PROD_DEVTOOLS__,
+    // If the build is expected to run directly in the browser (global / esm builds)
+    __BROWSER__: JSON.stringify(isRawESMBuild),
+    // is targeting bundlers?
+    __BUNDLER__: JSON.stringify(isBundlerESMBuild),
+    __GLOBAL__: JSON.stringify(isGlobalBuild),
+    // is targeting Node (SSR)?
+    __NODE_JS__: JSON.stringify(isNodeBuild),
+  }
+  // allow inline overrides like
+  //__RUNTIME_COMPILE__=true yarn build
+  Object.keys(replacements).forEach((key) => {
+    if (key in process.env) {
+      replacements[key] = process.env[key]
+    }
+  })
+
+  return replace({
+    preventAssignment: true,
+    values: replacements,
+  })
 }
 
 function createProductionConfig(format) {

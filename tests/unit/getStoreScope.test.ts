@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { injectorKey, instanceKey } from '../../src/constants'
-import { getInjectedScope } from '../../src/functions/getInjectedScope'
+import { getComponentScope } from '../../src/functions/getComponentScope'
 import { createPinia, Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
@@ -9,7 +9,7 @@ import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '.
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('getInjectedScope()', () => {
+describe('getComponentScope()', () => {
 
   let pinia: Pinia
 
@@ -21,8 +21,8 @@ describe('getInjectedScope()', () => {
 
   it('outside of component', async () => {
     expect(
-      () => getInjectedScope(),
-    ).toThrowError('getInjectedScope() can only be used inside setup() or functional components.')
+      () => getComponentScope(),
+    ).toThrowError('getComponentScope() can only be used inside setup() or functional components.')
   })
 
   it('can get default scope', async () => {
@@ -32,7 +32,7 @@ describe('getInjectedScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = ''
 
-        const scope = getInjectedScope()
+        const scope = getComponentScope()
 
         return {
           scope,
@@ -59,7 +59,7 @@ describe('getInjectedScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_A
 
-        const scope = getInjectedScope()
+        const scope = getComponentScope()
 
         return {
           scope,
@@ -83,7 +83,7 @@ describe('getInjectedScope()', () => {
 
     const Child = {
       setup() {
-        const scope = getInjectedScope()
+        const scope = getComponentScope()
         return {
           scope,
         }
@@ -125,7 +125,7 @@ describe('getInjectedScope()', () => {
         const instance = getCurrentInstance() as any
         instance[instanceKey] = SCOPE_B
 
-        const scope = getInjectedScope()
+        const scope = getComponentScope()
         return {
           scope,
         }
