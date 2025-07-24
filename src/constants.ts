@@ -1,5 +1,7 @@
 import { type InjectionKey } from 'vue'
 
+// Stryker disable all
+
 // A Symbol would be better, but it doesn't work
 // in vite hot-module reloading environment
 // export const SCOPE_TRACKER_KEY = Symbol(__DEV__ ? 'Pinia Scope: Tracker' : '')
