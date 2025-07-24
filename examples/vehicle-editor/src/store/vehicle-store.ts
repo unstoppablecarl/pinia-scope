@@ -20,7 +20,7 @@ export type VehicleInfo = Vehicle & {
 }
 
 export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }) => {
-  const tireStore = useTireStore(scope)
+  const tireStore = useTireStore.unScoped()
   const engineStore = useEngineStore(scope)
 
   const vehicles = ref<Vehicle[]>([])

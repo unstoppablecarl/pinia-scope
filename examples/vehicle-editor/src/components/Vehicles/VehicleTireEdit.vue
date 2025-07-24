@@ -1,8 +1,7 @@
 <script setup lang="ts">
-
 import { useTireStore } from '../../store/tire-store.ts'
 
-const tireStore = useTireStore()
+const tireStore = useTireStore.unScoped()
 const model = defineModel()
 </script>
 <template>

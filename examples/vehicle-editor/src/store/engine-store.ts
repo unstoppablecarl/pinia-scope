@@ -4,7 +4,6 @@ import { useVehicleStore, type Vehicle } from './vehicle-store.ts'
 
 export type Engine = EngineAdd & {
   id: string;
-
 }
 
 export type EngineAdd = {
@@ -28,7 +27,7 @@ const ENGINE_DATA: { [key: string]: Engine } = {
   },
 }
 
-export const useEngineStore = defineScopeableStore('engines', ({scope}) => {
+export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
 
   const vehicleStore = useVehicleStore(scope)
 

@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { defineScopeableStore } from '../../../../src'
+import { defineNonScopeableStore } from 'pinia-scope'
 
 export type Tire = {
   id: string;
@@ -29,7 +29,7 @@ const TIRE_DATA: { [key: string]: Tire } = {
   },
 }
 
-export const useTireStore = defineScopeableStore('tires', ({}) => {
+export const useTireStore = defineNonScopeableStore('tires', ({ unScoped }) => {
   const tires = computed<Tire[]>(() => Object.values(TIRE_DATA))
 
   const defaultTire = computed<Tire>(() => TIRE_DATA[TIRE_ROAD])
