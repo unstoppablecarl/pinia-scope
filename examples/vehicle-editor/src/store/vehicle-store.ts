@@ -26,6 +26,11 @@ export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }) => {
   const vehicles = ref<Vehicle[]>([])
   const vehiclesIdIncrement = ref<number>(1)
 
+  function $reset() {
+    vehicles.value = []
+    vehiclesIdIncrement.value = 1
+  }
+
   const maxSpeed = computed(() => {
     return tireStore.maxSpeed + engineStore.maxSpeed
   })
@@ -81,6 +86,7 @@ export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }) => {
 
     maxSpeed,
 
+    $reset,
     add,
     remove,
     get,

@@ -1,3 +1,4 @@
+export { getStoreInfo, getStoreUnscopedId, getStoreScope } from './functions/getStoreInfo'
 export { defineScopeableStore, type StoreCreatorContext } from './functions/defineScopeableStore'
 export { defineNonScopeableStore } from './functions/defineNonScopeableStore'
 export { getComponentScope } from './functions/getComponentScope'

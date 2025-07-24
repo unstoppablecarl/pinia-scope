@@ -1,10 +1,6 @@
 import { getActivePinia, type Pinia } from 'pinia'
 import { createScopeTracker, type ScopeTracker, type ScopeTrackerOptions } from './scope-tracker'
-
-// A Symbol would be better, but it doesn't work
-// in vite hot-module reloading environment
-// const KEY = Symbol('PINIA_SCOPE_TRACKER')
-const KEY = '__PINIA_SCOPE_TRACKER__'
+import { SCOPE_TRACKER_KEY } from './constants'
 
 export function attachPiniaScope(pinia: Pinia, options?: ScopeTrackerOptions): void {
   if (hasPiniaScope(pinia)) {
@@ -15,22 +11,22 @@ export function attachPiniaScope(pinia: Pinia, options?: ScopeTrackerOptions): v
 
 export function hasPiniaScope(pinia: Pinia): boolean {
   // @ts-ignore
-  return !!pinia[KEY]
+  return !!pinia[SCOPE_TRACKER_KEY]
 }
 
 export function clearPiniaScope(pinia: Pinia): void {
   // @ts-ignore
-  delete pinia[KEY]
+  delete pinia[SCOPE_TRACKER_KEY]
 }
 
 export function attachPiniaScopeTracker(pinia: Pinia, scopeTracker: ScopeTracker): void {
   // @ts-ignore
-  pinia[KEY] = scopeTracker
+  pinia[SCOPE_TRACKER_KEY] = scopeTracker
 }
 
 export function getPiniaScopeTracker(pinia: Pinia): ScopeTracker {
   // @ts-ignore
-  return pinia[KEY]
+  return pinia[SCOPE_TRACKER_KEY]
 }
 
 export function getActivePiniaScopeTracker(): ScopeTracker {

@@ -34,6 +34,11 @@ export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
   const customEngines = ref<Engine[]>([])
   const customEnginesIdIncrement = ref<number>(1)
 
+  function $reset() {
+    customEngines.value = []
+    customEnginesIdIncrement.value = 1
+  }
+
   const engines = computed<Engine[]>(() => {
     return [
       ...customEngines.value,
@@ -64,6 +69,8 @@ export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
       id: newId,
       ...input,
     })
+
+    return newId
   }
 
   function removeCustomEngine(engineId: string) {
@@ -93,6 +100,10 @@ export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
     return engine
   }
 
+  function isCustom(engineId: string): boolean {
+    return !(engineId in ENGINE_DATA)
+  }
+
   function engineIsUsed(engineId: string): boolean {
     return !!getVehiclesWithEngine(engineId).length
   }
@@ -108,10 +119,12 @@ export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
     customEngines,
     engineIsUsed,
 
+    isCustom,
     getVehiclesWithEngine,
     addCustomEngine,
     removeCustomEngine,
     get,
+    $reset,
   }
 })
 

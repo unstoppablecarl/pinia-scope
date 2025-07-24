@@ -11,6 +11,7 @@ import { getActiveTracker } from '../pinia-scope'
 import { type ScopeOptionsInput } from '../scope-options'
 import { getCurrentInstance, onUnmounted } from 'vue'
 import { getComponentScope, getComponentScopeIfAvailable } from './getComponentScope'
+import { STORE_SCOPE_KEY, STORE_UNSCOPED_ID_KEY } from '../constants'
 
 export type ScopedContext = {
   scope: string;
@@ -67,6 +68,12 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
     }
     const useStore = defineStore(scopedId, setup, setupOptions) as SD
     const store = useStore() as S
+
+    //@ts-ignore
+    store[STORE_UNSCOPED_ID_KEY] = id
+    //@ts-ignore
+    store[STORE_SCOPE_KEY] = scope
+
 
     if (scope !== '') {
       tracker.init(scope, options)

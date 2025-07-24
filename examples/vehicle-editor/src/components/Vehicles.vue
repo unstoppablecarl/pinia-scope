@@ -34,7 +34,11 @@ const { title } = defineProps({
 					<Vehicle
 						v-for="item in vehicles"
 						:vehicle-id="item.id"
-					/>
+					>
+						<template #footer>
+							<button class="btn btn-danger" @click="vehicleStore.remove(item.id)">Delete</button>
+						</template>
+					</Vehicle>
 				</div>
 				<div class="col-md-4">
 					<CustomEngines />

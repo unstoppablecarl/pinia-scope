@@ -1,5 +1,5 @@
 import { getCurrentInstance, onUnmounted, provide } from 'vue'
-import { injectorKey, instanceKey } from '../constants'
+import { INJECTOR_KEY, INSTANCE_KEY } from '../constants'
 import { getActivePiniaScopeTracker } from '../pinia-scope'
 import { type ScopeOptionsInput } from '../scope-options'
 
@@ -8,8 +8,8 @@ export function setComponentScope(name: string, options?: ScopeOptionsInput): vo
   if (!instance) {
     throw new Error('setComponentScope() can only be used inside setup() or functional components.')
   }
-  instance[instanceKey] = name
-  provide(injectorKey, name)
+  instance[INSTANCE_KEY] = name
+  provide(INJECTOR_KEY, name)
 
   if (name === '') {
     return

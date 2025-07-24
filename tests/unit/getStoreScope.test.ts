@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { injectorKey, instanceKey } from '../../src/constants'
+import { INJECTOR_KEY, INSTANCE_KEY } from '../../src/constants'
 import { getComponentScope } from '../../src/functions/getComponentScope'
 import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
@@ -30,7 +30,7 @@ describe('getComponentScope()', () => {
       setup() {
 
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = ''
+        instance[INSTANCE_KEY] = ''
 
         const scope = getComponentScope()
 
@@ -57,7 +57,7 @@ describe('getComponentScope()', () => {
       setup() {
 
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = SCOPE_A
+        instance[INSTANCE_KEY] = SCOPE_A
 
         const scope = getComponentScope()
 
@@ -97,7 +97,7 @@ describe('getComponentScope()', () => {
         Child,
       },
       setup() {
-        provide(injectorKey, SCOPE_A)
+        provide(INJECTOR_KEY, SCOPE_A)
       },
       template: `
 				<Child ref="child" />`,
@@ -123,7 +123,7 @@ describe('getComponentScope()', () => {
     const Child = {
       setup() {
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = SCOPE_B
+        instance[INSTANCE_KEY] = SCOPE_B
 
         const scope = getComponentScope()
         return {
@@ -139,7 +139,7 @@ describe('getComponentScope()', () => {
         Child,
       },
       setup() {
-        provide(injectorKey, SCOPE_A)
+        provide(INJECTOR_KEY, SCOPE_A)
       },
       template: `
 				<Child ref="child" />`,
