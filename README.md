@@ -327,6 +327,19 @@ import { disposeAndClearStateOfPiniaScope } from 'pinia-scope'
 disposeAndClearStateOfPiniaScope('my-scope')
 ```
 
+### `getStoreInfo(), getStoreUnscopedId(), getStoreScope()`
+Inspects a store instance's Unscoped `store.$id` or current scope.
+```ts
+import { getStoreInfo, getStoreUnscopedId, getStoreScope } from 'pinia-scope'
+
+const store = useMyStore()
+const { unscopedId , scope } = getStoreInfo(store)
+
+const unscopedId2 = getStoreUnscopedId(store)
+const scope2 = getStoreScope(store)
+```
+
+
 ## Testing / Use Outside Components
 
 To use pinia scope functions outside a component, you can manually set the active pinia instance. The same way you would for normal pinia stores.
