@@ -11,6 +11,8 @@ import {
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
 
+export type Scope = ReturnType<typeof createScope>
+
 export type ScopeTrackerOptions = {
   autoInjectScope?: boolean,
   scopeDefaults?: ScopeOptionsList,
@@ -18,9 +20,11 @@ export type ScopeTrackerOptions = {
 }
 export type ScopeNameGenerator = (scope: string, id: string) => string;
 
+const defaultGenerator = (scope: string, id: string): string => `${scope}-${id}`
+
 export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) {
-  const autoInjectScope = options?.autoInjectScope ?? true
   const scopes = new Map<string, Scope>()
+  const autoInjectScope = options?.autoInjectScope ?? true
   const defaultOptions = createDefaultOptionsCollection(options?.scopeDefaults)
   const scopeNameGenerator = options?.scopeNameGenerator ?? defaultGenerator
 
@@ -71,7 +75,7 @@ export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) 
       } else {
         options = defaultOptions.get(scope)
       }
-      const newScope = new Scope(pinia, scope, options)
+      const newScope = createScope(pinia, scope, options)
       scopes.set(scope, newScope)
 
       return newScope
@@ -122,67 +126,56 @@ export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) 
   }
 }
 
-class Scope {
-  readonly pinia: Pinia
-  readonly id: string
-  readonly autoDispose: boolean
-  readonly autoClearState: boolean
 
-  private stores: Store[] = []
-  private _useCount: number = 0
+function createScope(pinia: Pinia, scope: string, options: ScopeOptions) {
+  const autoDispose = options.autoDispose
+  const autoClearState = options.autoClearState
+  const stores: Store[] = []
+  let useCount: number = 0
 
-  get useCount(): number {
-    return this._useCount
+  return {
+    get scope(): string {
+      return scope
+    },
+    get autoDispose(): boolean {
+      return autoDispose
+    },
+    get autoClearState(): boolean {
+      return autoClearState
+    },
+    get useCount(): number {
+      return useCount
+    },
+    options(): ScopeOptions {
+      return {
+        autoDispose,
+        autoClearState,
+      }
+    },
+    addStore(store: Store): void {
+      if (!stores.includes(store)) {
+        stores.push(store)
+      }
+    },
+    mount(): void {
+      useCount++
+    },
+    unmount(): void {
+      useCount--
+    },
+    isUsed(): boolean {
+      return useCount > 0
+    },
+    dispose(): void {
+      stores.forEach((store) => {
+        store.$dispose()
+      })
+    },
+    disposeAndClearState(): void {
+      stores.forEach((store) => {
+        store.$dispose()
+        delete pinia.state.value[store.$id]
+      })
+    },
   }
-
-  constructor(pinia: Pinia, scope: string, options: ScopeOptions) {
-    this.pinia = pinia
-    this.id = scope
-
-    this.autoDispose = options.autoDispose
-    this.autoClearState = options.autoClearState
-  }
-
-  options(): ScopeOptions {
-    return {
-      autoDispose: this.autoDispose,
-      autoClearState: this.autoClearState,
-    }
-  }
-
-  addStore(store: Store): void {
-    if (!this.stores.includes(store)) {
-      this.stores.push(store)
-    }
-  }
-
-  mount(): void {
-    this._useCount++
-  }
-
-  unmount(): void {
-    this._useCount--
-  }
-
-  isUsed(): boolean {
-    return this._useCount > 0
-  }
-
-  dispose(): void {
-    this.stores.forEach((store) => {
-      store.$dispose()
-    })
-  }
-
-  disposeAndClearState(): void {
-    this.stores.forEach((store) => {
-      store.$dispose()
-      delete this.pinia.state.value[store.$id]
-    })
-  }
-}
-
-
-function defaultGenerator(scope: string, id: string): string {
-  return `${scope}-${id}`
 }

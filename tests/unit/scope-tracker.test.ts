@@ -64,6 +64,7 @@ describe('getActivePiniaScopeTracker()', async () => {
 
     expect(getActivePiniaScopeTracker().has(SCOPE_A)).toBe(false)
     expect(getActivePiniaScopeTracker().has(SCOPE_B)).toBe(true)
+    expect(getActivePiniaScopeTracker().get(SCOPE_B)?.scope).toBe(SCOPE_B)
 
   })
 
@@ -270,6 +271,7 @@ describe('getActivePiniaScopeTracker()', async () => {
 
     expect(tracker.get(SCOPE_A)?.autoDispose).toBe(true)
     expect(tracker.get(SCOPE_A)?.autoClearState).toBe(true)
+    expect(tracker.get(SCOPE_A)?.scope).toBe(SCOPE_A)
   })
 
 
