@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
-import { EngineStore } from '../../store/engine-store.ts'
 import { computed } from 'vue'
 import CurrentScopeBadge from '../CurrentScopeBadge.vue'
+import { useEngineStore } from '../../store/engine-store.ts'
 
-const engineStore = useStore(EngineStore)
+const engineStore = useEngineStore()
 
 const { engineId } = defineProps({
 	engineId: {

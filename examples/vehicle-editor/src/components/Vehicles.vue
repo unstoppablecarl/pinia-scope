@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
-import { VehicleStore } from '../store/vehicle-store.ts'
+import { useVehicleStore } from '../store/vehicle-store.ts'
 import { storeToRefs } from 'pinia'
 import Vehicle from './Vehicles/Vehicle.vue'
 import CustomEngines from './CustomEngines.vue'
 import CurrentScopeBadge from './CurrentScopeBadge.vue'
 
-const vehicleStore = useStore(VehicleStore)
+const vehicleStore = useVehicleStore()
 const { vehicles, maxSpeed } = storeToRefs(vehicleStore)
 
 const { title } = defineProps({
@@ -35,7 +34,11 @@ const { title } = defineProps({
 					<Vehicle
 						v-for="item in vehicles"
 						:vehicle-id="item.id"
-					/>
+					>
+						<template #footer>
+							<button class="btn btn-danger" @click="vehicleStore.remove(item.id)">Delete</button>
+						</template>
+					</Vehicle>
 				</div>
 				<div class="col-md-4">
 					<CustomEngines />

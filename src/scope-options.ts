@@ -8,6 +8,10 @@ export type ScopeOptions = {
   readonly autoClearState: boolean;
 }
 
+export type ScopeOptionsList = {
+  [key: string]: ScopeOptionsInput
+}
+
 type ScopeOptionsDiff = {
   key: string,
   option: boolean,
@@ -23,15 +27,27 @@ export function normalizeScopeOptions(options: ScopeOptionsInput): ScopeOptions 
   return Object.assign({}, defaults, options)
 }
 
-export function createDefaultOptionsCollection() {
+export function createDefaultOptionsCollection(optionsList?: ScopeOptionsList) {
   const defaultOptions = new Map<string, ScopeOptions>()
+
+  const get = (scope: string): ScopeOptions => {
+    return defaultOptions.get(scope) || defaults
+  }
+
+  const set = (scope: string, options: ScopeOptionsInput) => {
+    defaultOptions.set(scope, normalizeScopeOptions(options))
+  }
+
+  if (optionsList) {
+    Object.entries(optionsList)
+      .forEach(([scope, options]) => {
+        set(scope, normalizeScopeOptions(options))
+      })
+  }
+
   return {
-    set(scope: string, options: ScopeOptionsInput) {
-      defaultOptions.set(scope, normalizeScopeOptions(options))
-    },
-    get(scope: string): ScopeOptions {
-      return defaultOptions.get(scope) || defaults
-    },
+    set,
+    get,
   }
 }
 

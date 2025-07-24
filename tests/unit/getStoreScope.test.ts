@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { injectorKey, instanceKey } from '../../src/types'
-import getStoreScope from '../../src/functions/getStoreScope'
-import { createPinia, Pinia } from 'pinia'
+import { INJECTOR_KEY, INSTANCE_KEY } from '../../src/constants'
+import { getComponentScope } from '../../src/functions/getComponentScope'
+import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, provide } from 'vue'
 import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '../../src/pinia-scope'
@@ -9,7 +9,7 @@ import { attachPiniaScope, clearPiniaScope, getActivePiniaScopeTracker } from '.
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
 
-describe('getStoreScope()', () => {
+describe('getComponentScope()', () => {
 
   let pinia: Pinia
 
@@ -21,8 +21,8 @@ describe('getStoreScope()', () => {
 
   it('outside of component', async () => {
     expect(
-      () => getStoreScope(),
-    ).toThrowError('getStoreScope() can only be used inside setup() or functional components.')
+      () => getComponentScope(),
+    ).toThrowError('getComponentScope() can only be used inside setup() or functional components.')
   })
 
   it('can get default scope', async () => {
@@ -30,9 +30,9 @@ describe('getStoreScope()', () => {
       setup() {
 
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = ''
+        instance[INSTANCE_KEY] = ''
 
-        const scope = getStoreScope()
+        const scope = getComponentScope()
 
         return {
           scope,
@@ -57,9 +57,9 @@ describe('getStoreScope()', () => {
       setup() {
 
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = SCOPE_A
+        instance[INSTANCE_KEY] = SCOPE_A
 
-        const scope = getStoreScope()
+        const scope = getComponentScope()
 
         return {
           scope,
@@ -83,7 +83,7 @@ describe('getStoreScope()', () => {
 
     const Child = {
       setup() {
-        const scope = getStoreScope()
+        const scope = getComponentScope()
         return {
           scope,
         }
@@ -97,7 +97,7 @@ describe('getStoreScope()', () => {
         Child,
       },
       setup() {
-        provide(injectorKey, SCOPE_A)
+        provide(INJECTOR_KEY, SCOPE_A)
       },
       template: `
 				<Child ref="child" />`,
@@ -123,9 +123,9 @@ describe('getStoreScope()', () => {
     const Child = {
       setup() {
         const instance = getCurrentInstance() as any
-        instance[instanceKey] = SCOPE_B
+        instance[INSTANCE_KEY] = SCOPE_B
 
-        const scope = getStoreScope()
+        const scope = getComponentScope()
         return {
           scope,
         }
@@ -139,7 +139,7 @@ describe('getStoreScope()', () => {
         Child,
       },
       setup() {
-        provide(injectorKey, SCOPE_A)
+        provide(INJECTOR_KEY, SCOPE_A)
       },
       template: `
 				<Child ref="child" />`,

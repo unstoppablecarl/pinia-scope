@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createPinia, Pinia, setActivePinia, storeToRefs } from 'pinia'
-import { getStoreScope, getStoreWithScope, StoreScopeProvider, useStore } from '../src'
-import { NameStore } from './helpers/test-stores'
+import { createPinia, type Pinia, storeToRefs } from 'pinia'
+import { getComponentScope, StoreScopeProvider } from '../src'
 import { attachPiniaScope, clearPiniaScope } from '../src/pinia-scope'
+import { useNameStore } from './helpers/test-stores'
 
 const SCOPE_A = 'scope-a'
 const SCOPE_B = 'scope-b'
@@ -21,8 +21,8 @@ describe('Scope Switching', () => {
   it('can switch scope via conditional', async () => {
     const CompChild = {
       setup: function() {
-        const scope = getStoreScope()
-        const nameStore = useStore(NameStore)
+        const scope = getComponentScope()
+        const nameStore = useNameStore()
 
         const { name } = storeToRefs(nameStore)
 
@@ -68,10 +68,10 @@ describe('Scope Switching', () => {
     const nameA = 'Amber'
     const nameB = 'Joe'
 
-    const storeA = getStoreWithScope(NameStore, SCOPE_A)
+    const storeA = useNameStore(SCOPE_A)
     storeA.setName(nameA)
 
-    const storeB = getStoreWithScope(NameStore, SCOPE_B)
+    const storeB = useNameStore(SCOPE_B)
     storeB.setName(nameB)
 
     await wrapper.vm.$nextTick()

@@ -51,7 +51,8 @@ export const useMyStore = (scope: string = '') => {
 
 const myUnscopedStore = useMyStore()
 myUnscopedStore.$id // 'my-store-id'
-const myScopedStore = useMyStore('preview-scope-') // 'preview-scope-my-store-id'
+const myScopedStore = useMyStore('preview-scope-')
+myScopedStore.$id // 'preview-scope-my-store-id'
 ```
 
 The above lets you create separate instances of the same store, but does not have the Abilities of:
@@ -66,99 +67,92 @@ The above lets you create separate instances of the same store, but does not hav
 
 Stores created with pinia's `defineStore()` are wrapped in a store creator function.
 
-#### Normal Pinia Store
+#### Scopeable Pinia Store
 
 Definition
 
 ```ts
 // vehicle-store.ts
-import { defineStore } from 'pinia'
+import { defineScopeableStore, type StoreCreatorContext } from 'pinia-scope'
 
-export const useVehicleStore = defineStore('vehicles', () => {
+// has the same signature as the pinia defineStore() method, but context is passed to the setup function
+export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: StoreCreatorContext) => {
+  // use the same scope
+  const engineStore = useEngineStore(scope)  
+  
   //...
 })
 ```
+See: Pinia [defineStore()](https://pinia.vuejs.org/core-concepts/#Defining-a-Store)
 
 Usage in Component
 
-```ts
+```vue
+<script setup lang="ts">
 import { useVehicleStore } from 'vehicle-store.ts'
 
-const vehicleStore = useVehicleStore()
+const vehicleStoreScoped = useVehicleStore('my-scope')
+vehicleStoreUnScoped.$id // 'my-scope-vehicles'
+
+const vehicleStoreUnScoped = useVehicleStore.unScoped()
+vehicleStoreUnScoped.$id // 'vehicles'
+
+// scoped by in this or parent component setComponentScope()
+// or unScoped if never set
+const vehicleStoreWithComponentScope = useVehicleStore()
+</script>
 ```
 
-#### Scoped Pinia Store
-
-Definition
+### Using Scope Within Stores
 
 ```ts
 // vehicle-store.ts
-import { defineStore } from 'pinia'
-import { type ScopedContext } from 'pinia-scope'
+import { type StoreCreatorContext } from 'pinia-scope'
+import { useTireStore } from 'tire-store.ts'
 
-export const VehicleStore = ({ addScope }: ScopedContext) => {
-  // wrap the store id with the addScope() function
-  return defineStore(addScope('vehicles'), () => {
-    //...
-  })
-}
-```
+export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: StoreCreatorContext) => {
 
-Usage in Component
+  // create a TireStore using the same scope as this VehicleStore
+  // if this VehicleStore is unscoped, scope will be '' and the TireStore will also be unscoped
+  const tireStore = useTireStore(scope)
 
-```ts
-import { useStore } from 'pinia-scope'
-import { VehicleStore } from 'vehicle-store.ts'
-
-const vehicleStore = useStore(VehicleStore)
-```
-
-### Scoped Context
-
-Store Creators are passed a `ScopedContext` object.
-
-```ts
-// vehicle-store.ts
-import { defineStore } from 'pinia'
-import { type ScopedContext } from 'pinia-scope'
-import { TireStore } from 'tire-store.ts'
-
-export const VehicleStore = ({ scopedId, useStore, useStoreWithoutScope }: ScopedContext) => {
-  // scopedId() prefixes the store id to the current scope
-  return defineStore(scopedId('vehicles'), () => {
-
-    // useStore() creates a TireStore using the same scope as this VehicleStore instance
-    const tireStore = useStore(TireStore)
-
-    // useStoreWithoutScope() creates a TireStore with no prefix (an un-scoped version of the TireStore)
-    // this would be the same as useTireStore() in a normal Pinia store
-    const tireStoreWithoutScope = useStoreWithoutScope(TireStore)
-
-    // ...
-  })
-}
+  // creates a TireStore with no prefix (an un-scoped version of the TireStore)
+  // this would be the same as useTireStore() in a normal Pinia store
+  const tireStoreWithoutScope = useTireStore.unScoped()
+  
+  // ❌ you should never use component scope within a store
+  const tireStoreComponentScoped = useTireStore()
+  
+  // ...
+})
 ```
 
 ### Setting Scope Within Components
 
 ```vue
-
 <script setup lang="ts">
-	import { useStore, setStoreScope } from 'pinia-scope'
-	import { VehicleStore } from 'vehicle-store.ts'
+  import { setComponentScope } from 'pinia-scope'
+  import { useVehicleStore } from 'vehicle-store.ts'
 
-	// uses scope of a parent component if set
-	// if not set the default scope is '' (empty string) aka un-scoped
-	const parentScopedVehicleStore = useStore(VehicleStore)
+  // uses scope of a parent component if set
+  // if not set the default scope is '' (empty string) aka un-scoped
+  const parentScopedVehicleStore = useVehicleStore.injectedScope()
 
-	// set scope for this component and its children
-	setStoreScope('order-preview')
+  // set scope for this component and its children
+  setComponentScope('order-preview')
 
-	// uses 'order-preview' scope from above
-	const vehicleStore = useStore(VehicleStore)
-	vehicleStore.$id // 'order-preview-vehicles'
+  // uses 'order-preview' scope from above
+  const vehicleStore = useVehicleStore.injectedScope()
+  vehicleStore.$id // 'order-preview-vehicles'
 </script>
 ```
+### Best Practices
+
+| Case                                      |                              | In Component      | In Store         |
+|:------------------------------------------|:-----------------------------|:------------------|:-----------------|
+| Use component injected scope if available | `useVehicleStore()`          | ✅ use by default  | ❌ never use      |
+| UnScoped                                  | `useVehicleStore.unScoped()` | ⚠️ used rarely    | ⚠️ used rarely   |
+| Scoped                                    | `useVehicleStore(scope)`     | ⚠️ used rarely    | ✅ use by default |
 
 #### PiniaScopeProvider Component
 
@@ -173,7 +167,6 @@ To conditionally change the scope of a component, you can mount/unmount componen
 and the  `PiniaScopeProvider` component.
 
 ```vue
-
 <script setup lang="ts">
   import { PiniaScopeProvider } from 'pinia-scope'
   import { defineProps } from 'vue'
@@ -204,32 +197,34 @@ After a scope is created, its options cannot be changed.
 
 ##### Setting Store Option Defaults
 
-You can set the default options for a specific scope instead of repeating them.
+When attaching pinia scope, the default options for a specific scope(s) instead of repeating them.
 
 ```ts
-// in main.js after attachPiniaScope(pinia)
-import { setScopeOptionsDefault } from 'pinia-scope'
+// in main.js
+import { attachPiniaScope } from 'pinia-scope'
 
-setScopeOptionsDefault('my-scope', {
-  autoDispose: false,
-  autoClearState: false,
+// ...
+attachPiniaScope(pinia, { 
+  scopeOptions: {
+    'my-scope': {
+      autoDispose: false,
+      autoClearState: false,
+    }
+  } 
 })
-
-// you can also lookup the defaults
-const defaults = setScopeOptionsDefault('my-scope')
 ```
 
 #### Setting Scope Options
-Scope Options can be se when calling `setStoreScope()`. If an `options` argument is provided, This will override any default scope options.
+Scope Options can be se when calling `setComponentScope()`. If an `options` argument is provided, This will override any default scope options.
 ```ts
-import { useStore, getPiniaScopes } from 'pinia-scope'
+import { setComponentScope } from 'pinia-scope'
 
 const storeOptions = {
   autoDispose: false,
   autoClearState: false,
 }
 
-setStoreScope('my-scope', storeOptions)
+setComponentScope('my-scope', storeOptions)
 ```
 
 ### Scoped Store Id Generation
@@ -238,65 +233,76 @@ setStoreScope('my-scope', storeOptions)
 // by default a scope is prefixed onto a store id with the following function:
 const generateScopedStoreId = (scope: string, id: string) => `${scope}-${id}`
 // example:
-const vehicleStore = useStoreWithScope(VehicleStore, 'my-scope')
+const vehicleStore = useVehicleStore('my-scope')
 vehicleStore.$id // 'my-scope-vehicles'
 ```
 
 #### Custom Scoped Store Id Generation
 
 ```ts
-import { setPiniaScopeNameGenerator } from 'pinia-scope'
+// in main.js
+import { attachPiniaScope } from 'pinia-scope'
 
-// scoped store id generation can be customized
-setPiniaScopeNameGenerator((scope: string, id: string) => `[${scope}]~~[${id}]`)
+// ...
+attachPiniaScope(pinia, {
+  // scoped store id generation can be customized
+  scopeNameGenerator: (scope: string, id: string) => `[${scope}]~~[${id}]`
+})
+
 // example
-const vehicleStore = useStoreWithScope(VehicleStore, 'my-scope')
+const vehicleStore = useVehicleStore('my-scope')
 vehicleStore.$id // '[my-scope]~~[vehicles]'
+```
+
+#### Disabling Component Scope Auto Injection
+If you want to disable component scope auto injections and write code more manually you can.
+
+```ts
+// main.js
+import { attachPiniaScope } from 'pinia-scope'
+
+attachPiniaScope(pinia, {
+  autoInjectScope: false,
+})
+
+// in a component/store
+import { useVehicleStore } from 'vehicle-store.ts'
+
+// always behaves the same as useVehicleStore.unScoped()
+const vehicleStore = useVehicleStore()
+// gets scope from component if set by setComponentScope()
+// always behaves the same as useVehicleStore() when autoInjectScope = true
+const vehicleStoreUnscoped = useVehicleStore.componentScoped()
+
+// stats the same 
+const vehicleStoreScoped = useVehicleStore('my-scope')
 ```
 
 ## API
 
-All API methods will work inside a vue component or a context where [getActivePinia()](https://pinia.vuejs.org/api/pinia/functions/getActivePinia.html#getActivePinia-) will return a result.
+All API methods (excluding `attachPiniaScope()`) will work inside a vue component or a context where [getActivePinia()](https://pinia.vuejs.org/api/pinia/functions/getActivePinia.html#getActivePinia-) will return a result.
 
-### `useStore()`
+### `attachPiniaScope()`
 
 Returns a scoped store.
 ```ts
-import { useStore } from 'pinia-scope'
-import { VehicleStore } from 'vehicle-store.ts'
+import { attachPiniaScope } from 'pinia-scope'
 
-const vehicleStore = useStore(VehicleStore)
+attachPiniaScope(pinia, {
+  // see above for options details
+  autoInjectScope: false,
+  scopeDefaults: { ... },
+  scopeNameGenerator: () => '',
+})
 ```
 
-### `useStoreWithoutScope()`
-
-- Equivalent to:
-    - `useVehicleStore()` (normal a pinia store)
-    - `useStoreWithScope(VehicleStore, '')`
-
-Returns an un-scoped version of a store.
-```ts
-import { useStoreWithoutScope } from 'pinia-scope'
-
-const vehicleStore = useStoreWithoutScope(VehicleStore)
-```
-
-### `getStoreScope()`
+### `getComponentScope()`
 
 Returns the current scope or an empty string if no scope is set. Useful when debugging component scopes.
 ```ts
-import { getStoreScope } from 'pinia-scope'
+import { getComponentScope } from 'pinia-scope'
 
-console.log(getStoreScope())
-```
-
-### `getStoreWithScope()`
-
-Returns a scoped version of a store. Useful when writing tests.
-```ts
-import { getStoreWithScope } from 'pinia-scope'
-
-const vehicleStore = getStoreWithScope(VehicleStore, 'my-scope')
+console.log(getComponentScope())
 ```
 
 ### `disposeOfPiniaScope()`
@@ -320,6 +326,19 @@ import { disposeAndClearStateOfPiniaScope } from 'pinia-scope'
 
 disposeAndClearStateOfPiniaScope('my-scope')
 ```
+
+### `getStoreInfo(), getStoreUnscopedId(), getStoreScope()`
+Inspects a store instance's Unscoped `store.$id` or current scope.
+```ts
+import { getStoreInfo, getStoreUnscopedId, getStoreScope } from 'pinia-scope'
+
+const store = useMyStore()
+const { unscopedId , scope } = getStoreInfo(store)
+
+const unscopedId2 = getStoreUnscopedId(store)
+const scope2 = getStoreScope(store)
+```
+
 
 ## Testing / Use Outside Components
 

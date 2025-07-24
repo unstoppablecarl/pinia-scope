@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import setStoreScope from '../../src/functions/setStoreScope'
-import { createPinia, Pinia } from 'pinia'
+import { setComponentScope } from '../../src/functions/setComponentScope'
+import { createPinia, type Pinia } from 'pinia'
 import { mount } from '@vue/test-utils'
 import { getCurrentInstance, useTemplateRef } from 'vue'
 import { createScopeTracker } from '../../src/scope-tracker'
 import { attachPiniaScopeTracker } from '../../src/pinia-scope'
-import { instanceKey } from '../../src/types'
+import { INSTANCE_KEY } from '../../src/constants'
 
 const SCOPE_A = 'scope-a'
 
-describe('setStoreScope()', () => {
+describe('setComponentScope()', () => {
 
   let pinia: Pinia
 
@@ -31,8 +31,8 @@ describe('setStoreScope()', () => {
 
   it('outside of component', async () => {
     expect(
-      () => setStoreScope(SCOPE_A),
-    ).toThrowError('setStoreScope() can only be used inside setup() or functional components.')
+      () => setComponentScope(SCOPE_A),
+    ).toThrowError('setComponentScope() can only be used inside setup() or functional components.')
   })
 
   it('set scope with default options', async () => {
@@ -40,11 +40,11 @@ describe('setStoreScope()', () => {
 
     const App = {
       setup() {
-        setStoreScope(SCOPE_A, options)
+        setComponentScope(SCOPE_A, options)
 
         const child = useTemplateRef('child')
         const instance = getCurrentInstance() as any
-        const instanceScope = instance[instanceKey]
+        const instanceScope = instance[INSTANCE_KEY]
 
         return {
           child,
@@ -75,10 +75,10 @@ describe('setStoreScope()', () => {
   it('set empty string scope with no options', async () => {
     const App = {
       setup() {
-        setStoreScope('')
+        setComponentScope('')
 
         const instance = getCurrentInstance() as any
-        const instanceScope = instance[instanceKey]
+        const instanceScope = instance[INSTANCE_KEY]
 
         return {
           instanceScope,

@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import setStoreScope from '../functions/setStoreScope'
+import { setComponentScope } from '../functions/setComponentScope'
 
 const PiniaScopeProvider = defineComponent({
   name: 'StoreScopeProvider',
@@ -9,7 +9,7 @@ const PiniaScopeProvider = defineComponent({
     autoClearState: { type: Boolean, default: true },
   },
   setup(props, { slots }) {
-    setStoreScope(
+    setComponentScope(
       props.scope,
       {
         autoDispose: props.autoDispose,

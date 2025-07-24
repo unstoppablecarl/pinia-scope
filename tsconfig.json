@@ -8,6 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
     "noEmit": true
   },
   "include": [

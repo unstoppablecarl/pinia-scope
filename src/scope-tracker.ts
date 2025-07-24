@@ -1,21 +1,28 @@
-import { Pinia, Store } from 'pinia'
+import { type Pinia, type Store } from 'pinia'
 import {
   createDefaultOptionsCollection,
   getScopeOptionsDiff,
   normalizeScopeOptions,
   optionsDiffToMessage,
-  ScopeOptions,
-  ScopeOptionsInput,
+  type ScopeOptions,
+  type ScopeOptionsInput,
+  type ScopeOptionsList,
 } from './scope-options'
-import createScopeNameFactory, { ScopeNameGenerator } from './functions/createScopeNameFactory'
-import makeContext, { ScopedContext } from './functions/makeContext'
 
 export type ScopeTracker = ReturnType<typeof createScopeTracker>
 
-export function createScopeTracker(pinia: Pinia) {
+export type ScopeTrackerOptions = {
+  autoInjectScope?: boolean,
+  scopeDefaults?: ScopeOptionsList,
+  scopeNameGenerator?: ScopeNameGenerator,
+}
+export type ScopeNameGenerator = (scope: string, id: string) => string;
+
+export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) {
+  const autoInjectScope = options?.autoInjectScope ?? true
   const scopes = new Map<string, Scope>()
-  const defaultOptions = createDefaultOptionsCollection()
-  const scopeNameFactory = createScopeNameFactory()
+  const defaultOptions = createDefaultOptionsCollection(options?.scopeDefaults)
+  const scopeNameGenerator = options?.scopeNameGenerator ?? defaultGenerator
 
   function dispose(scope: string) {
     const result = scopes.get(scope)
@@ -34,6 +41,7 @@ export function createScopeTracker(pinia: Pinia) {
   }
 
   return {
+    autoInjectScope: (): boolean => autoInjectScope,
     keys(): string[] {
       return [...scopes.keys()]
     },
@@ -43,13 +51,7 @@ export function createScopeTracker(pinia: Pinia) {
     has(scope: string): boolean {
       return !!scopes.get(scope)
     },
-    setScopeOptionsDefault(scope: string, options: ScopeOptionsInput) {
-      defaultOptions.set(scope, options)
-    },
-    getScopeOptionsDefault(scope: string): ScopeOptions {
-      return defaultOptions.get(scope)
-    },
-    init: (scope: string, optionsInput: ScopeOptionsInput | null = null) => {
+    init: (scope: string, optionsInput?: ScopeOptionsInput) => {
       const existingScope = scopes.get(scope)
       if (existingScope) {
         if (optionsInput) {
@@ -110,11 +112,12 @@ export function createScopeTracker(pinia: Pinia) {
     },
     dispose,
     disposeAndClearState,
-    makeContext(scope: string): ScopedContext {
-      return makeContext(scope, scopeNameFactory.generate)
-    },
-    setPiniaScopeNameGenerator(scopeNameGenerator: ScopeNameGenerator): void {
-      scopeNameFactory.set(scopeNameGenerator)
+    makeScopedId(scope: string, id: string): string {
+      if (scope === '') {
+        return id
+      }
+
+      return scopeNameGenerator(scope, id)
     },
   }
 }
@@ -177,4 +180,9 @@ class Scope {
       delete this.pinia.state.value[store.$id]
     })
   }
+}
+
+
+function defaultGenerator(scope: string, id: string): string {
+  return `${scope}-${id}`
 }

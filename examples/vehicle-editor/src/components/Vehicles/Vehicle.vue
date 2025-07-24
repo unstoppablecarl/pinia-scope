@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { useStore } from 'pinia-scope'
-import { VehicleStore } from '../../store/vehicle-store.ts'
+import { useVehicleStore } from '../../store/vehicle-store.ts'
 import { computed } from 'vue'
 import VehicleEngineEdit from './VehicleEngineEdit.vue'
 import VehicleTireEdit from './VehicleTireEdit.vue'
 import SpeedProgress from './SpeedProgress.vue'
 import CurrentScopeBadge from '../CurrentScopeBadge.vue'
 
-const vehicleStore = useStore(VehicleStore)
+const vehicleStore = useVehicleStore()
 
-const { vehicleId } = defineProps({
+const { vehicleId, readonly } = defineProps({
 	vehicleId: {
 		type: Number,
 		required: true,
+	},
+	readonly: {
+		type: Boolean,
+		default: false,
 	},
 })
 
@@ -24,7 +27,7 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 		<div class="card-header">
 			<strong>Vehicle:</strong>
 			{{ info.name }}
-			<CurrentScopeBadge/>
+			<CurrentScopeBadge />
 		</div>
 		<div class="card-body">
 			<div class="row">
@@ -37,14 +40,25 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 						</thead>
 						<tbody>
 						<tr>
-							<th>ID</th>
-							<td>{{ info.id }}</td>
+							<th>
+								<div class="col-form-label">
+									ID
+								</div>
+							</th>
+							<td>
+								<div class="col-form-label">
+									{{ info.id }}
+								</div>
+							</td>
 							<td></td>
 						</tr>
 						<tr>
-							<th>Name</th>
+							<th class="">
+								<div class="col-form-label">Name</div>
+							</th>
 							<td>
-								<input type="text" class="form-control" v-model="vehicle.name">
+								<input type="text" class="form-control" v-model="vehicle.name" v-if='!readonly' />
+								<template v-else>{{ vehicle.name }}</template>
 							</td>
 							<td></td>
 						</tr>
@@ -62,18 +76,40 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 						</thead>
 						<tbody>
 						<tr>
-							<th>Engine</th>
+							<th>
+								<div class="col-form-label">
+									Engine
+								</div>
+							</th>
 							<td>
-								<VehicleEngineEdit v-model="vehicle.engine_id" />
+								<template v-if="readonly">
+									{{ info.engine.name }}
+								</template>
+								<VehicleEngineEdit v-else v-model="vehicle.engine_id" />
 							</td>
-							<td class="font-monospace text-end">+{{ info.engine.speed }}</td>
+							<td class="font-monospace text-end">
+								<div class="col-form-label">
+									+{{ info.engine.speed }}
+								</div>
+							</td>
 						</tr>
 						<tr>
-							<th>Tire</th>
+							<th>
+								<div class="col-form-label">
+									Tire
+								</div>
+							</th>
 							<td>
-								<VehicleTireEdit v-model="vehicle.tire_id" />
+								<template v-if="readonly">
+									{{ info.tire.name }}
+								</template>
+								<VehicleTireEdit v-else v-model="vehicle.tire_id" />
 							</td>
-							<td class="font-monospace text-end">+{{ info.tire.speed }}</td>
+							<td class="font-monospace text-end">
+								<div class="col-form-label">
+									+{{ info.tire.speed }}
+								</div>
+							</td>
 						</tr>
 						</tbody>
 						<tfoot>
@@ -90,7 +126,7 @@ const info = computed(() => vehicleStore.getInfo(vehicleId))
 			</div>
 		</div>
 		<div class="card-footer">
-			<button class="btn btn-danger" @click="vehicleStore.remove(vehicleId)">Delete</button>
+			<slot name="footer"></slot>
 		</div>
 	</div>
 </template>
