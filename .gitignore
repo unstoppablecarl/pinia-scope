@@ -8,6 +8,7 @@
 
 # Build Output
 dist/
+types/
 
 
 # Placeholder File
