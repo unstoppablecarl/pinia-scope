@@ -1,8 +1,8 @@
 {
   "name": "pinia-scope",
   "type": "module",
-  "version": "1.5.1",
-  "packageManager": "pnpm@10.13.1",
+  "version": "1.6.0",
+  "packageManager": "pnpm@10.14.0",
   "description": "Scoped Pinia Stores for Vue",
   "author": {
     "name": "Carl Olsen",

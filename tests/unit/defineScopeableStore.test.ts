@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { defineScopeableStore, getDefiningStoreDepth } from '../../src/functions/defineScopeableStore'
-import { createPinia, type Pinia, setActivePinia } from 'pinia'
+import { createPinia, type Pinia, type PiniaPluginContext, setActivePinia } from 'pinia'
 import { attachPiniaScope } from '../../src/pinia-scope'
+import { mount } from '@vue/test-utils'
 
 describe('defineScopeableStore()', () => {
   it('throws error when no active pinia is available', async () => {
@@ -87,6 +88,83 @@ describe('defineScopeableStore()', () => {
     setActivePinia(pinia)
     testDoesNotWarnWhenOrTrackDepth(pinia)
     vi.unstubAllGlobals()
+  })
+
+  it('handles plugin options', async () => {
+    let count = 0
+    const options = {
+      foo: {
+        some: 'thing',
+      },
+    }
+
+    function testPiniaPlugin(context: PiniaPluginContext) {
+      count++
+      expect(context.options).toEqual({
+        actions: {},
+        ...options,
+      })
+    }
+
+    const pinia = createPinia()
+    attachPiniaScope(pinia, {
+      autoInjectScope: true,
+    })
+    pinia.use(testPiniaPlugin)
+    setActivePinia(pinia)
+    mount({ template: 'none' }, { global: { plugins: [pinia] } })
+
+    const useTestStore = defineScopeableStore('test', ({ scope }) => {
+      return {
+        a: 'b',
+      }
+      // @ts-expect-error
+    }, options)
+
+    const store = useTestStore()
+    expect(count).toBe(1)
+  })
+
+  it('handles plugin options function', async () => {
+    const SCOPE = 'scope-test'
+    let count = 0
+    const options = {
+      foo: {
+        some: 'thing',
+      },
+    }
+
+    function testPiniaPlugin(context: PiniaPluginContext) {
+      count++
+      expect(context.options).toEqual({
+        actions: {},
+        scope: SCOPE,
+        ...options,
+      })
+    }
+
+    const pinia = createPinia()
+    attachPiniaScope(pinia, {
+      autoInjectScope: true,
+    })
+    pinia.use(testPiniaPlugin)
+    setActivePinia(pinia)
+    mount({ template: 'none' }, { global: { plugins: [pinia] } })
+
+    const useTestStore = defineScopeableStore('test', ({ scope }) => {
+      return {
+        a: 'b',
+      }
+      // @ts-expect-error
+    }, (scope: string) => {
+      return {
+        scope,
+        ...options
+      }
+    })
+
+    const store = useTestStore(SCOPE)
+    expect(count).toBe(1)
   })
 })
 

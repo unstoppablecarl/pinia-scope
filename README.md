@@ -107,7 +107,7 @@ const vehicleStoreWithComponentScope = useVehicleStore()
 
 ```ts
 // vehicle-store.ts
-import { type StoreCreatorContext } from 'pinia-scope'
+import { type StoreCreatorContext, defineScopeableStore } from 'pinia-scope'
 import { useTireStore } from 'tire-store.ts'
 
 export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: StoreCreatorContext) => {
@@ -276,6 +276,23 @@ const vehicleStoreUnscoped = useVehicleStore.componentScoped()
 
 // stats the same 
 const vehicleStoreScoped = useVehicleStore('my-scope')
+```
+
+
+### Pinia Plugins
+The scope can be used to determine plugin options by passing a function as the store options argument.
+```ts
+// main.js
+import { defineScopeableStore } from 'pinia-scope'
+
+export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }: StoreCreatorContext) => {
+  
+  // ...
+}, (scope: string) => {
+  return {
+    somePluginOption: scope === 'foo'
+  }
+})
 ```
 
 ## API

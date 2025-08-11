@@ -92,5 +92,9 @@ export const useVehicleStore = defineScopeableStore('vehicles', ({ scope }) => {
     get,
     getInfo,
   }
+}, (scope: string) => {
+  return {
+    persist: scope === '',
+  }
 })
 

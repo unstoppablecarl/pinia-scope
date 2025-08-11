@@ -126,5 +126,9 @@ export const useEngineStore = defineScopeableStore('engines', ({ scope }) => {
     get,
     $reset,
   }
+}, (scope: string) => {
+  return {
+    persist: scope === '',
+  }
 })
 

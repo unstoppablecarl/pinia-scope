@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { type ScopeOptionsInput } from '../scope-options'
 import {
   makeStoreFactory,
   type ScopeableStoreOptions,
@@ -16,9 +15,12 @@ export function defineNonScopeableStore<Id extends string, SS, SD extends StoreD
   storeCreator: (context: NonScopeContext) => SS,
   setupOptions?: ScopeableStoreOptions<Id, SS>,
 ): ScopeableStoreResult<S> {
-  function makeStore(scope: string, options?: ScopeOptionsInput) {
+  function makeStore(scope: string) {
     if (scope === '') {
       let setup = (): SS => storeCreator({ unScoped: '' })
+      if (typeof setupOptions === 'function') {
+        setupOptions = setupOptions(scope)
+      }
       const useStore = defineStore(id, setup, setupOptions) as SD
       return useStore() as S
     }

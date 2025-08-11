@@ -17,12 +17,20 @@ export type ScopedContext = {
   scope: string;
 }
 
-export type ScopeableStoreOptions<Id extends string, SS> = DefineSetupStoreOptions<
+export type ScopeableStoreOptions<Id extends string, SS> =
+  ScopeableStoreOptionsObject<Id, SS>
+  | ScopeableStoreOptionsCreator<Id, SS>
+
+export type ScopeableStoreOptionsObject<Id extends string, SS> = DefineSetupStoreOptions<
   Id,
   _ExtractStateFromSetupStore<SS>,
   _ExtractGettersFromSetupStore<SS>,
   _ExtractActionsFromSetupStore<SS>
 >
+
+export interface ScopeableStoreOptionsCreator<Id extends string, SS> {
+  (scope: string): ScopeableStoreOptionsObject<Id, SS>
+}
 
 export type ScopeableStoreResult<S> = {
   (scope?: string, options?: ScopeOptionsInput): S;
@@ -66,6 +74,10 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
         }
       }
     }
+    if (typeof setupOptions === 'function') {
+      setupOptions = setupOptions(scope)
+    }
+
     const useStore = defineStore(scopedId, setup, setupOptions) as SD
     const store = useStore() as S
 
