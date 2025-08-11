@@ -3,7 +3,7 @@ import { defineNonScopeableStore } from '../../src/functions/defineNonScopeableS
 import { createPinia, type PiniaPluginContext, setActivePinia } from 'pinia'
 import { attachPiniaScope } from '../../src/pinia-scope'
 import { mount } from '@vue/test-utils'
-import { setComponentScope } from '../../src'
+import { defineScopeableStore, setComponentScope } from '../../src'
 
 const TEST_STORE_ID = 'test-store'
 const SCOPE_A = 'scope-a'
@@ -103,7 +103,7 @@ describe('defineNonScopeableStore()', () => {
     }).toThrowError(`Attempting to use un-scopeable store (store id: "${TEST_STORE_ID}") with scope "${SCOPE_A}".`)
   })
 
-  it('handles plugin options function', async () => {
+  it('handles plugin options', async () => {
     let count = 0
     const options = {
       foo: {
@@ -115,7 +115,6 @@ describe('defineNonScopeableStore()', () => {
       count++
       expect(context.options).toEqual({
         actions: {},
-        scope: '',
         ...options,
       })
     }
@@ -128,20 +127,14 @@ describe('defineNonScopeableStore()', () => {
     setActivePinia(pinia)
     mount({ template: 'none' }, { global: { plugins: [pinia] } })
 
-    const useTestStore = defineNonScopeableStore('test', (context) => {
+    const useTestStore = defineNonScopeableStore('test', () => {
       return {
         a: 'b',
       }
       // @ts-expect-error
-    }, (scope: string) => {
-      return {
-        scope,
-        ...options,
-      }
-    })
+    }, options)
 
     const store = useTestStore()
     expect(count).toBe(1)
   })
-
 })

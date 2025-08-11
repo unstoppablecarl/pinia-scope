@@ -74,18 +74,20 @@ export function defineScopeableStore<Id extends string, SS, SD extends StoreDef<
         }
       }
     }
+    let finalSetupOptions: ScopeableStoreOptionsObject<Id, SS> | undefined
     if (typeof setupOptions === 'function') {
-      setupOptions = setupOptions(scope)
+      finalSetupOptions = setupOptions(scope)
+    } else {
+      finalSetupOptions = setupOptions
     }
 
-    const useStore = defineStore(scopedId, setup, setupOptions) as SD
+    const useStore = defineStore(scopedId, setup, finalSetupOptions) as SD
     const store = useStore() as S
 
     //@ts-ignore
     store[STORE_UNSCOPED_ID_KEY] = id
     //@ts-ignore
     store[STORE_SCOPE_KEY] = scope
-
 
     if (scope !== '') {
       tracker.init(scope, options)
