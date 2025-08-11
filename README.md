@@ -356,6 +356,16 @@ const unscopedId2 = getStoreUnscopedId(store)
 const scope2 = getStoreScope(store)
 ```
 
+### `eachStoreOfPiniaScope()`
+Loops over each store currently used by a given scope.
+```ts
+import { eachStoreOfPiniaScope } from 'pinia-scope'
+import { type Store } from 'vue'
+
+eachStoreOfPiniaScope('my-scope', (store: Store) => {
+  console.log(store.$state)
+})
+```
 
 ## Testing / Use Outside Components
 

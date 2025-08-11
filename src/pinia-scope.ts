@@ -1,4 +1,4 @@
-import { getActivePinia, type Pinia } from 'pinia'
+import { getActivePinia, type Pinia, type Store } from 'pinia'
 import { createScopeTracker, type ScopeTracker, type ScopeTrackerOptions } from './scope-tracker'
 import { SCOPE_TRACKER_KEY } from './constants'
 
@@ -36,6 +36,11 @@ export function getActivePiniaScopeTracker(): ScopeTracker {
 export function disposeOfPiniaScope(scope: string): void {
   getActiveTracker('disposeOfPiniaScope')
     .dispose(scope)
+}
+
+export function eachStoreOfPiniaScope(scope: string, callback: (store: Store) => void): void {
+  getActiveTracker('eachStoreOfPiniaScope')
+    .eachStore(scope, callback)
 }
 
 export function disposeAndClearStateOfPiniaScope(scope: string): void {

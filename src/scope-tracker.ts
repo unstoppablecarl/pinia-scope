@@ -115,6 +115,12 @@ export function createScopeTracker(pinia: Pinia, options?: ScopeTrackerOptions) 
       return 0
     },
     dispose,
+    eachStore(scope: string, callback: (store: Store) => void) {
+      const result = scopes.get(scope)
+      if (result) {
+        return result.eachStore(callback)
+      }
+    },
     disposeAndClearState,
     makeScopedId(scope: string, id: string): string {
       if (scope === '') {
@@ -165,6 +171,9 @@ function createScope(pinia: Pinia, scope: string, options: ScopeOptions) {
     },
     isUsed(): boolean {
       return useCount > 0
+    },
+    eachStore(cb: (store: Store) => void): void {
+      stores.forEach(cb)
     },
     dispose(): void {
       stores.forEach((store) => {

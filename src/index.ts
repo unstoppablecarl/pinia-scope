@@ -12,6 +12,7 @@ export {
 
   disposeOfPiniaScope,
   disposeAndClearStateOfPiniaScope,
+  eachStoreOfPiniaScope,
 } from './pinia-scope'
 
 export { type ScopeOptions } from './scope-options'
